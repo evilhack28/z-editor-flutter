@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:z_editor/data/asset_loader.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 
 enum PlantCategory { quality, role, attribute, other, collection }
@@ -137,13 +138,9 @@ class PlantInfo {
     this.icon,
   });
 
-  /// Asset path for plant icon. Uses .jpg fallback when .webp is specified.
   String? get iconAssetPath {
     if (icon == null) return null;
-    var path = icon!;
-    if (path.endsWith('.webp')) {
-      path = path.replaceAll('.webp', '.jpg');
-    }
+    final path = icon!;
     return 'assets/images/plants/$path';
   }
 }
@@ -166,9 +163,7 @@ class PlantRepository {
     if (_isLoaded) return;
     await _loadFavorites();
     try {
-      final jsonString = await rootBundle.loadString(
-        'assets/resources/Plants.json',
-      );
+      final jsonString = await loadJsonString('assets/resources/Plants.json');
       final List<dynamic> jsonList = json.decode(jsonString);
 
       _allPlants =
@@ -217,6 +212,23 @@ class PlantRepository {
     if (favorites != null) {
       _favoriteIds.clear();
       _favoriteIds.addAll(favorites);
+    }
+  }
+
+  /// Returns the name key for localization (e.g. "plant_sunflower").
+  /// Use ResourceNames.lookup(context, getName(id)) for display.
+  String getName(String id) {
+    for (final p in _allPlants) {
+      if (p.id == id) return p.name;
+    }
+    return 'plant_$id';
+  }
+
+  PlantInfo? getPlantInfoById(String id) {
+    try {
+      return _allPlants.firstWhere((p) => p.id == id);
+    } catch (_) {
+      return null;
     }
   }
 

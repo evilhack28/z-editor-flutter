@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 
 class SelectionDialog<T> extends StatefulWidget {
   const SelectionDialog({
@@ -40,12 +41,15 @@ class _SelectionDialogState<T> extends State<SelectionDialog<T>> {
   void _onSearchChanged() {
     final query = _searchController.text.toLowerCase();
     setState(() {
-      _filteredItems = widget.items.where((item) => widget.filter(item, query)).toList();
+      _filteredItems = widget.items
+          .where((item) => widget.filter(item, query))
+          .toList();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(widget.title),
       content: SizedBox(
@@ -55,10 +59,10 @@ class _SelectionDialogState<T> extends State<SelectionDialog<T>> {
           children: [
             TextField(
               controller: _searchController,
-              decoration: const InputDecoration(
-                labelText: 'Search',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n?.search ?? 'Search',
+                prefixIcon: const Icon(Icons.search),
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
@@ -83,7 +87,7 @@ class _SelectionDialogState<T> extends State<SelectionDialog<T>> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n?.cancel ?? 'Cancel'),
         ),
       ],
     );

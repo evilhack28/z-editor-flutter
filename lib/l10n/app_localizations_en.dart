@@ -520,6 +520,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createEmptyWave => 'Create empty wave';
 
   @override
+  String get noWaveManager => 'No wave manager found';
+
+  @override
+  String get noWaveManagerHint => 'This level has wave management but no WaveManagerProperties object.';
+
+  @override
+  String get waveTimelineHint => 'Tap event to edit. Tap + to add event.';
+
+  @override
+  String get waveTimelineHintDetail => 'Swipe wave left to delete.';
+
+  @override
+  String get waveManagerSettings => 'Wave manager settings';
+
+  @override
+  String get flagInterval => 'Flag interval';
+
+  @override
+  String get noWaves => 'No waves';
+
+  @override
+  String get addFirstWave => 'Add the first wave.';
+
+  @override
+  String get deleteWave => 'Delete';
+
+  @override
+  String deleteWaveConfirm(int count) {
+    return 'This will remove this wave and its $count events.';
+  }
+
+  @override
+  String get addEvent => 'Add event';
+
+  @override
+  String get emptyWave => 'Empty wave';
+
+  @override
+  String get addWave => 'Add wave';
+
+  @override
+  String get expectation => 'Expectation';
+
+  @override
   String get close => 'Close';
 
   @override
@@ -629,6 +673,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noPlantFound => 'No plant found';
+
+  @override
+  String noResultsFor(Object query) {
+    return 'No results for \"$query\"';
+  }
+
+  @override
+  String get noModulesInCategory => 'No modules in this category';
+
+  @override
+  String addEventForWave(int wave) {
+    return 'Add event for wave $wave';
+  }
+
+  @override
+  String get waveLabel => 'Wave';
+
+  @override
+  String get pointsLabel => 'Points';
+
+  @override
+  String get noDynamicZombies => 'No dynamic zombies';
 
   @override
   String get moduleTitle_WaveManagerModuleProperties => 'Wave Manager';
@@ -1019,4 +1085,87 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weatherOption_DefaultRainDark_desc => 'Rain effect from Dark Ages';
+
+  @override
+  String get iZombiePlantReserveLabel => 'Plant Reserve Column (PlantDistance)';
+
+  @override
+  String get column => 'Column';
+
+  @override
+  String get iZombieInfoText => 'In I, Zombie mode, preset plants and zombies must be configured in the Level Module (Preset Plants) and Seed Bank respectively.';
+
+  @override
+  String get vaseRangeTitle => 'Vase Generation Range & Blacklist';
+
+  @override
+  String get startColumnLabel => 'Start Col (Min)';
+
+  @override
+  String get endColumnLabel => 'End Col (Max)';
+
+  @override
+  String get toggleBlacklistHint => 'Click to toggle blacklist';
+
+  @override
+  String get vaseCapacityTitle => 'Vase Capacity';
+
+  @override
+  String vaseCapacitySummary(Object current, Object total) {
+    return 'Assigned: $current / Total Slots: $total';
+  }
+
+  @override
+  String get vaseListTitle => 'Vase List';
+
+  @override
+  String get addVaseTitle => 'Add Vase';
+
+  @override
+  String get plantVaseOption => 'Plant Vase';
+
+  @override
+  String get zombieVaseOption => 'Zombie Vase';
+
+  @override
+  String get selectZombie => 'Select zombie';
+
+  @override
+  String get searchZombie => 'Search zombie';
+
+  @override
+  String get noZombieFound => 'No zombie found';
+
+  @override
+  String get unknownVaseLabel => 'Unknown Vase';
+
+  @override
+  String get plantLabel => 'Plant';
+
+  @override
+  String get zombieLabel => 'Zombie';
+
+  @override
+  String get itemLabel => 'Item';
+
+  @override
+  String get railcartSettings => 'Railcart settings';
+
+  @override
+  String get railcartType => 'Railcart type';
+
+  @override
+  String get layRails => 'Lay rails';
+
+  @override
+  String get placeCarts => 'Place carts';
+
+  @override
+  String get railSegments => 'Rail segments';
+
+  @override
+  String get railcartCount => 'Railcart count';
+
+  @override
+  String get clearAll => 'Clear all';
 }

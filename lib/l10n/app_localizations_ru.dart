@@ -520,6 +520,50 @@ class AppLocalizationsRu extends AppLocalizations {
   String get createEmptyWave => 'Создать пустую волну';
 
   @override
+  String get noWaveManager => 'Менеджер волн не найден';
+
+  @override
+  String get noWaveManagerHint => 'У уровня есть модуль волн, но отсутствует объект WaveManagerProperties.';
+
+  @override
+  String get waveTimelineHint => 'Нажмите на событие для редактирования. Нажмите + для добавления.';
+
+  @override
+  String get waveTimelineHintDetail => 'Смахните влево для удаления волны.';
+
+  @override
+  String get waveManagerSettings => 'Настройки менеджера волн';
+
+  @override
+  String get flagInterval => 'Интервал флага';
+
+  @override
+  String get noWaves => 'Нет волн';
+
+  @override
+  String get addFirstWave => 'Добавьте первую волну.';
+
+  @override
+  String get deleteWave => 'Удалить';
+
+  @override
+  String deleteWaveConfirm(int count) {
+    return 'Будет удалена эта волна и её $count событий.';
+  }
+
+  @override
+  String get addEvent => 'Добавить событие';
+
+  @override
+  String get emptyWave => 'Пустая волна';
+
+  @override
+  String get addWave => 'Добавить волну';
+
+  @override
+  String get expectation => 'Ожидание';
+
+  @override
   String get close => 'Закрыть';
 
   @override
@@ -629,6 +673,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noPlantFound => 'Растение не найдено';
+
+  @override
+  String noResultsFor(Object query) {
+    return 'Нет результатов для «$query»';
+  }
+
+  @override
+  String get noModulesInCategory => 'Нет модулей в этой категории';
+
+  @override
+  String addEventForWave(int wave) {
+    return 'Добавить событие для волны $wave';
+  }
+
+  @override
+  String get waveLabel => 'Волна';
+
+  @override
+  String get pointsLabel => 'Очки';
+
+  @override
+  String get noDynamicZombies => 'Нет динамических зомби';
 
   @override
   String get moduleTitle_WaveManagerModuleProperties => 'Wave Manager';
@@ -883,124 +949,124 @@ class AppLocalizationsRu extends AppLocalizations {
   String get moduleDesc_RainDarkProperties => 'Rain, snow, storm effects';
 
   @override
-  String get eventTitle_SpawnZombiesFromGroundSpawnerProps => 'Ground Spawn';
+  String get eventTitle_SpawnZombiesFromGroundSpawnerProps => 'Земляной спавн';
 
   @override
-  String get eventDesc_SpawnZombiesFromGroundSpawnerProps => 'Zombies spawn from ground';
+  String get eventDesc_SpawnZombiesFromGroundSpawnerProps => 'Зомби появляются из-под земли';
 
   @override
-  String get eventTitle_SpawnZombiesJitteredWaveActionProps => 'Standard Spawn';
+  String get eventTitle_SpawnZombiesJitteredWaveActionProps => 'Стандартный спавн';
 
   @override
-  String get eventDesc_SpawnZombiesJitteredWaveActionProps => 'Basic natural spawn';
+  String get eventDesc_SpawnZombiesJitteredWaveActionProps => 'Основной естественный спавн';
 
   @override
-  String get eventTitle_FrostWindWaveActionProps => 'Frost Wind';
+  String get eventTitle_FrostWindWaveActionProps => 'Морозный ветер';
 
   @override
-  String get eventDesc_FrostWindWaveActionProps => 'Freezing wind on rows';
+  String get eventDesc_FrostWindWaveActionProps => 'Холодный ветер по рядам';
 
   @override
-  String get eventTitle_BeachStageEventZombieSpawnerProps => 'Low Tide';
+  String get eventTitle_BeachStageEventZombieSpawnerProps => 'Низкая вода';
 
   @override
-  String get eventDesc_BeachStageEventZombieSpawnerProps => 'Zombies spawn at low tide';
+  String get eventDesc_BeachStageEventZombieSpawnerProps => 'Зомби появляются при низкой воде';
 
   @override
-  String get eventTitle_TidalChangeWaveActionProps => 'Tide Change';
+  String get eventTitle_TidalChangeWaveActionProps => 'Смена прилива';
 
   @override
-  String get eventDesc_TidalChangeWaveActionProps => 'Change tide position';
+  String get eventDesc_TidalChangeWaveActionProps => 'Изменение уровня прилива';
 
   @override
-  String get eventTitle_ModifyConveyorWaveActionProps => 'Conveyor Modify';
+  String get eventTitle_ModifyConveyorWaveActionProps => 'Изменение конвейера';
 
   @override
-  String get eventDesc_ModifyConveyorWaveActionProps => 'Add/remove cards dynamically';
+  String get eventDesc_ModifyConveyorWaveActionProps => 'Динамическое добавление/удаление карт';
 
   @override
-  String get eventTitle_DinoWaveActionProps => 'Dino Summon';
+  String get eventTitle_DinoWaveActionProps => 'Призыв динозавра';
 
   @override
-  String get eventDesc_DinoWaveActionProps => 'Summon dinosaur on row';
+  String get eventDesc_DinoWaveActionProps => 'Призвать динозавра на ряд';
 
   @override
-  String get eventTitle_SpawnModernPortalsWaveActionProps => 'Time Rift';
+  String get eventTitle_SpawnModernPortalsWaveActionProps => 'Разлом времени';
 
   @override
-  String get eventDesc_SpawnModernPortalsWaveActionProps => 'Summon time rift';
+  String get eventDesc_SpawnModernPortalsWaveActionProps => 'Создать порталы времени';
 
   @override
-  String get eventTitle_StormZombieSpawnerProps => 'Storm Spawn';
+  String get eventTitle_StormZombieSpawnerProps => 'Штормовой спавн';
 
   @override
-  String get eventDesc_StormZombieSpawnerProps => 'Sandstorm or blizzard spawn';
+  String get eventDesc_StormZombieSpawnerProps => 'Песчаная буря или метель';
 
   @override
-  String get eventTitle_RaidingPartyZombieSpawnerProps => 'Raiding Party';
+  String get eventTitle_RaidingPartyZombieSpawnerProps => 'Налет пиратов';
 
   @override
-  String get eventDesc_RaidingPartyZombieSpawnerProps => 'Swashbuckler invasion';
+  String get eventDesc_RaidingPartyZombieSpawnerProps => 'Разбойники/пиратские зомби вторгаются';
 
   @override
-  String get eventTitle_ZombiePotionActionProps => 'Potion Drop';
+  String get eventTitle_ZombiePotionActionProps => 'Бросок зелий';
 
   @override
-  String get eventDesc_ZombiePotionActionProps => 'Spawn potions on grid';
+  String get eventDesc_ZombiePotionActionProps => 'Появление зелий на сетке';
 
   @override
-  String get eventTitle_SpawnGravestonesWaveActionProps => 'Gravestone Spawn';
+  String get eventTitle_SpawnGravestonesWaveActionProps => 'Спавн надгробий';
 
   @override
-  String get eventDesc_SpawnGravestonesWaveActionProps => 'Spawn gravestones';
+  String get eventDesc_SpawnGravestonesWaveActionProps => 'Создать надгробия';
 
   @override
-  String get eventTitle_SpawnZombiesFromGridItemSpawnerProps => 'Grave Spawn';
+  String get eventTitle_SpawnZombiesFromGridItemSpawnerProps => 'Спавн из надгробий';
 
   @override
-  String get eventDesc_SpawnZombiesFromGridItemSpawnerProps => 'Spawn zombies from graves';
+  String get eventDesc_SpawnZombiesFromGridItemSpawnerProps => 'Появление зомби из могил';
 
   @override
-  String get eventTitle_FairyTaleFogWaveActionProps => 'Fairy Fog';
+  String get eventTitle_FairyTaleFogWaveActionProps => 'Сказочный туман';
 
   @override
-  String get eventDesc_FairyTaleFogWaveActionProps => 'Spawn fog';
+  String get eventDesc_FairyTaleFogWaveActionProps => 'Породить туман';
 
   @override
-  String get eventTitle_FairyTaleWindWaveActionProps => 'Fairy Wind';
+  String get eventTitle_FairyTaleWindWaveActionProps => 'Сказочный ветер';
 
   @override
-  String get eventDesc_FairyTaleWindWaveActionProps => 'Blow away fog';
+  String get eventDesc_FairyTaleWindWaveActionProps => 'Сдувать туман';
 
   @override
-  String get eventTitle_SpiderRainZombieSpawnerProps => 'Imp Rain';
+  String get eventTitle_SpiderRainZombieSpawnerProps => 'Дождь импов';
 
   @override
-  String get eventDesc_SpiderRainZombieSpawnerProps => 'Imps drop from sky';
+  String get eventDesc_SpiderRainZombieSpawnerProps => 'Импы падают с неба';
 
   @override
-  String get eventTitle_ParachuteRainZombieSpawnerProps => 'Parachute Rain';
+  String get eventTitle_ParachuteRainZombieSpawnerProps => 'Парашютный дождь';
 
   @override
-  String get eventDesc_ParachuteRainZombieSpawnerProps => 'Zombies drop with parachutes';
+  String get eventDesc_ParachuteRainZombieSpawnerProps => 'Зомби падают с парашютами';
 
   @override
-  String get eventTitle_BassRainZombieSpawnerProps => 'Bass/Jetpack Rain';
+  String get eventTitle_BassRainZombieSpawnerProps => 'Дождь басистов/джетпаков';
 
   @override
-  String get eventDesc_BassRainZombieSpawnerProps => 'Bass/Jetpack zombies drop';
+  String get eventDesc_BassRainZombieSpawnerProps => 'Падают басисты/джетпак-зомби';
 
   @override
-  String get eventTitle_BlackHoleWaveActionProps => 'Black Hole';
+  String get eventTitle_BlackHoleWaveActionProps => 'Чёрная дыра';
 
   @override
-  String get eventDesc_BlackHoleWaveActionProps => 'Black hole attracts plants';
+  String get eventDesc_BlackHoleWaveActionProps => 'Чёрная дыра притягивает растения';
 
   @override
-  String get eventTitle_WaveActionMagicMirrorTeleportationArrayProps2 => 'Magic Mirror';
+  String get eventTitle_WaveActionMagicMirrorTeleportationArrayProps2 => 'Волшебное зеркало';
 
   @override
-  String get eventDesc_WaveActionMagicMirrorTeleportationArrayProps2 => 'Mirror portals';
+  String get eventDesc_WaveActionMagicMirrorTeleportationArrayProps2 => 'Зеркальные порталы';
 
   @override
   String get weatherOption_DefaultSnow_label => 'Frostbite Caves (DefaultSnow)';
@@ -1019,4 +1085,87 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get weatherOption_DefaultRainDark_desc => 'Rain effect from Dark Ages';
+
+  @override
+  String get iZombiePlantReserveLabel => 'Колонна резерва растений (PlantDistance)';
+
+  @override
+  String get column => 'Колонна';
+
+  @override
+  String get iZombieInfoText => 'В режиме «Я, Зомби» предварительные растения и зомби необходимо настроить в модуле уровня (Preset Plants) и в банке семян.';
+
+  @override
+  String get vaseRangeTitle => 'Диапазон генерации ваз и черный список';
+
+  @override
+  String get startColumnLabel => 'Начальная колонна (мин.)';
+
+  @override
+  String get endColumnLabel => 'Конечная колонна (макс.)';
+
+  @override
+  String get toggleBlacklistHint => 'Нажмите, чтобы переключить черный список';
+
+  @override
+  String get vaseCapacityTitle => 'Вместимость ваз';
+
+  @override
+  String vaseCapacitySummary(Object current, Object total) {
+    return 'Назначено: $current / Всего ячеек: $total';
+  }
+
+  @override
+  String get vaseListTitle => 'Список ваз';
+
+  @override
+  String get addVaseTitle => 'Добавить вазу';
+
+  @override
+  String get plantVaseOption => 'Ваза с растением';
+
+  @override
+  String get zombieVaseOption => 'Ваза с зомби';
+
+  @override
+  String get selectZombie => 'Выбрать зомби';
+
+  @override
+  String get searchZombie => 'Поиск зомби';
+
+  @override
+  String get noZombieFound => 'Зомби не найден';
+
+  @override
+  String get unknownVaseLabel => 'Неизвестная ваза';
+
+  @override
+  String get plantLabel => 'Растение';
+
+  @override
+  String get zombieLabel => 'Зомби';
+
+  @override
+  String get itemLabel => 'Предмет';
+
+  @override
+  String get railcartSettings => 'Настройки рельсов';
+
+  @override
+  String get railcartType => 'Тип вагонетки';
+
+  @override
+  String get layRails => 'Уложить рельсы';
+
+  @override
+  String get placeCarts => 'Разместить вагонетки';
+
+  @override
+  String get railSegments => 'Сегменты рельсов';
+
+  @override
+  String get railcartCount => 'Количество вагонеток';
+
+  @override
+  String get clearAll => 'Очистить всё';
 }

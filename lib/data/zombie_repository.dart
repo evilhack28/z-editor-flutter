@@ -2,23 +2,23 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:z_editor/data/asset_loader.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 
-enum ZombieCategory {
-  main,
-  size,
-  other,
-  collection,
-}
+enum ZombieCategory { main, size, other, collection }
 
 extension ZombieCategoryExtension on ZombieCategory {
   String getLabel(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     switch (this) {
-      case ZombieCategory.main: return s.zombieCategoryMain;
-      case ZombieCategory.size: return s.zombieCategorySize;
-      case ZombieCategory.other: return s.zombieCategoryOther;
-      case ZombieCategory.collection: return s.zombieCategoryCollection;
+      case ZombieCategory.main:
+        return s.zombieCategoryMain;
+      case ZombieCategory.size:
+        return s.zombieCategorySize;
+      case ZombieCategory.other:
+        return s.zombieCategoryOther;
+      case ZombieCategory.collection:
+        return s.zombieCategoryCollection;
     }
   }
 }
@@ -56,32 +56,58 @@ extension ZombieTagExtension on ZombieTag {
   String getLabel(BuildContext context) {
     final s = AppLocalizations.of(context)!;
     switch (this) {
-      case ZombieTag.all: return s.zombieTagAll;
-      case ZombieTag.egyptPirate: return s.zombieTagEgyptPirate;
-      case ZombieTag.westFuture: return s.zombieTagWestFuture;
-      case ZombieTag.darkBeach: return s.zombieTagDarkBeach;
-      case ZombieTag.iceageLostcity: return s.zombieTagIceageLostcity;
-      case ZombieTag.kongfuSkycity: return s.zombieTagKongfuSkycity;
-      case ZombieTag.eightiesDino: return s.zombieTagEightiesDino;
-      case ZombieTag.modernPvz1: return s.zombieTagModernPvz1;
-      case ZombieTag.steamRenai: return s.zombieTagSteamRenai;
-      case ZombieTag.henaiAtlantis: return s.zombieTagHenaiAtlantis;
-      case ZombieTag.taleZCorp: return s.zombieTagTaleZCorp;
-      case ZombieTag.parkourSpeed: return s.zombieTagParkourSpeed;
-      case ZombieTag.tothewest: return s.zombieTagTothewest;
-      case ZombieTag.memory: return s.zombieTagMemory;
-      case ZombieTag.universe: return s.zombieTagUniverse;
-      case ZombieTag.festival1: return s.zombieTagFestival1;
-      case ZombieTag.festival2: return s.zombieTagFestival2;
-      case ZombieTag.roman: return s.zombieTagRoman;
-      case ZombieTag.pet: return s.zombieTagPet;
-      case ZombieTag.imp: return s.zombieTagImp;
-      case ZombieTag.basic: return s.zombieTagBasic;
-      case ZombieTag.fat: return s.zombieTagFat;
-      case ZombieTag.strong: return s.zombieTagStrong;
-      case ZombieTag.gargantuar: return s.zombieTagGargantuar;
-      case ZombieTag.elite: return s.zombieTagElite;
-      case ZombieTag.evildave: return s.zombieTagEvildave;
+      case ZombieTag.all:
+        return s.zombieTagAll;
+      case ZombieTag.egyptPirate:
+        return s.zombieTagEgyptPirate;
+      case ZombieTag.westFuture:
+        return s.zombieTagWestFuture;
+      case ZombieTag.darkBeach:
+        return s.zombieTagDarkBeach;
+      case ZombieTag.iceageLostcity:
+        return s.zombieTagIceageLostcity;
+      case ZombieTag.kongfuSkycity:
+        return s.zombieTagKongfuSkycity;
+      case ZombieTag.eightiesDino:
+        return s.zombieTagEightiesDino;
+      case ZombieTag.modernPvz1:
+        return s.zombieTagModernPvz1;
+      case ZombieTag.steamRenai:
+        return s.zombieTagSteamRenai;
+      case ZombieTag.henaiAtlantis:
+        return s.zombieTagHenaiAtlantis;
+      case ZombieTag.taleZCorp:
+        return s.zombieTagTaleZCorp;
+      case ZombieTag.parkourSpeed:
+        return s.zombieTagParkourSpeed;
+      case ZombieTag.tothewest:
+        return s.zombieTagTothewest;
+      case ZombieTag.memory:
+        return s.zombieTagMemory;
+      case ZombieTag.universe:
+        return s.zombieTagUniverse;
+      case ZombieTag.festival1:
+        return s.zombieTagFestival1;
+      case ZombieTag.festival2:
+        return s.zombieTagFestival2;
+      case ZombieTag.roman:
+        return s.zombieTagRoman;
+      case ZombieTag.pet:
+        return s.zombieTagPet;
+      case ZombieTag.imp:
+        return s.zombieTagImp;
+      case ZombieTag.basic:
+        return s.zombieTagBasic;
+      case ZombieTag.fat:
+        return s.zombieTagFat;
+      case ZombieTag.strong:
+        return s.zombieTagStrong;
+      case ZombieTag.gargantuar:
+        return s.zombieTagGargantuar;
+      case ZombieTag.elite:
+        return s.zombieTagElite;
+      case ZombieTag.evildave:
+        return s.zombieTagEvildave;
     }
   }
 
@@ -120,15 +146,23 @@ extension ZombieTagExtension on ZombieTag {
   }
 
   String? get iconName {
-     switch (this) {
-      case ZombieTag.pet: return "Zombie_Pet.webp";
-      case ZombieTag.imp: return "Zombie_Imp.webp";
-      case ZombieTag.basic: return "Zombie_Basic.webp";
-      case ZombieTag.fat: return "Zombie_Fat.webp";
-      case ZombieTag.strong: return "Zombie_Strong.webp";
-      case ZombieTag.gargantuar: return "Zombie_Gargantuar.webp";
-      case ZombieTag.elite: return "Zombie_Elite.webp";
-      default: return null;
+    switch (this) {
+      case ZombieTag.pet:
+        return "Zombie_Pet.webp";
+      case ZombieTag.imp:
+        return "Zombie_Imp.webp";
+      case ZombieTag.basic:
+        return "Zombie_Basic.webp";
+      case ZombieTag.fat:
+        return "Zombie_Fat.webp";
+      case ZombieTag.strong:
+        return "Zombie_Strong.webp";
+      case ZombieTag.gargantuar:
+        return "Zombie_Gargantuar.webp";
+      case ZombieTag.elite:
+        return "Zombie_Elite.webp";
+      default:
+        return null;
     }
   }
 }
@@ -145,6 +179,12 @@ class ZombieInfo {
     required this.tags,
     this.icon,
   });
+
+  String? get iconAssetPath {
+    if (icon == null) return null;
+    final path = icon!;
+    return 'assets/images/zombies/$path';
+  }
 }
 
 class ZombieRepository {
@@ -165,7 +205,7 @@ class ZombieRepository {
     if (_isLoaded) return;
     await _loadFavorites();
     try {
-      final jsonString = await rootBundle.loadString('assets/resources/Zombies.json');
+      final jsonString = await loadJsonString('assets/resources/Zombies.json');
       final List<dynamic> jsonList = json.decode(jsonString);
 
       _allZombies = jsonList.map((jsonItem) {
@@ -176,14 +216,21 @@ class ZombieRepository {
 
         _uiConfiguredAliases.add(id);
 
-        final tags = tagsList?.map((tagStr) {
-           final normalizedTag = tagStr.replaceAll('_', '').toLowerCase();
-           return ZombieTag.values.firstWhere(
-            (e) => e.name.toLowerCase() == normalizedTag,
-            orElse: () => ZombieTag.all,
-          );
-        }).where((element) => element != ZombieTag.all).toList() ?? [];
-        
+        final tags =
+            tagsList
+                ?.map((tagStr) {
+                  final normalizedTag = tagStr
+                      .replaceAll('_', '')
+                      .toLowerCase();
+                  return ZombieTag.values.firstWhere(
+                    (e) => e.name.toLowerCase() == normalizedTag,
+                    orElse: () => ZombieTag.all,
+                  );
+                })
+                .where((element) => element != ZombieTag.all)
+                .toList() ??
+            [];
+
         return ZombieInfo(
           id: id,
           name: name,
@@ -204,6 +251,29 @@ class ZombieRepository {
     if (favorites != null) {
       _favoriteIds.clear();
       _favoriteIds.addAll(favorites);
+    }
+  }
+
+  /// Returns the name key for localization (e.g. "zombie_mummy").
+  /// Use ResourceNames.lookup(context, getName(id)) for display.
+  String getName(String id) {
+    for (final z in _allZombies) {
+      if (z.id == id) return z.name;
+    }
+    return 'zombie_$id';
+  }
+
+  /// Builds zombie alias string (for SeedRain, SeedBank, etc.).
+  String buildZombieAliases(String id) {
+    if (id == 'iceage_fat_weasel') return 'iceage_fat_weasel_elite';
+    return id;
+  }
+
+  ZombieInfo? getZombieById(String id) {
+    try {
+      return _allZombies.firstWhere((z) => z.id == id);
+    } catch (_) {
+      return null;
     }
   }
 

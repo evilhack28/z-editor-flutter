@@ -159,20 +159,25 @@ class _StageGridItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (stage.iconName != null)
-                ClipOval(
-                  child: SizedBox(
-                    width: 64,
-                    height: 64,
-                    child: AssetImageWidget(
-                      assetPath: 'assets/images/stages/${stage.iconName!}',
-                      width: 64,
-                      height: 64,
-                      fit: BoxFit.cover,
+              stage.iconName != null
+                  ? ClipOval(
+                      child: SizedBox(
+                        width: 64,
+                        height: 64,
+                        child: AssetImageWidget(
+                          assetPath: 'assets/images/stages/${stage.iconName!}',
+                          width: 64,
+                          height: 64,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  : Icon(
+                      Icons.image,
+                      size: 64,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
-                  ),
-                ),
-              if (stage.iconName != null) const SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 stage.name,
                 style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),

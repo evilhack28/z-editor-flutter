@@ -201,19 +201,14 @@ class WaveManagerData {
   int? zombieCountDownHugeWaveDelay;
   double maxNextWaveHealthPercentage;
   double minNextWaveHealthPercentage;
-  List<List<ZombieSpawnData>> waves;
+  List<List<String>> waves;
 
   factory WaveManagerData.fromJson(Map<String, dynamic> json) {
-    var wavesList = <List<ZombieSpawnData>>[];
+    var wavesList = <List<String>>[];
     if (json['Waves'] != null) {
       wavesList = (json['Waves'] as List<dynamic>)
           .map(
-            (wave) => (wave as List<dynamic>)
-                .map(
-                  (zombie) =>
-                      ZombieSpawnData.fromJson(zombie as Map<String, dynamic>),
-                )
-                .toList(),
+            (wave) => (wave as List<dynamic>).map((e) => e as String).toList(),
           )
           .toList();
     }
@@ -251,9 +246,7 @@ class WaveManagerData {
       'ZombieCountDownHugeWaveDelay': zombieCountDownHugeWaveDelay,
     'MaxNextWaveHealthPercentage': maxNextWaveHealthPercentage,
     'MinNextWaveHealthPercentage': minNextWaveHealthPercentage,
-    'Waves': waves
-        .map((wave) => wave.map((zombie) => zombie.toJson()).toList())
-        .toList(),
+    'Waves': waves,
   };
 }
 
@@ -1964,9 +1957,15 @@ class WaveActionData {
       spawnPlantName: (json['SpawnPlantName'] as List<dynamic>?)
           ?.cast<String>(),
       zombies:
-          (json['Zombies'] as List<dynamic>?)
-              ?.map((e) => ZombieSpawnData.fromJson(e as Map<String, dynamic>))
-              .toList() ??
+          (json['Zombies'] as List<dynamic>?)?.map((e) {
+            if (e is Map<String, dynamic>) {
+              return ZombieSpawnData.fromJson(e);
+            }
+            if (e is String) {
+              return ZombieSpawnData(type: e);
+            }
+            return ZombieSpawnData();
+          }).toList() ??
           [],
     );
   }
@@ -2011,9 +2010,15 @@ class SpawnZombiesFromGroundData {
       spawnPlantName: (json['SpawnPlantName'] as List<dynamic>?)
           ?.cast<String>(),
       zombies:
-          (json['Zombies'] as List<dynamic>?)
-              ?.map((e) => ZombieSpawnData.fromJson(e as Map<String, dynamic>))
-              .toList() ??
+          (json['Zombies'] as List<dynamic>?)?.map((e) {
+            if (e is Map<String, dynamic>) {
+              return ZombieSpawnData.fromJson(e);
+            }
+            if (e is String) {
+              return ZombieSpawnData(type: e);
+            }
+            return ZombieSpawnData();
+          }).toList() ??
           [],
     );
   }
@@ -2097,9 +2102,15 @@ class StormZombieSpawnerPropsData {
       timeBetweenGroups: json['TimeBetweenGroups'] as int? ?? 1,
       type: json['Type'] as String? ?? 'sandstorm',
       zombies:
-          (json['Zombies'] as List<dynamic>?)
-              ?.map((e) => StormZombieData.fromJson(e as Map<String, dynamic>))
-              .toList() ??
+          (json['Zombies'] as List<dynamic>?)?.map((e) {
+            if (e is Map<String, dynamic>) {
+              return StormZombieData.fromJson(e);
+            }
+            if (e is String) {
+              return StormZombieData(type: e);
+            }
+            return StormZombieData();
+          }).toList() ??
           [],
     );
   }
@@ -2528,9 +2539,15 @@ class SpawnZombiesFromGridItemData {
       zombieSpawnWaitTime: json['ZombieSpawnWaitTime'] as int? ?? 0,
       gridTypes: (json['GridTypes'] as List<dynamic>?)?.cast<String>() ?? [],
       zombies:
-          (json['Zombies'] as List<dynamic>?)
-              ?.map((e) => ZombieSpawnData.fromJson(e as Map<String, dynamic>))
-              .toList() ??
+          (json['Zombies'] as List<dynamic>?)?.map((e) {
+            if (e is Map<String, dynamic>) {
+              return ZombieSpawnData.fromJson(e);
+            }
+            if (e is String) {
+              return ZombieSpawnData(type: e);
+            }
+            return ZombieSpawnData();
+          }).toList() ??
           [],
     );
   }
@@ -2719,8 +2736,6 @@ class FairyTaleWindWaveActionData {
     'VelocityScale': velocityScale,
   };
 }
-
-
 
 // === Parsed Data Container ===
 

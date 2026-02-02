@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/level_repository.dart';
@@ -6,15 +7,56 @@ import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/reference_repository.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/data/plant_repository.dart';
 import 'package:z_editor/data/zombie_properties_repository.dart';
+import 'package:z_editor/data/zombie_repository.dart';
 import 'package:z_editor/screens/editor/basic_info_screen.dart';
 import 'package:z_editor/screens/editor/json_viewer_screen.dart';
+import 'package:z_editor/screens/editor/others/unknown_module_screen.dart';
 import 'package:z_editor/screens/editor/modules/star_challenge_screen.dart';
+import 'package:z_editor/screens/editor/modules/max_sun_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/bowling_minigame_screen.dart';
+import 'package:z_editor/screens/editor/modules/death_hole_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/increased_cost_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/pirate_plank_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/railcart_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/seed_rain_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/conveyor_seedbank_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/seed_bank_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/sun_dropper_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/starting_plantfood_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/tide_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/zombie_move_fast_module_screen.dart';
 import 'package:z_editor/screens/editor/tabs/izombie_tab.dart';
+import 'package:z_editor/screens/editor/tabs/level_settings_tab.dart';
 import 'package:z_editor/screens/editor/tabs/vase_breaker_tab.dart';
 import 'package:z_editor/screens/editor/tabs/zomboss_battle_tab.dart';
 import 'package:z_editor/screens/editor/tabs/wave_timeline_tab.dart';
+import 'package:z_editor/data/event_registry.dart';
+import 'package:z_editor/screens/editor/events/invalid_event_screen.dart';
+import 'package:z_editor/screens/editor/events/beach_stage_event_screen.dart';
+import 'package:z_editor/screens/editor/events/black_hole_event_screen.dart';
+import 'package:z_editor/screens/editor/events/dino_event_screen.dart';
+import 'package:z_editor/screens/editor/events/fairy_tale_fog_event_screen.dart';
+import 'package:z_editor/screens/editor/events/fairy_tale_wind_event_screen.dart';
+import 'package:z_editor/screens/editor/events/frost_wind_event_screen.dart';
+import 'package:z_editor/screens/editor/events/grid_item_spawn_event_screen.dart';
+import 'package:z_editor/screens/editor/events/magic_mirror_event_screen.dart';
+import 'package:z_editor/screens/editor/events/modify_conveyor_event_screen.dart';
+import 'package:z_editor/screens/editor/events/modern_portals_event_screen.dart';
+import 'package:z_editor/screens/editor/events/parachute_rain_event_screen.dart';
+import 'package:z_editor/screens/editor/events/raiding_party_event_screen.dart';
+import 'package:z_editor/screens/editor/events/spawn_grave_stones_event_screen.dart';
+import 'package:z_editor/screens/editor/events/storm_event_screen.dart';
+import 'package:z_editor/screens/editor/events/tidal_change_event_screen.dart';
+import 'package:z_editor/screens/editor/events/zombie_potion_event_screen.dart';
+import 'package:z_editor/screens/editor/events/zombie_spawn_event_screen.dart';
+import 'package:z_editor/screens/select/event_selection_screen.dart';
+import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
 import 'package:z_editor/screens/select/module_selection_screen.dart';
+import 'package:z_editor/screens/select/plant_selection_screen.dart';
+import 'package:z_editor/screens/select/zombie_selection_screen.dart';
+import 'package:z_editor/screens/select/tool_selection_screen.dart';
 import 'package:z_editor/screens/select/stage_selection_screen.dart';
 
 enum EditorTabType { settings, timeline, iZombie, vaseBreaker, zomboss }
@@ -56,6 +98,8 @@ class _EditorScreenState extends State<EditorScreen> {
     setState(() => _isLoading = true);
     await ReferenceRepository.init();
     await ZombiePropertiesRepository.init();
+    await PlantRepository().init();
+    await ZombieRepository().init();
     final level = await LevelRepository.loadLevel(widget.fileName);
     if (mounted && level != null) {
       final parsed = LevelParser.parseLevel(level);
@@ -95,6 +139,89 @@ class _EditorScreenState extends State<EditorScreen> {
     _availableTabs = tabs;
   }
 
+  List<ModuleMetadata> _calculateMissingModules() {
+    if (_levelFile == null || _parsedData == null) return const [];
+    final existingClasses = <String>{
+      ..._levelFile!.objects.map((o) => o.objClass),
+      ...?_parsedData!.levelDef?.modules.map((rtid) {
+        final info = RtidParser.parse(rtid);
+        if (info == null) return '';
+        if (info.source == 'CurrentLevel') {
+          return _parsedData!.objectMap[info.alias]?.objClass ?? '';
+        }
+        return ReferenceRepository.instance.getObjClass(info.alias) ?? '';
+      }),
+    }.where((e) => e.isNotEmpty).toSet();
+
+    final isVaseBreaker =
+        existingClasses.contains('VaseBreakerPresetProperties') ||
+        existingClasses.contains('VaseBreakerArcadeModuleProperties') ||
+        existingClasses.contains('VaseBreakerFlowModuleProperties');
+    final isZombossBattle =
+        existingClasses.contains('ZombossBattleModuleProperties') ||
+        existingClasses.contains('ZombossBattleIntroProperties');
+    final isLastStand = existingClasses.contains('LastStandMinigameProperties');
+    final isEvilDave = existingClasses.contains('EvilDaveProperties');
+
+    final missingList = <String>[];
+    if (!existingClasses.contains('CustomLevelModuleProperties')) {
+      missingList.add('CustomLevelModuleProperties');
+    }
+    if (!existingClasses.contains('ZombiesAteYourBrainsProperties')) {
+      if (!isEvilDave) missingList.add('ZombiesAteYourBrainsProperties');
+    }
+    if (!existingClasses.contains('ZombiesDeadWinConProperties')) {
+      if (!isEvilDave && !isZombossBattle) {
+        missingList.add('ZombiesDeadWinConProperties');
+      }
+    }
+    if (!existingClasses.contains('StandardLevelIntroProperties')) {
+      if (!isVaseBreaker && !isLastStand && !isZombossBattle) {
+        missingList.add('StandardLevelIntroProperties');
+      }
+    }
+    if (isVaseBreaker) {
+      if (!existingClasses.contains('VaseBreakerPresetProperties')) {
+        missingList.add('VaseBreakerPresetProperties');
+      }
+      if (!existingClasses.contains('VaseBreakerArcadeModuleProperties')) {
+        missingList.add('VaseBreakerArcadeModuleProperties');
+      }
+      if (!existingClasses.contains('VaseBreakerFlowModuleProperties')) {
+        missingList.add('VaseBreakerFlowModuleProperties');
+      }
+    }
+    if (isEvilDave) {
+      if (!existingClasses.contains('InitialPlantEntryProperties')) {
+        missingList.add('InitialPlantEntryProperties');
+      }
+      if (!existingClasses.contains('SeedBankProperties')) {
+        missingList.add('SeedBankProperties');
+      }
+    }
+    if (isZombossBattle) {
+      if (!existingClasses.contains('ZombossBattleModuleProperties')) {
+        missingList.add('ZombossBattleModuleProperties');
+      }
+      if (!existingClasses.contains('ZombossBattleIntroProperties')) {
+        missingList.add('ZombossBattleIntroProperties');
+      }
+    }
+    if (isLastStand) {
+      if (!existingClasses.contains('SeedBankProperties')) {
+        missingList.add('SeedBankProperties');
+      }
+    }
+
+    final metas = missingList
+        .map((cls) => ModuleRegistry.getMetadata(cls))
+        .where((m) {
+          return m.titleKey != ModuleRegistry.defaultMetadataKey;
+        })
+        .toList();
+    return metas;
+  }
+
   Future<void> _save() async {
     if (_levelFile == null) return;
     await LevelRepository.saveAndExport(widget.filePath, _levelFile!);
@@ -107,7 +234,15 @@ class _EditorScreenState extends State<EditorScreen> {
     }
   }
 
-  void _markDirty() => setState(() => _hasChanges = true);
+  void _markDirty() {
+    setState(() {
+      _hasChanges = true;
+      // Re-parse to refresh derived state and force UI to recognize updates
+      if (_levelFile != null) {
+        _parsedData = LevelParser.parseLevel(_levelFile!);
+      }
+    });
+  }
 
   Future<bool> _confirmLeave() async {
     final l10n = AppLocalizations.of(context);
@@ -138,12 +273,995 @@ class _EditorScreenState extends State<EditorScreen> {
     return leave == true;
   }
 
+  // --- Actions ---
+
+  void _handleEditBasicInfo() {
+    if (_levelFile == null || _parsedData == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BasicInfoScreen(
+          levelFile: _levelFile!,
+          levelDef: _parsedData!.levelDef!,
+          onBack: () => Navigator.pop(context),
+          onStageTap: () {
+            _openStageSelection();
+          },
+          onChanged: _markDirty,
+        ),
+      ),
+    );
+  }
+
+  void _openStageSelection() {
+    if (_levelFile == null ||
+        _parsedData == null ||
+        _parsedData!.levelDef == null)
+      return;
+    final current = _parsedData!.levelDef!.stageModule;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => StageSelectionScreen(
+          currentStageRtid: current,
+          onStageSelected: (newRtid) {
+            final def = _parsedData!.levelDef!;
+            def.stageModule = newRtid;
+            for (final o in _levelFile!.objects) {
+              if (o.objClass == 'LevelDefinition') {
+                o.objData = def.toJson();
+                break;
+              }
+            }
+            _markDirty();
+            setState(() {});
+          },
+          onBack: () => Navigator.pop(context),
+        ),
+      ),
+    );
+  }
+
+  void _handleNavigateToAddModule() async {
+    if (_levelFile == null || _parsedData == null) return;
+
+    final existingObjClasses = <String>{};
+    for (var rtid in _parsedData!.levelDef!.modules) {
+      final info = RtidParser.parse(rtid);
+      if (info != null) {
+        if (info.source == 'CurrentLevel') {
+          final obj = _parsedData!.objectMap[info.alias];
+          if (obj != null) existingObjClasses.add(obj.objClass);
+        } else {
+          final cls = ReferenceRepository.instance.getObjClass(info.alias);
+          if (cls != null) existingObjClasses.add(cls);
+        }
+      }
+    }
+
+    final meta = await Navigator.push<ModuleMetadata>(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ModuleSelectionScreen(existingObjClasses: existingObjClasses),
+      ),
+    );
+
+    if (meta != null) {
+      _addModule(meta);
+    }
+  }
+
+  void _addModule(ModuleMetadata meta) {
+    final def = _parsedData!.levelDef;
+    if (def == null) return;
+
+    var alias = meta.effectiveAlias;
+    final source = meta.defaultSource;
+
+    if (source == 'CurrentLevel') {
+      var count = 0;
+      while (_levelFile!.objects.any(
+        (o) => o.aliases?.contains(alias) == true,
+      )) {
+        count++;
+        alias = '${meta.effectiveAlias}_$count';
+      }
+
+      final rtid = RtidParser.build(alias, source);
+      def.modules.add(rtid);
+
+      final objData = Map<String, dynamic>.from(meta.initialData ?? {});
+      _levelFile!.objects.add(
+        PvzObject(aliases: [alias], objClass: meta.objClass, objData: objData),
+      );
+    } else {
+      final rtid = RtidParser.build(alias, source);
+      def.modules.add(rtid);
+    }
+
+    _parsedData = LevelParser.parseLevel(_levelFile!); // Re-parse to update map
+    _markDirty();
+    _recalculateTabs();
+  }
+
+  void _handleRemoveModule(String rtid) {
+    final def = _parsedData?.levelDef;
+    if (def == null) return;
+
+    def.modules.remove(rtid);
+    final info = RtidParser.parse(rtid);
+    if (info != null && info.source == 'CurrentLevel') {
+      _levelFile!.objects.removeWhere(
+        (o) => o.aliases?.contains(info.alias) == true,
+      );
+    }
+
+    _parsedData = LevelParser.parseLevel(_levelFile!);
+    _markDirty();
+    _recalculateTabs();
+  }
+
+  void _handleEditEvent(String rtid, int waveIndex) {
+    if (_levelFile == null || _parsedData == null) return;
+    final alias = LevelParser.extractAlias(rtid);
+    final obj = _parsedData!.objectMap[alias];
+
+    if (obj == null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => InvalidEventScreen(
+            rtid: rtid,
+            waveIndex: waveIndex,
+            onDeleteReference: _handleDeleteEventReference,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    final objClass = obj.objClass;
+    if (objClass == 'SpawnGravestonesWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SpawnGraveStonesEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            onRequestGridItemSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GridItemSelectionScreen(
+                    onGridItemSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'ParachuteRainZombieSpawnerProps' ||
+        objClass == 'BassRainZombieSpawnerProps' ||
+        objClass == 'SpiderRainZombieSpawnerProps') {
+      final subtitle = objClass == 'BassRainZombieSpawnerProps'
+          ? 'Event: Bass/Jetpack rain'
+          : objClass == 'SpiderRainZombieSpawnerProps'
+              ? 'Event: Spider rain'
+              : 'Event: Parachute rain';
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ParachuteRainEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            eventSubtitle: subtitle,
+            onRequestZombieSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZombieSelectionScreen(
+                    multiSelect: false,
+                    onZombieSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiZombieSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'TidalChangeWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TidalChangeEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'SpawnZombiesJitteredWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ZombieSpawnEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            eventSubtitle: 'Event: Standard spawn',
+            isGroundSpawner: false,
+            onRequestZombieSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZombieSelectionScreen(
+                    multiSelect: false,
+                    onZombieSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiZombieSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'SpawnZombiesFromGroundSpawnerProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ZombieSpawnEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            eventSubtitle: 'Event: Ground spawn',
+            isGroundSpawner: true,
+            onRequestZombieSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZombieSelectionScreen(
+                    multiSelect: false,
+                    onZombieSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiZombieSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'ModifyConveyorWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ModifyConveyorEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            onRequestPlantSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PlantSelectionScreen(
+                    isMultiSelect: false,
+                    onPlantSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiPlantSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'BeachStageEventZombieSpawnerProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BeachStageEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            onRequestZombieSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZombieSelectionScreen(
+                    multiSelect: false,
+                    onZombieSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiZombieSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'StormZombieSpawnerProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StormEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            onRequestZombieSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZombieSelectionScreen(
+                    multiSelect: false,
+                    onZombieSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiZombieSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'RaidingPartyZombieSpawnerProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RaidingPartyEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'BlackHoleWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BlackHoleEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'FrostWindWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FrostWindEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'DinoWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DinoEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'SpawnZombiesFromGridItemSpawnerProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GridItemSpawnEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            onRequestGridItemSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GridItemSelectionScreen(
+                    onGridItemSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+            onRequestZombieSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZombieSelectionScreen(
+                    multiSelect: false,
+                    onZombieSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiZombieSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'ZombiePotionActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ZombiePotionEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            onRequestGridItemSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GridItemSelectionScreen(
+                    onGridItemSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'MagicMirrorWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MagicMirrorEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'FairyTaleFogWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FairyTaleFogEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'FairyTaleWindWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FairyTaleWindEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'SpawnModernPortalsWaveActionProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ModernPortalsEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Event editor in development'),
+      ),
+    );
+  }
+
+  void _handleAddEvent(int waveIndex) async {
+    if (_levelFile == null || _parsedData == null) return;
+    final wm = _parsedData!.waveManager;
+    if (wm is! WaveManagerData) return;
+    if (waveIndex < 1 || waveIndex > wm.waves.length) return;
+
+    final meta = await Navigator.push<EventMetadata>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventSelectionScreen(
+          waveIndex: waveIndex,
+          onEventSelected: (m) => Navigator.pop(context, m),
+          onBack: () => Navigator.pop(context),
+        ),
+      ),
+    );
+
+    if (meta == null || !mounted) return;
+
+    final waveEvents = wm.waves[waveIndex - 1];
+    var prefix = 'Wave$waveIndex${meta.defaultAlias}';
+    var count = 0;
+    var newAlias = '$prefix$count';
+    while (_levelFile!.objects.any((o) => o.aliases?.contains(newAlias) == true)) {
+      count++;
+      newAlias = '$prefix$count';
+    }
+
+    final newRtid = RtidParser.build(newAlias, 'CurrentLevel');
+    final data = meta.initialDataFactory();
+    final objData = (data as dynamic).toJson() as Map<String, dynamic>;
+    _levelFile!.objects.add(
+      PvzObject(
+        aliases: [newAlias],
+        objClass: meta.defaultObjClass,
+        objData: objData,
+      ),
+    );
+    waveEvents.add(newRtid);
+
+    final wmObj = _levelFile!.objects
+        .firstWhereOrNull((o) => o.objClass == 'WaveManagerProperties');
+    if (wmObj != null) {
+      wmObj.objData = wm.toJson();
+    }
+
+    _parsedData = LevelParser.parseLevel(_levelFile!);
+    _markDirty();
+    setState(() {});
+  }
+
+  void _handleDeleteEventReference(String rtid) {
+    if (_parsedData?.waveManager is WaveManagerData) {
+      final wm = _parsedData!.waveManager as WaveManagerData;
+      for (final wave in wm.waves) {
+        wave.remove(rtid);
+      }
+      final wmObj = _levelFile?.objects
+          .firstWhereOrNull((o) => o.objClass == 'WaveManagerProperties');
+      if (wmObj != null) {
+        wmObj.objData = wm.toJson();
+      }
+      _parsedData = LevelParser.parseLevel(_levelFile!);
+      _markDirty();
+      setState(() {});
+    }
+  }
+
+  void _handleEditWaveManagerSettings() {
+    if (_levelFile == null || _parsedData == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Wave manager settings - coming soon'),
+      ),
+    );
+  }
+
+  void _handleEditModule(String rtid) {
+    final info = RtidParser.parse(rtid);
+    if (info == null) return;
+
+    PvzObject? obj;
+    String objClass = 'Unknown';
+
+    if (info.source == 'CurrentLevel') {
+      obj = _parsedData!.objectMap[info.alias];
+      objClass = obj?.objClass ?? 'Unknown';
+    } else {
+      objClass =
+          ReferenceRepository.instance.getObjClass(info.alias) ?? 'Unknown';
+    }
+
+    final meta = ModuleRegistry.getMetadata(objClass);
+
+    // Check if we have a specific screen for this module
+    if (objClass == 'StarChallengeModuleProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StarChallengeModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'LevelMutatorMaxSunProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MaxSunModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'LevelMutatorStartingPlantfoodProps') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StartingPlantfoodModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'RailcartProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RailcartPropertiesScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'IncreasedCostModuleProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => IncreasedCostModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'DeathHoleModuleProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DeathHoleModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'ZombieMoveFastModuleProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ZombieMoveFastModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' && objClass == 'TideProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TidePropertiesScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'BowlingMinigameProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BowlingMinigameScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'SunDropperProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SunDropperPropertiesScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'PiratePlankProperties') {
+      if (_parsedData!.levelDef != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PiratePlankPropertiesScreen(
+              rtid: rtid,
+              levelFile: _levelFile!,
+              levelDef: _parsedData!.levelDef!,
+              onChanged: _markDirty,
+              onBack: () => Navigator.pop(context),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'SeedRainProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SeedRainPropertiesScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'ConveyorSeedBankProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ConveyorSeedBankPropertiesScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            onRequestPlantSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PlantSelectionScreen(
+                    isMultiSelect: false,
+                    onPlantSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+            onRequestToolSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ToolSelectionScreen(
+                    onToolSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'SeedBankProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SeedBankPropertiesScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+            onRequestPlantSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PlantSelectionScreen(
+                    isMultiSelect: true,
+                    onPlantSelected: (_) {},
+                    onMultiPlantSelected: (ids) {
+                      Navigator.pop(context);
+                      onSelected(ids);
+                    },
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+            onRequestZombieSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZombieSelectionScreen(
+                    multiSelect: true,
+                    onZombieSelected: (_) {},
+                    onMultiZombieSelected: (ids) {
+                      Navigator.pop(context);
+                      onSelected(ids);
+                    },
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Fallback: Use UnknownModuleScreen for local objects without editor, or show message for references
+    if (info.source == 'CurrentLevel' && obj != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UnknownModuleScreen(
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+    } else {
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n?.moduleEditorInProgress ?? 'Module editor in development',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return PopScope(
       canPop: !_hasChanges,
-      onPopInvokedWithResult: (didPop, result) async {
+      onPopInvoked: (didPop) async {
         if (didPop) return;
         final leave = await _confirmLeave();
         if (leave && mounted) widget.onBack();
@@ -238,19 +1356,24 @@ class _EditorScreenState extends State<EditorScreen> {
                         children: _availableTabs.map((t) {
                           switch (t) {
                             case EditorTabType.settings:
-                              return _LevelSettingsTab(
+                              return LevelSettingsTab(
                                 levelDef: _parsedData!.levelDef,
-                                levelFile: _levelFile!,
-                                onChanged: _markDirty,
-                                onModulesChanged: () {
-                                  _markDirty();
-                                  _recalculateTabs();
-                                },
+                                objectMap: _parsedData!.objectMap,
+                                missingModules: _calculateMissingModules(),
+                                onEditBasicInfo: _handleEditBasicInfo,
+                                onEditModule: _handleEditModule,
+                                onRemoveModule: _handleRemoveModule,
+                                onNavigateToAddModule:
+                                    _handleNavigateToAddModule,
                               );
                             case EditorTabType.timeline:
                               return WaveTimelineTab(
                                 levelFile: _levelFile!,
                                 parsed: _parsedData!,
+                                onChanged: _markDirty,
+                                onEditEvent: _handleEditEvent,
+                                onAddEvent: _handleAddEvent,
+                                onEditWaveManagerSettings: _handleEditWaveManagerSettings,
                               );
                             case EditorTabType.iZombie:
                               return IZombieTab(
@@ -276,391 +1399,5 @@ class _EditorScreenState extends State<EditorScreen> {
               ),
       ),
     );
-  }
-}
-
-class _StubTab extends StatelessWidget {
-  const _StubTab({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.construction,
-            size: 64,
-            color: Theme.of(context).colorScheme.outline,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n?.moduleEditorInProgress ?? 'Module editor in development',
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LevelSettingsTab extends StatefulWidget {
-  const _LevelSettingsTab({
-    required this.levelDef,
-    required this.levelFile,
-    required this.onChanged,
-    required this.onModulesChanged,
-  });
-
-  final LevelDefinitionData? levelDef;
-  final PvzLevelFile levelFile;
-  final VoidCallback onChanged;
-  final VoidCallback onModulesChanged;
-
-  @override
-  State<_LevelSettingsTab> createState() => _LevelSettingsTabState();
-}
-
-class _LevelSettingsTabState extends State<_LevelSettingsTab> {
-  void _syncLevelDefToFile(LevelDefinitionData def) {
-    final obj = widget.levelFile.objects
-        .where((o) => o.objClass == 'LevelDefinition')
-        .firstOrNull;
-    if (obj != null) obj.objData = def.toJson();
-    widget.onChanged();
-  }
-
-  void _confirmRemoveModule(String rtid) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n?.removeModule ?? 'Remove module'),
-        content: Text(l10n?.removeModuleConfirm ?? 'Remove this module?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n?.cancel ?? 'Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              _removeModule(rtid);
-              Navigator.pop(ctx);
-            },
-            child: Text(
-              l10n?.confirmRemove ?? 'Remove',
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _removeModule(String rtid) {
-    final def = widget.levelDef;
-    if (def == null) return;
-    def.modules.remove(rtid);
-    final info = RtidParser.parse(rtid);
-    if (info != null && info.source == 'CurrentLevel') {
-      widget.levelFile.objects.removeWhere(
-        (o) => o.aliases?.contains(info.alias) == true,
-      );
-    }
-    _syncLevelDefToFile(def);
-    widget.onModulesChanged();
-  }
-
-  void _addModule(ModuleMetadata meta) {
-    final def = widget.levelDef;
-    if (def == null) return;
-    var alias = meta.effectiveAlias;
-    final source = meta.defaultSource;
-    if (source == 'CurrentLevel') {
-      var count = 0;
-      while (widget.levelFile.objects.any(
-        (o) => o.aliases?.contains(alias) == true,
-      )) {
-        count++;
-        alias = '${meta.effectiveAlias}_$count';
-      }
-      if (!meta.allowMultiple && count > 0) return;
-      final rtid = RtidParser.build(alias, source);
-      def.modules.add(rtid);
-      final objData = Map<String, dynamic>.from(meta.initialData ?? {});
-      widget.levelFile.objects.add(
-        PvzObject(aliases: [alias], objClass: meta.objClass, objData: objData),
-      );
-    } else {
-      final rtid = RtidParser.build(alias, source);
-      def.modules.add(rtid);
-    }
-    _syncLevelDefToFile(def);
-    widget.onModulesChanged();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final def = widget.levelDef;
-    if (def == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.settings,
-              size: 64,
-              color: Theme.of(context).colorScheme.outline,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n?.noLevelDefinition ?? 'No level definition',
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                l10n?.noLevelDefinitionHint ??
-                    'Level definition module was not found.',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final moduleInfos = def.modules.map((rtid) {
-      final info = RtidParser.parse(rtid);
-      final alias = info?.alias ?? '?';
-      final objClass = info?.source == 'CurrentLevel'
-          ? widget.levelFile.objects
-                .where((o) => o.aliases?.contains(alias) == true)
-                .firstOrNull
-                ?.objClass
-          : ReferenceRepository.instance.getObjClass(alias);
-      final meta = ModuleRegistry.getMetadata(objClass ?? '');
-      return (rtid: rtid, alias: alias, objClass: objClass ?? '', meta: meta);
-    }).toList();
-
-    final coreModules = moduleInfos.where((m) => m.meta.isCore).toList();
-    final miscModules = moduleInfos.where((m) => !m.meta.isCore).toList();
-    final theme = Theme.of(context);
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Card(
-          child: ListTile(
-            leading: const Icon(Icons.edit_note),
-            title: Text(l10n?.levelBasicInfo ?? 'Level basic info'),
-            subtitle: Text(
-              l10n?.levelBasicInfoSubtitle ??
-                  'Name, number, description, stage',
-            ),
-            onTap: () => _openBasicInfoScreen(def),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          l10n?.editableModules ?? 'Editable modules',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...coreModules.map(
-          (m) => Card(
-            child: ListTile(
-              leading: Icon(m.meta.icon, color: theme.colorScheme.primary),
-              title: Text(m.meta.getTitle(context)),
-              subtitle: Text('${m.alias} (${m.objClass})'),
-              trailing: IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
-                onPressed: () => _confirmRemoveModule(m.rtid),
-              ),
-              onTap: () => _openModuleEditor(m.rtid, m.objClass),
-            ),
-          ),
-        ),
-        if (miscModules.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          Text(
-            l10n?.parameterModules ?? 'Parameter modules',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 8),
-          ...miscModules.map(
-            (m) => Card(
-              child: ListTile(
-                leading: Icon(
-                  m.meta.icon,
-                  color: theme.colorScheme.outline,
-                  size: 20,
-                ),
-                title: Text(m.meta.getTitle(context), style: theme.textTheme.bodyMedium),
-                subtitle: Text(m.alias, style: theme.textTheme.bodySmall),
-                trailing: IconButton(
-                  icon: const Icon(Icons.remove_circle_outline, size: 20),
-                  onPressed: () => _confirmRemoveModule(m.rtid),
-                ),
-                onTap: () => _openModuleEditor(m.rtid, m.objClass),
-              ),
-            ),
-          ),
-        ],
-        const SizedBox(height: 16),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _openModuleSelectionScreen(def),
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: theme.colorScheme.primary),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.add_circle_outline,
-                    color: theme.colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n?.addNewModule ?? 'Add new module',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _openBasicInfoScreen(LevelDefinitionData def) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BasicInfoScreen(
-          levelFile: widget.levelFile,
-          levelDef: def,
-          onBack: () => Navigator.pop(context),
-          onStageTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => StageSelectionScreen(
-                  currentStageRtid: def.stageModule,
-                  onStageSelected: (rtid) {
-                    def.stageModule = rtid;
-                    _syncLevelDefToFile(def);
-                    if (mounted) Navigator.pop(context);
-                  },
-                  onBack: () => Navigator.pop(context),
-                ),
-              ),
-            );
-          },
-          onChanged: () {
-            _syncLevelDefToFile(def);
-            setState(() {});
-          },
-        ),
-      ),
-    );
-  }
-
-  void _openModuleSelectionScreen(LevelDefinitionData def) {
-    final existing = def.modules
-        .map((rtid) {
-          final info = RtidParser.parse(rtid);
-          if (info?.source == 'CurrentLevel') {
-            return widget.levelFile.objects
-                .where((o) => o.aliases?.contains(info!.alias) == true)
-                .firstOrNull
-                ?.objClass;
-          }
-          return ReferenceRepository.instance.getObjClass(info?.alias ?? '');
-        })
-        .whereType<String>()
-        .toSet();
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ModuleSelectionScreen(
-          existingObjClasses: existing,
-          onModuleSelected: (meta) {
-            _addModule(meta);
-            if (mounted) Navigator.pop(context);
-          },
-          onBack: () => Navigator.pop(context),
-        ),
-      ),
-    );
-  }
-
-  void _openModuleEditor(String rtid, String objClass) {
-    final l10n = AppLocalizations.of(context);
-    final meta = ModuleRegistry.getMetadata(objClass);
-
-    switch (meta.routeId) {
-      case 'StarChallenge':
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => StarChallengeModuleScreen(
-              rtid: rtid,
-              levelFile: widget.levelFile,
-              onChanged: widget.onChanged,
-              onBack: () => Navigator.pop(context),
-            ),
-          ),
-        );
-        return;
-      // Add other cases here
-    }
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(meta.getTitle(context)),
-        content: Text(
-          l10n?.moduleEditorInProgress ?? 'Module editor in development',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n?.done ?? 'Done'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-extension _FirstOrNull<E> on Iterable<E> {
-  E? get firstOrNull {
-    final it = iterator;
-    return it.moveNext() ? it.current : null;
   }
 }

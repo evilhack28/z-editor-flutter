@@ -112,13 +112,13 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            Text('Stage', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.primary)),
+            Text(l10n?.stageModule ?? 'Stage module', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.primary)),
             const SizedBox(height: 8),
             Card(
               child: ListTile(
                 leading: const Icon(Icons.map),
                 title: Text(stageInfo?.alias ?? def.stageModule),
-                subtitle: const Text('Stage module'),
+                subtitle: Text(l10n?.stageModule ?? 'Stage module'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: widget.onStageTap,
               ),

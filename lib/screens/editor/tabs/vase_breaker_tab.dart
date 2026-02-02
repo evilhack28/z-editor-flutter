@@ -4,7 +4,10 @@ import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/plant_repository.dart';
 import 'package:z_editor/data/zombie_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
-import 'package:z_editor/screens/common/selection_dialog.dart';
+import 'package:z_editor/l10n/resource_names.dart';
+import 'package:z_editor/screens/select/plant_selection_screen.dart';
+import 'package:z_editor/screens/select/zombie_selection_screen.dart';
+import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 
 class VaseBreakerTab extends StatefulWidget {
   const VaseBreakerTab({
@@ -117,7 +120,7 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Vase Generation Range & Blacklist',
+              l10n?.vaseRangeTitle ?? 'Vase Generation Range & Blacklist',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
@@ -125,14 +128,14 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildStepper(
-                  'Start Col (Min)',
+                  l10n?.startColumnLabel ?? 'Start Col (Min)',
                   _data.minColumnIndex,
                   (val) => _updateData((d) => d.minColumnIndex = val),
                   0,
                   _data.maxColumnIndex,
                 ),
                 _buildStepper(
-                  'End Col (Max)',
+                  l10n?.endColumnLabel ?? 'End Col (Max)',
                   _data.maxColumnIndex,
                   (val) => _updateData((d) => d.maxColumnIndex = val),
                   _data.minColumnIndex,
@@ -180,7 +183,7 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text('Click to toggle blacklist'),
+            Text(l10n?.toggleBlacklistHint ?? 'Click to toggle blacklist'),
             const SizedBox(height: 8),
             LayoutBuilder(
               builder: (context, constraints) {
@@ -272,11 +275,12 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Vase Capacity',
+                    l10n?.vaseCapacityTitle ?? 'Vase Capacity',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Assigned: $current / Total Slots: $total',
+                    l10n?.vaseCapacitySummary(current, total) ??
+                        'Assigned: $current / Total Slots: $total',
                   ),
                 ],
               ),
@@ -295,7 +299,7 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Vase List',
+              l10n?.vaseListTitle ?? 'Vase List',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             IconButton(
@@ -313,7 +317,7 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
             return Card(
               child: ListTile(
                 leading: _buildVaseIcon(vase),
-                title: Text(_getVaseTitle(vase)),
+                title: Text(_getVaseTitle(context, vase)),
                 subtitle: Text(_getVaseSubtitle(vase)),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -345,42 +349,77 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
   }
 
   Widget _buildVaseIcon(VaseDefinition vase) {
-    IconData icon = Icons.question_mark;
-    Color? color;
-
+    const size = 40.0;
     if (vase.plantTypeName != null) {
-      icon = Icons.local_florist;
-      color = Colors.green;
-    } else if (vase.zombieTypeName != null) {
-      icon = Icons.android;
-      color = Colors.red;
-    } else if (vase.collectableTypeName != null) {
-      icon = Icons.inventory;
-      color = Colors.amber;
-    }
-
-    return Icon(icon, color: color);
-  }
-
-  String _getVaseTitle(VaseDefinition vase) {
-    if (vase.plantTypeName != null) {
-      final plants = PlantRepository().allPlants
-          .where((p) => p.id == vase.plantTypeName);
-      return plants.isNotEmpty ? plants.first.name : vase.plantTypeName!;
+      final plant = PlantRepository().allPlants.firstWhereOrNull(
+        (p) => p.id == vase.plantTypeName,
+      );
+      final asset = plant?.iconAssetPath;
+      if (asset != null) {
+        return AssetImageWidget(
+          assetPath: asset,
+          altCandidates: imageAltCandidates(asset),
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+        );
+      }
+      return const Icon(Icons.local_florist, color: Colors.green, size: size);
     }
     if (vase.zombieTypeName != null) {
-      final zombies = ZombieRepository().allZombies
-          .where((z) => z.id == vase.zombieTypeName);
-      return zombies.isNotEmpty ? zombies.first.name : vase.zombieTypeName!;
+      final zombie = ZombieRepository().allZombies.firstWhereOrNull(
+        (z) => z.id == vase.zombieTypeName,
+      );
+      final asset = zombie?.iconAssetPath;
+      if (asset != null) {
+        return AssetImageWidget(
+          assetPath: asset,
+          altCandidates: imageAltCandidates(asset),
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+        );
+      }
+      return const Icon(Icons.android, color: Colors.red, size: size);
     }
-    return vase.collectableTypeName ?? 'Unknown Vase';
+    return const Icon(Icons.inventory, color: Colors.amber, size: size);
+  }
+
+  String _getVaseTitle(BuildContext context, VaseDefinition vase) {
+    if (vase.plantTypeName != null) {
+      final plants = PlantRepository().allPlants.where(
+        (p) => p.id == vase.plantTypeName,
+      );
+      return plants.isNotEmpty
+          ? ResourceNames.lookup(context, plants.first.name)
+          : vase.plantTypeName!;
+    }
+    if (vase.zombieTypeName != null) {
+      final zombies = ZombieRepository().allZombies.where(
+        (z) => z.id == vase.zombieTypeName,
+      );
+      return zombies.isNotEmpty
+          ? ResourceNames.lookup(context, zombies.first.name)
+          : vase.zombieTypeName!;
+    }
+    return vase.collectableTypeName ??
+        (AppLocalizations.of(context)?.unknownVaseLabel ?? 'Unknown Vase');
   }
 
   String _getVaseSubtitle(VaseDefinition vase) {
     final parts = <String>[];
-    if (vase.plantTypeName != null) parts.add('Plant: ${vase.plantTypeName}');
-    if (vase.zombieTypeName != null) parts.add('Zombie: ${vase.zombieTypeName}');
-    if (vase.collectableTypeName != null) parts.add('Item: ${vase.collectableTypeName}');
+    if (vase.plantTypeName != null)
+      parts.add(
+        '${AppLocalizations.of(context)?.plantLabel ?? "Plant"}: ${vase.plantTypeName}',
+      );
+    if (vase.zombieTypeName != null)
+      parts.add(
+        '${AppLocalizations.of(context)?.zombieLabel ?? "Zombie"}: ${vase.zombieTypeName}',
+      );
+    if (vase.collectableTypeName != null)
+      parts.add(
+        '${AppLocalizations.of(context)?.itemLabel ?? "Item"}: ${vase.collectableTypeName}',
+      );
     return parts.isEmpty ? '${vase.count} vase(s)' : parts.join(', ');
   }
 
@@ -390,19 +429,23 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Add Vase'),
+        title: Text(AppLocalizations.of(context)?.addVaseTitle ?? 'Add Vase'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text('Plant Vase'),
+              title: Text(
+                AppLocalizations.of(context)?.plantVaseOption ?? 'Plant Vase',
+              ),
               onTap: () {
                 Navigator.pop(ctx);
                 _showPlantPicker();
               },
             ),
             ListTile(
-              title: const Text('Zombie Vase'),
+              title: Text(
+                AppLocalizations.of(context)?.zombieVaseOption ?? 'Zombie Vase',
+              ),
               onTap: () {
                 Navigator.pop(ctx);
                 _showZombiePicker();
@@ -415,41 +458,31 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
   }
 
   void _showPlantPicker() {
-    showDialog(
-      context: context,
-      builder: (ctx) => SelectionDialog<PlantInfo>(
-        title: 'Select Plant',
-        items: PlantRepository().allPlants,
-        filter: (item, query) =>
-            item.name.toLowerCase().contains(query) ||
-            item.id.toLowerCase().contains(query),
-        onSelected: (item) {
-          _addVase(
-            VaseDefinition(plantTypeName: item.id, count: 1),
-          );
-        },
-        itemBuilder: (context, item) =>
-            ListTile(title: Text(item.name), subtitle: Text(item.id)),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => PlantSelectionScreen(
+          onPlantSelected: (id) {
+            _addVase(VaseDefinition(plantTypeName: id, count: 1));
+            Navigator.pop(ctx);
+          },
+          onBack: () => Navigator.pop(context),
+        ),
       ),
     );
   }
 
   void _showZombiePicker() {
-    showDialog(
-      context: context,
-      builder: (ctx) => SelectionDialog<ZombieInfo>(
-        title: 'Select Zombie',
-        items: ZombieRepository().allZombies,
-        filter: (item, query) =>
-            item.name.toLowerCase().contains(query) ||
-            item.id.toLowerCase().contains(query),
-        onSelected: (item) {
-          _addVase(
-            VaseDefinition(zombieTypeName: item.id, count: 1),
-          );
-        },
-        itemBuilder: (context, item) =>
-            ListTile(title: Text(item.name), subtitle: Text(item.id)),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => ZombieSelectionScreen(
+          onZombieSelected: (id) {
+            _addVase(VaseDefinition(zombieTypeName: id, count: 1));
+            Navigator.pop(ctx);
+          },
+          onBack: () => Navigator.pop(context),
+        ),
       ),
     );
   }

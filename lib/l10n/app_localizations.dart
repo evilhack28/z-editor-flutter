@@ -1099,6 +1099,90 @@ abstract class AppLocalizations {
   /// **'Create empty wave'**
   String get createEmptyWave;
 
+  /// No description provided for @noWaveManager.
+  ///
+  /// In en, this message translates to:
+  /// **'No wave manager found'**
+  String get noWaveManager;
+
+  /// No description provided for @noWaveManagerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This level has wave management but no WaveManagerProperties object.'**
+  String get noWaveManagerHint;
+
+  /// No description provided for @waveTimelineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap event to edit. Tap + to add event.'**
+  String get waveTimelineHint;
+
+  /// No description provided for @waveTimelineHintDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe wave left to delete.'**
+  String get waveTimelineHintDetail;
+
+  /// No description provided for @waveManagerSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Wave manager settings'**
+  String get waveManagerSettings;
+
+  /// No description provided for @flagInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Flag interval'**
+  String get flagInterval;
+
+  /// No description provided for @noWaves.
+  ///
+  /// In en, this message translates to:
+  /// **'No waves'**
+  String get noWaves;
+
+  /// No description provided for @addFirstWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the first wave.'**
+  String get addFirstWave;
+
+  /// No description provided for @deleteWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteWave;
+
+  /// No description provided for @deleteWaveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove this wave and its {count} events.'**
+  String deleteWaveConfirm(int count);
+
+  /// No description provided for @addEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add event'**
+  String get addEvent;
+
+  /// No description provided for @emptyWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty wave'**
+  String get emptyWave;
+
+  /// No description provided for @addWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add wave'**
+  String get addWave;
+
+  /// No description provided for @expectation.
+  ///
+  /// In en, this message translates to:
+  /// **'Expectation'**
+  String get expectation;
+
   /// No description provided for @close.
   ///
   /// In en, this message translates to:
@@ -1320,6 +1404,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No plant found'**
   String get noPlantFound;
+
+  /// No description provided for @noResultsFor.
+  ///
+  /// In en, this message translates to:
+  /// **'No results for \"{query}\"'**
+  String noResultsFor(Object query);
+
+  /// No description provided for @noModulesInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No modules in this category'**
+  String get noModulesInCategory;
+
+  /// No description provided for @addEventForWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Add event for wave {wave}'**
+  String addEventForWave(int wave);
+
+  /// No description provided for @waveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wave'**
+  String get waveLabel;
+
+  /// No description provided for @pointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get pointsLabel;
+
+  /// No description provided for @noDynamicZombies.
+  ///
+  /// In en, this message translates to:
+  /// **'No dynamic zombies'**
+  String get noDynamicZombies;
 
   /// No description provided for @moduleTitle_WaveManagerModuleProperties.
   ///
@@ -2100,6 +2220,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rain effect from Dark Ages'**
   String get weatherOption_DefaultRainDark_desc;
+
+  /// No description provided for @iZombiePlantReserveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plant Reserve Column (PlantDistance)'**
+  String get iZombiePlantReserveLabel;
+
+  /// No description provided for @column.
+  ///
+  /// In en, this message translates to:
+  /// **'Column'**
+  String get column;
+
+  /// No description provided for @iZombieInfoText.
+  ///
+  /// In en, this message translates to:
+  /// **'In I, Zombie mode, preset plants and zombies must be configured in the Level Module (Preset Plants) and Seed Bank respectively.'**
+  String get iZombieInfoText;
+
+  /// No description provided for @vaseRangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vase Generation Range & Blacklist'**
+  String get vaseRangeTitle;
+
+  /// No description provided for @startColumnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Col (Min)'**
+  String get startColumnLabel;
+
+  /// No description provided for @endColumnLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'End Col (Max)'**
+  String get endColumnLabel;
+
+  /// No description provided for @toggleBlacklistHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Click to toggle blacklist'**
+  String get toggleBlacklistHint;
+
+  /// No description provided for @vaseCapacityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vase Capacity'**
+  String get vaseCapacityTitle;
+
+  /// No description provided for @vaseCapacitySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned: {current} / Total Slots: {total}'**
+  String vaseCapacitySummary(Object current, Object total);
+
+  /// No description provided for @vaseListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vase List'**
+  String get vaseListTitle;
+
+  /// No description provided for @addVaseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Vase'**
+  String get addVaseTitle;
+
+  /// No description provided for @plantVaseOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Plant Vase'**
+  String get plantVaseOption;
+
+  /// No description provided for @zombieVaseOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Zombie Vase'**
+  String get zombieVaseOption;
+
+  /// No description provided for @selectZombie.
+  ///
+  /// In en, this message translates to:
+  /// **'Select zombie'**
+  String get selectZombie;
+
+  /// No description provided for @searchZombie.
+  ///
+  /// In en, this message translates to:
+  /// **'Search zombie'**
+  String get searchZombie;
+
+  /// No description provided for @noZombieFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No zombie found'**
+  String get noZombieFound;
+
+  /// No description provided for @unknownVaseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Vase'**
+  String get unknownVaseLabel;
+
+  /// No description provided for @plantLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plant'**
+  String get plantLabel;
+
+  /// No description provided for @zombieLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Zombie'**
+  String get zombieLabel;
+
+  /// No description provided for @itemLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get itemLabel;
+
+  /// No description provided for @railcartSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Railcart settings'**
+  String get railcartSettings;
+
+  /// No description provided for @railcartType.
+  ///
+  /// In en, this message translates to:
+  /// **'Railcart type'**
+  String get railcartType;
+
+  /// No description provided for @layRails.
+  ///
+  /// In en, this message translates to:
+  /// **'Lay rails'**
+  String get layRails;
+
+  /// No description provided for @placeCarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Place carts'**
+  String get placeCarts;
+
+  /// No description provided for @railSegments.
+  ///
+  /// In en, this message translates to:
+  /// **'Rail segments'**
+  String get railSegments;
+
+  /// No description provided for @railcartCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Railcart count'**
+  String get railcartCount;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAll;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

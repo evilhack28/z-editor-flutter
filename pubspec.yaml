@@ -35,11 +35,17 @@ flutter:
     - assets/icon.png
     - assets/reference/
     - assets/resources/
+    - assets/l10n/resource_en.json
+    - assets/l10n/resource_zh.json
+    - assets/l10n/resource_ru.json
     - assets/images/
     - assets/images/plants/
     - assets/images/zombies/
     - assets/images/stages/
     - assets/images/tags/
+    - assets/images/griditems/
+    - assets/images/tools/
+    - assets/images/others/
 
 flutter_launcher_icons:
   android: true

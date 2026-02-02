@@ -1,0 +1,450 @@
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:z_editor/data/grid_item_repository.dart';
+import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/widgets/asset_image.dart';
+import 'package:z_editor/widgets/editor_components.dart';
+
+/// Spawn gravestones event editor. Ported from Z-Editor-master SpawnGraveStonesEventEP.kt
+class SpawnGraveStonesEventScreen extends StatefulWidget {
+  const SpawnGraveStonesEventScreen({
+    super.key,
+    required this.rtid,
+    required this.levelFile,
+    required this.onChanged,
+    required this.onBack,
+    required this.onRequestGridItemSelection,
+  });
+
+  final String rtid;
+  final PvzLevelFile levelFile;
+  final VoidCallback onChanged;
+  final VoidCallback onBack;
+  final void Function(void Function(String) onSelected) onRequestGridItemSelection;
+
+  @override
+  State<SpawnGraveStonesEventScreen> createState() =>
+      _SpawnGraveStonesEventScreenState();
+}
+
+class _SpawnGraveStonesEventScreenState
+    extends State<SpawnGraveStonesEventScreen> {
+  late PvzObject _moduleObj;
+  late SpawnGraveStonesData _data;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  void _loadData() {
+    final info = RtidParser.parse(widget.rtid);
+    final alias = info?.alias ?? '';
+    final existing = widget.levelFile.objects.firstWhereOrNull(
+      (o) => o.aliases?.contains(alias) == true,
+    );
+    if (existing != null) {
+      _moduleObj = existing;
+    } else {
+      _moduleObj = PvzObject(
+        aliases: [alias],
+        objClass: 'SpawnGravestonesWaveActionProps',
+        objData: SpawnGraveStonesData().toJson(),
+      );
+      widget.levelFile.objects.add(_moduleObj);
+    }
+    try {
+      _data = SpawnGraveStonesData.fromJson(
+        Map<String, dynamic>.from(_moduleObj.objData as Map),
+      );
+    } catch (_) {
+      _data = SpawnGraveStonesData();
+    }
+    _data = SpawnGraveStonesData(
+      gravestonePool: List.from(_data.gravestonePool),
+      spawnPositionsPool: List.from(_data.spawnPositionsPool),
+    );
+  }
+
+  void _sync() {
+    _moduleObj.objData = _data.toJson();
+    widget.onChanged();
+    setState(() {});
+  }
+
+  void _togglePosition(int col, int row) {
+    final existing = _data.spawnPositionsPool
+        .firstWhereOrNull((p) => p.x == col && p.y == row);
+    if (existing != null) {
+      _data.spawnPositionsPool.remove(existing);
+    } else {
+      _data.spawnPositionsPool.add(LocationData(x: col, y: row));
+    }
+    _sync();
+  }
+
+  void _addItem() {
+    widget.onRequestGridItemSelection((typeName) {
+      final fullRtid = RtidParser.build(
+        GridItemRepository.buildGridAliases(typeName),
+        'GridItemTypes',
+      );
+      final existingIdx =
+          _data.gravestonePool.indexWhere((i) => i.type == fullRtid);
+      if (existingIdx >= 0) {
+        final item = _data.gravestonePool[existingIdx];
+        _data.gravestonePool[existingIdx] =
+            GravestonePoolItem(count: item.count + 1, type: item.type);
+      } else {
+        _data.gravestonePool.add(GravestonePoolItem(count: 1, type: fullRtid));
+      }
+      _sync();
+    });
+  }
+
+  void _removeItem(int index) {
+    _data.gravestonePool.removeAt(index);
+    _sync();
+  }
+
+  void _updateCount(int index, int count) {
+    final item = _data.gravestonePool[index];
+    _data.gravestonePool[index] = GravestonePoolItem(count: count, type: item.type);
+    _sync();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final info = RtidParser.parse(widget.rtid);
+    final alias = info?.alias ?? '';
+    final internalAliases = widget.levelFile.objects
+        .expand<String>((o) => o.aliases ?? <String>[])
+        .toSet();
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onBack,
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Edit $alias'),
+            Text(
+              'Event: Spawn gravestones',
+              style: theme.textTheme.bodySmall,
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => showEditorHelpDialog(
+              context,
+              title: 'Spawn gravestones event',
+              sections: const [
+                HelpSectionData(
+                  title: 'Overview',
+                  body: 'This event randomly spawns obstacles during a wave, e.g. gravestones in Dark Ages.',
+                ),
+                HelpSectionData(
+                  title: 'Logic',
+                  body: 'The event picks random cells from the position pool to spawn obstacles. Total item count must not exceed position count, or some items will not spawn.',
+                ),
+                HelpSectionData(
+                  title: 'Missing assets',
+                  body: 'Some maps without gravestone spawn effects may show sun textures instead.',
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildPositionPoolCard(theme),
+              const SizedBox(height: 16),
+              _buildInfoCard(theme),
+              const SizedBox(height: 16),
+              _buildGravestonePoolHeader(theme),
+              const SizedBox(height: 8),
+              ..._data.gravestonePool.asMap().entries.map((e) {
+                final idx = e.key;
+                final item = e.value;
+                return _buildGravestoneItem(
+                  context,
+                  theme,
+                  item,
+                  idx,
+                  internalAliases,
+                );
+              }),
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPositionPoolCard(ThemeData theme) {
+    final posCount = _data.spawnPositionsPool.length;
+    final itemCount =
+        _data.gravestonePool.fold<int>(0, (s, i) => s + i.count);
+    final isDark = theme.brightness == Brightness.dark;
+    final gridColor = isDark ? const Color(0xFF3B332F) : const Color(0xFFD7CCC8);
+    const borderColor = Color(0xFF8D6E63);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Position pool (SpawnPositionsPool)',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Tap cells to select/deselect spawn positions',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            AspectRatio(
+              aspectRatio: 1.8,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: gridColor,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Column(
+                  children: List.generate(5, (row) {
+                    return Expanded(
+                      child: Row(
+                        children: List.generate(9, (col) {
+                          final isSelected = _data.spawnPositionsPool
+                              .any((p) => p.x == col && p.y == row);
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: () => _togglePosition(col, row),
+                              child: Container(
+                                margin: const EdgeInsets.all(0.5),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? Colors.green.withValues(alpha: 0.8)
+                                      : Colors.transparent,
+                                  border: Border.all(
+                                    color: borderColor.withValues(alpha: 0.5),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: isSelected
+                                    ? const Icon(
+                                        Icons.check_circle,
+                                        color: Colors.white,
+                                        size: 16,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  'Positions: $posCount',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'Total items: $itemCount',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: itemCount > posCount
+                        ? theme.colorScheme.error
+                        : null,
+                  ),
+                ),
+              ],
+            ),
+            if (itemCount > posCount)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  'Warning: item count exceeds positions. Some will not spawn.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(ThemeData theme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(Icons.info_outline, color: theme.colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Gravestones and similar obstacles blocked by plants cannot spawn. Use other methods to force spawn.',
+                style: theme.textTheme.bodySmall,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGravestonePoolHeader(ThemeData theme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Gravestone pool (GravestonePool)',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        FilledButton.icon(
+          onPressed: _addItem,
+          icon: const Icon(Icons.add, size: 16),
+          label: const Text('Add type'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGravestoneItem(
+    BuildContext context,
+    ThemeData theme,
+    GravestonePoolItem item,
+    int index,
+    Set<String> internalAliases,
+  ) {
+    final parsed = RtidParser.parse(item.type);
+    final alias = parsed?.alias ?? item.type;
+    final source = parsed?.source ?? '';
+    final isValid = source == 'CurrentLevel'
+        ? internalAliases.contains(alias)
+        : GridItemRepository.isValid(alias);
+    final iconPath = GridItemRepository.getIconPath(alias);
+    final name = GridItemRepository.getName(alias);
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      color: isValid ? null : theme.colorScheme.errorContainer,
+      shape: RoundedRectangleBorder(
+        side: isValid
+            ? BorderSide.none
+            : BorderSide(color: theme.colorScheme.error),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                width: 48,
+                height: 48,
+                child: iconPath != null
+                    ? AssetImageWidget(
+                        assetPath: iconPath,
+                        width: 48,
+                        height: 48,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        child: Icon(
+                          Icons.widgets,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    alias,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: isValid
+                          ? theme.colorScheme.onSurfaceVariant
+                          : theme.colorScheme.error,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 80,
+              child: TextFormField(
+                initialValue: '${item.count}',
+                decoration: const InputDecoration(
+                  labelText: 'Count',
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (s) {
+                  final v = int.tryParse(s) ?? 1;
+                  _updateCount(index, v.clamp(1, 999));
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () => _removeItem(index),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

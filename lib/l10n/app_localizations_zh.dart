@@ -520,6 +520,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String get createEmptyWave => '创建空波次容器';
 
   @override
+  String get noWaveManager => '未找到波次管理器';
+
+  @override
+  String get noWaveManagerHint => '此关卡有波次管理模块但缺少 WaveManagerProperties 对象。';
+
+  @override
+  String get waveTimelineHint => '点击事件编辑，点击 + 添加事件。';
+
+  @override
+  String get waveTimelineHintDetail => '左滑波次可删除。';
+
+  @override
+  String get waveManagerSettings => '波次管理器设置';
+
+  @override
+  String get flagInterval => '旗帜间隔';
+
+  @override
+  String get noWaves => '暂无波次';
+
+  @override
+  String get addFirstWave => '添加第一个波次。';
+
+  @override
+  String get deleteWave => '删除';
+
+  @override
+  String deleteWaveConfirm(int count) {
+    return '将移除此波次及其 $count 个事件。';
+  }
+
+  @override
+  String get addEvent => '添加事件';
+
+  @override
+  String get emptyWave => '空波次';
+
+  @override
+  String get addWave => '添加波次';
+
+  @override
+  String get expectation => '期望';
+
+  @override
   String get close => '关闭';
 
   @override
@@ -629,6 +673,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noPlantFound => '未找到植物';
+
+  @override
+  String noResultsFor(Object query) {
+    return '没有关于“$query”的结果';
+  }
+
+  @override
+  String get noModulesInCategory => '该分类下没有模块';
+
+  @override
+  String addEventForWave(int wave) {
+    return '为第 $wave 波添加事件';
+  }
+
+  @override
+  String get waveLabel => '波次';
+
+  @override
+  String get pointsLabel => '点数';
+
+  @override
+  String get noDynamicZombies => '没有动态僵尸';
 
   @override
   String get moduleTitle_WaveManagerModuleProperties => 'Wave Manager';
@@ -883,124 +949,124 @@ class AppLocalizationsZh extends AppLocalizations {
   String get moduleDesc_RainDarkProperties => 'Rain, snow, storm effects';
 
   @override
-  String get eventTitle_SpawnZombiesFromGroundSpawnerProps => 'Ground Spawn';
+  String get eventTitle_SpawnZombiesFromGroundSpawnerProps => '地底出怪';
 
   @override
-  String get eventDesc_SpawnZombiesFromGroundSpawnerProps => 'Zombies spawn from ground';
+  String get eventDesc_SpawnZombiesFromGroundSpawnerProps => '从地下生成僵尸';
 
   @override
-  String get eventTitle_SpawnZombiesJitteredWaveActionProps => 'Standard Spawn';
+  String get eventTitle_SpawnZombiesJitteredWaveActionProps => '标准出怪';
 
   @override
-  String get eventDesc_SpawnZombiesJitteredWaveActionProps => 'Basic natural spawn';
+  String get eventDesc_SpawnZombiesJitteredWaveActionProps => '基本自然出怪';
 
   @override
-  String get eventTitle_FrostWindWaveActionProps => 'Frost Wind';
+  String get eventTitle_FrostWindWaveActionProps => '霜冻风';
 
   @override
-  String get eventDesc_FrostWindWaveActionProps => 'Freezing wind on rows';
+  String get eventDesc_FrostWindWaveActionProps => '行上的冰冻风';
 
   @override
-  String get eventTitle_BeachStageEventZombieSpawnerProps => 'Low Tide';
+  String get eventTitle_BeachStageEventZombieSpawnerProps => '低潮';
 
   @override
-  String get eventDesc_BeachStageEventZombieSpawnerProps => 'Zombies spawn at low tide';
+  String get eventDesc_BeachStageEventZombieSpawnerProps => '僵尸在低潮时出现';
 
   @override
-  String get eventTitle_TidalChangeWaveActionProps => 'Tide Change';
+  String get eventTitle_TidalChangeWaveActionProps => '潮汐变化';
 
   @override
-  String get eventDesc_TidalChangeWaveActionProps => 'Change tide position';
+  String get eventDesc_TidalChangeWaveActionProps => '改变潮位位置';
 
   @override
-  String get eventTitle_ModifyConveyorWaveActionProps => 'Conveyor Modify';
+  String get eventTitle_ModifyConveyorWaveActionProps => '传送带修改';
 
   @override
-  String get eventDesc_ModifyConveyorWaveActionProps => 'Add/remove cards dynamically';
+  String get eventDesc_ModifyConveyorWaveActionProps => '动态添加/移除卡牌';
 
   @override
-  String get eventTitle_DinoWaveActionProps => 'Dino Summon';
+  String get eventTitle_DinoWaveActionProps => '恐龙召唤';
 
   @override
-  String get eventDesc_DinoWaveActionProps => 'Summon dinosaur on row';
+  String get eventDesc_DinoWaveActionProps => '在行上召唤恐龙';
 
   @override
-  String get eventTitle_SpawnModernPortalsWaveActionProps => 'Time Rift';
+  String get eventTitle_SpawnModernPortalsWaveActionProps => '时空裂隙';
 
   @override
-  String get eventDesc_SpawnModernPortalsWaveActionProps => 'Summon time rift';
+  String get eventDesc_SpawnModernPortalsWaveActionProps => '生成时空裂隙';
 
   @override
-  String get eventTitle_StormZombieSpawnerProps => 'Storm Spawn';
+  String get eventTitle_StormZombieSpawnerProps => '风暴出怪';
 
   @override
-  String get eventDesc_StormZombieSpawnerProps => 'Sandstorm or blizzard spawn';
+  String get eventDesc_StormZombieSpawnerProps => '沙尘暴或暴雪出怪';
 
   @override
-  String get eventTitle_RaidingPartyZombieSpawnerProps => 'Raiding Party';
+  String get eventTitle_RaidingPartyZombieSpawnerProps => '海盗掠夺队';
 
   @override
-  String get eventDesc_RaidingPartyZombieSpawnerProps => 'Swashbuckler invasion';
+  String get eventDesc_RaidingPartyZombieSpawnerProps => '海盗僵尸入侵';
 
   @override
-  String get eventTitle_ZombiePotionActionProps => 'Potion Drop';
+  String get eventTitle_ZombiePotionActionProps => '药水掉落';
 
   @override
-  String get eventDesc_ZombiePotionActionProps => 'Spawn potions on grid';
+  String get eventDesc_ZombiePotionActionProps => '在网格上生成药水';
 
   @override
-  String get eventTitle_SpawnGravestonesWaveActionProps => 'Gravestone Spawn';
+  String get eventTitle_SpawnGravestonesWaveActionProps => '墓碑生成';
 
   @override
-  String get eventDesc_SpawnGravestonesWaveActionProps => 'Spawn gravestones';
+  String get eventDesc_SpawnGravestonesWaveActionProps => '生成墓碑';
 
   @override
-  String get eventTitle_SpawnZombiesFromGridItemSpawnerProps => 'Grave Spawn';
+  String get eventTitle_SpawnZombiesFromGridItemSpawnerProps => '墓碑出怪';
 
   @override
-  String get eventDesc_SpawnZombiesFromGridItemSpawnerProps => 'Spawn zombies from graves';
+  String get eventDesc_SpawnZombiesFromGridItemSpawnerProps => '从墓碑生成僵尸';
 
   @override
-  String get eventTitle_FairyTaleFogWaveActionProps => 'Fairy Fog';
+  String get eventTitle_FairyTaleFogWaveActionProps => '童话迷雾';
 
   @override
-  String get eventDesc_FairyTaleFogWaveActionProps => 'Spawn fog';
+  String get eventDesc_FairyTaleFogWaveActionProps => '生成迷雾';
 
   @override
-  String get eventTitle_FairyTaleWindWaveActionProps => 'Fairy Wind';
+  String get eventTitle_FairyTaleWindWaveActionProps => '童话之风';
 
   @override
-  String get eventDesc_FairyTaleWindWaveActionProps => 'Blow away fog';
+  String get eventDesc_FairyTaleWindWaveActionProps => '吹散迷雾';
 
   @override
-  String get eventTitle_SpiderRainZombieSpawnerProps => 'Imp Rain';
+  String get eventTitle_SpiderRainZombieSpawnerProps => '小鬼雨';
 
   @override
-  String get eventDesc_SpiderRainZombieSpawnerProps => 'Imps drop from sky';
+  String get eventDesc_SpiderRainZombieSpawnerProps => '小鬼从天而降';
 
   @override
-  String get eventTitle_ParachuteRainZombieSpawnerProps => 'Parachute Rain';
+  String get eventTitle_ParachuteRainZombieSpawnerProps => '降落伞雨';
 
   @override
-  String get eventDesc_ParachuteRainZombieSpawnerProps => 'Zombies drop with parachutes';
+  String get eventDesc_ParachuteRainZombieSpawnerProps => '僵尸带降落伞降落';
 
   @override
-  String get eventTitle_BassRainZombieSpawnerProps => 'Bass/Jetpack Rain';
+  String get eventTitle_BassRainZombieSpawnerProps => '低音/喷气背包雨';
 
   @override
-  String get eventDesc_BassRainZombieSpawnerProps => 'Bass/Jetpack zombies drop';
+  String get eventDesc_BassRainZombieSpawnerProps => '低音/喷气背包僵尸降落';
 
   @override
-  String get eventTitle_BlackHoleWaveActionProps => 'Black Hole';
+  String get eventTitle_BlackHoleWaveActionProps => '黑洞';
 
   @override
-  String get eventDesc_BlackHoleWaveActionProps => 'Black hole attracts plants';
+  String get eventDesc_BlackHoleWaveActionProps => '黑洞吸引植物';
 
   @override
-  String get eventTitle_WaveActionMagicMirrorTeleportationArrayProps2 => 'Magic Mirror';
+  String get eventTitle_WaveActionMagicMirrorTeleportationArrayProps2 => '魔镜';
 
   @override
-  String get eventDesc_WaveActionMagicMirrorTeleportationArrayProps2 => 'Mirror portals';
+  String get eventDesc_WaveActionMagicMirrorTeleportationArrayProps2 => '镜子传送门';
 
   @override
   String get weatherOption_DefaultSnow_label => 'Frostbite Caves (DefaultSnow)';
@@ -1019,4 +1085,87 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get weatherOption_DefaultRainDark_desc => 'Rain effect from Dark Ages';
+
+  @override
+  String get iZombiePlantReserveLabel => '植物预留列（PlantDistance）';
+
+  @override
+  String get column => '列';
+
+  @override
+  String get iZombieInfoText => '在“我是僵尸”模式下，需在关卡模块（预设植物）和种子库中配置预设植物与僵尸。';
+
+  @override
+  String get vaseRangeTitle => '花瓶生成范围与黑名单';
+
+  @override
+  String get startColumnLabel => '起始列（最小）';
+
+  @override
+  String get endColumnLabel => '结束列（最大）';
+
+  @override
+  String get toggleBlacklistHint => '点击切换黑名单';
+
+  @override
+  String get vaseCapacityTitle => '花瓶容量';
+
+  @override
+  String vaseCapacitySummary(Object current, Object total) {
+    return '已分配：$current / 总槽位：$total';
+  }
+
+  @override
+  String get vaseListTitle => '花瓶列表';
+
+  @override
+  String get addVaseTitle => '添加花瓶';
+
+  @override
+  String get plantVaseOption => '植物花瓶';
+
+  @override
+  String get zombieVaseOption => '僵尸花瓶';
+
+  @override
+  String get selectZombie => '选择僵尸';
+
+  @override
+  String get searchZombie => '搜索僵尸';
+
+  @override
+  String get noZombieFound => '未找到僵尸';
+
+  @override
+  String get unknownVaseLabel => '未知花瓶';
+
+  @override
+  String get plantLabel => '植物';
+
+  @override
+  String get zombieLabel => '僵尸';
+
+  @override
+  String get itemLabel => '物品';
+
+  @override
+  String get railcartSettings => '矿车轨道设置';
+
+  @override
+  String get railcartType => '矿车类型';
+
+  @override
+  String get layRails => '铺设轨道';
+
+  @override
+  String get placeCarts => '放置矿车';
+
+  @override
+  String get railSegments => '轨道段数';
+
+  @override
+  String get railcartCount => '矿车数量';
+
+  @override
+  String get clearAll => '清空所有配置';
 }

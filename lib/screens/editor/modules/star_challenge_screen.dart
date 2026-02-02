@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/data/reference_repository.dart';
-import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/data/challenge_repository.dart';
+import 'package:z_editor/screens/editor/modules/challenge_selection_screen.dart';
+import 'package:z_editor/screens/editor/modules/challenge_editors.dart';
 
 class StarChallengeModuleScreen extends StatefulWidget {
   const StarChallengeModuleScreen({
@@ -76,7 +78,6 @@ class _StarChallengeModuleScreenState extends State<StarChallengeModuleScreen> {
   }
 
   void _editChallenge(String challengeRtid) {
-    // TODO: Implement challenge specific editors
     final info = RtidParser.parse(challengeRtid);
     final alias = info?.alias ?? challengeRtid;
     final obj = widget.levelFile.objects.firstWhere(
@@ -84,37 +85,64 @@ class _StarChallengeModuleScreenState extends State<StarChallengeModuleScreen> {
       orElse: () => PvzObject(objClass: 'Unknown', objData: {}),
     );
     
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(obj.objClass),
-        content: const Text('Challenge editor not yet implemented'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChallengeEditorScreen(
+          object: obj,
+          onChanged: () {
+             setState(() {
+                _saveData();
+             });
+          },
+        ),
       ),
     );
   }
 
-  void _addChallenge() {
-    // TODO: Navigate to ChallengeSelectionScreen
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add Challenge'),
-        content: const Text('Challenge selection not yet implemented'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
-          ),
-        ],
+  Future<void> _addChallenge() async {
+    final info = await Navigator.push<ChallengeTypeInfo>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChallengeSelectionScreen(
+          onChallengeSelected: (i) => Navigator.pop(context, i),
+          onBack: () => Navigator.pop(context),
+        ),
       ),
     );
+
+    if (info != null) {
+      int counter = 1;
+      String alias = '${info.defaultAlias}_$counter';
+      while (widget.levelFile.objects.any((o) => o.aliases?.contains(alias) == true)) {
+        counter++;
+        alias = '${info.defaultAlias}_$counter';
+      }
+
+      Map<String, dynamic> objDataMap = {};
+      final objData = info.initialDataFactory?.call();
+      if (objData != null) {
+        try {
+          objDataMap = (objData as dynamic).toJson() as Map<String, dynamic>;
+        } catch (_) {
+          objDataMap = {};
+        }
+      }
+
+      final newObj = PvzObject(
+        aliases: [alias],
+        objClass: info.objClass,
+        objData: objDataMap,
+      );
+
+      setState(() {
+        widget.levelFile.objects.add(newObj);
+        _data.challenges[0].add('RTID($alias@CurrentLevel)');
+        _saveData();
+      });
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {

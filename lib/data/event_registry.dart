@@ -28,8 +28,8 @@ class EventMetadata {
 class EventRegistry {
   static final Map<String, EventMetadata> _registry = {
     'SpawnZombiesFromGroundSpawnerProps': EventMetadata(
-      titleKey: 'eventTitle_SpawnZombiesFromGround',
-      descriptionKey: 'eventDesc_SpawnZombiesFromGround',
+      titleKey: 'eventTitle_SpawnZombiesFromGroundSpawnerProps',
+      descriptionKey: 'eventDesc_SpawnZombiesFromGroundSpawnerProps',
       icon: Icons.groups,
       color: const Color(0xFF936457),
       darkColor: const Color(0xFFC2A197),
@@ -48,8 +48,8 @@ class EventRegistry {
       },
     ),
     'SpawnZombiesJitteredWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_Jittered',
-      descriptionKey: 'eventDesc_Jittered',
+      titleKey: 'eventTitle_SpawnZombiesJitteredWaveActionProps',
+      descriptionKey: 'eventDesc_SpawnZombiesJitteredWaveActionProps',
       icon: Icons.groups,
       color: const Color(0xFF2196F3),
       darkColor: const Color(0xFF90CAF9),
@@ -68,8 +68,8 @@ class EventRegistry {
       },
     ),
     'FrostWindWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_FrostWind',
-      descriptionKey: 'eventDesc_FrostWind',
+      titleKey: 'eventTitle_FrostWindWaveActionProps',
+      descriptionKey: 'eventDesc_FrostWindWaveActionProps',
       icon: Icons.ac_unit,
       color: const Color(0xFF0288D1),
       darkColor: const Color(0xFF90CAF9),
@@ -88,8 +88,8 @@ class EventRegistry {
       },
     ),
     'BeachStageEventZombieSpawnerProps': EventMetadata(
-      titleKey: 'eventTitle_BeachStage',
-      descriptionKey: 'eventDesc_BeachStage',
+      titleKey: 'eventTitle_BeachStageEventZombieSpawnerProps',
+      descriptionKey: 'eventDesc_BeachStageEventZombieSpawnerProps',
       icon: Icons.water,
       color: const Color(0xFF00ACC1),
       darkColor: const Color(0xFF81D4FA),
@@ -108,8 +108,8 @@ class EventRegistry {
       },
     ),
     'TidalChangeWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_TidalChange',
-      descriptionKey: 'eventDesc_TidalChange',
+      titleKey: 'eventTitle_TidalChangeWaveActionProps',
+      descriptionKey: 'eventDesc_TidalChangeWaveActionProps',
       icon: Icons.water_drop,
       color: const Color(0xFF00ACC1),
       darkColor: const Color(0xFF81D4FA),
@@ -118,8 +118,8 @@ class EventRegistry {
       initialDataFactory: () => TidalChangeWaveActionData(),
     ),
     'ModifyConveyorWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_ModifyConveyor',
-      descriptionKey: 'eventDesc_ModifyConveyor',
+      titleKey: 'eventTitle_ModifyConveyorWaveActionProps',
+      descriptionKey: 'eventDesc_ModifyConveyorWaveActionProps',
       icon: Icons.transform,
       color: const Color(0xFF4AC380),
       darkColor: const Color(0xFF7CBD99),
@@ -128,8 +128,8 @@ class EventRegistry {
       initialDataFactory: () => ModifyConveyorWaveActionData(),
     ),
     'DinoWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_Dino',
-      descriptionKey: 'eventDesc_Dino',
+      titleKey: 'eventTitle_DinoWaveActionProps',
+      descriptionKey: 'eventDesc_DinoWaveActionProps',
       icon: Icons.pets,
       color: const Color(0xFF91B900),
       darkColor: const Color(0xFFA2B659),
@@ -138,8 +138,8 @@ class EventRegistry {
       initialDataFactory: () => DinoWaveActionPropsData(),
     ),
     'SpawnModernPortalsWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_Portal',
-      descriptionKey: 'eventDesc_Portal',
+      titleKey: 'eventTitle_SpawnModernPortalsWaveActionProps',
+      descriptionKey: 'eventDesc_SpawnModernPortalsWaveActionProps',
       icon: Icons.hourglass_empty,
       color: const Color(0xFFFF9800),
       darkColor: const Color(0xFFFFCC80),
@@ -148,8 +148,8 @@ class EventRegistry {
       initialDataFactory: () => PortalEventData(),
     ),
     'StormZombieSpawnerProps': EventMetadata(
-      titleKey: 'eventTitle_Storm',
-      descriptionKey: 'eventDesc_Storm',
+      titleKey: 'eventTitle_StormZombieSpawnerProps',
+      descriptionKey: 'eventDesc_StormZombieSpawnerProps',
       icon: Icons.storm,
       color: const Color(0xFFFF9800),
       darkColor: const Color(0xFFFFCC80),
@@ -158,8 +158,8 @@ class EventRegistry {
       initialDataFactory: () => StormZombieSpawnerPropsData(),
     ),
     'RaidingPartyZombieSpawnerProps': EventMetadata(
-      titleKey: 'eventTitle_Raiding',
-      descriptionKey: 'eventDesc_Raiding',
+      titleKey: 'eventTitle_RaidingPartyZombieSpawnerProps',
+      descriptionKey: 'eventDesc_RaidingPartyZombieSpawnerProps',
       icon: Icons.tsunami,
       color: const Color(0xFFFF9800),
       darkColor: const Color(0xFFFFCC80),
@@ -168,8 +168,8 @@ class EventRegistry {
       initialDataFactory: () => RaidingPartyEventData(),
     ),
     'ZombiePotionActionProps': EventMetadata(
-      titleKey: 'eventTitle_Potion',
-      descriptionKey: 'eventDesc_Potion',
+      titleKey: 'eventTitle_ZombiePotionActionProps',
+      descriptionKey: 'eventDesc_ZombiePotionActionProps',
       icon: Icons.science,
       color: const Color(0xFF607D8B),
       darkColor: const Color(0xFFB0BEC5),
@@ -178,8 +178,8 @@ class EventRegistry {
       initialDataFactory: () => ZombiePotionActionPropsData(),
     ),
     'SpawnGravestonesWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_Gravestones',
-      descriptionKey: 'eventDesc_Gravestones',
+      titleKey: 'eventTitle_SpawnGravestonesWaveActionProps',
+      descriptionKey: 'eventDesc_SpawnGravestonesWaveActionProps',
       icon: Icons.unarchive,
       color: const Color(0xFF607D8B),
       darkColor: const Color(0xFFB0BEC5),
@@ -188,8 +188,8 @@ class EventRegistry {
       initialDataFactory: () => SpawnGraveStonesData(),
     ),
     'SpawnZombiesFromGridItemSpawnerProps': EventMetadata(
-      titleKey: 'eventTitle_GridItemSpawn',
-      descriptionKey: 'eventDesc_GridItemSpawn',
+      titleKey: 'eventTitle_SpawnZombiesFromGridItemSpawnerProps',
+      descriptionKey: 'eventDesc_SpawnZombiesFromGridItemSpawnerProps',
       icon: Icons.groups,
       color: const Color(0xFF607D8B),
       darkColor: const Color(0xFFB0BEC5),
@@ -198,8 +198,8 @@ class EventRegistry {
       initialDataFactory: () => SpawnZombiesFromGridItemData(),
     ),
     'FairyTaleFogWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_FairyFog',
-      descriptionKey: 'eventDesc_FairyFog',
+      titleKey: 'eventTitle_FairyTaleFogWaveActionProps',
+      descriptionKey: 'eventDesc_FairyTaleFogWaveActionProps',
       icon: Icons.cloud,
       color: const Color(0xFFBE5DBA),
       darkColor: const Color(0xFFBD99BB),
@@ -208,8 +208,8 @@ class EventRegistry {
       initialDataFactory: () => FairyTaleFogWaveActionData(),
     ),
     'FairyTaleWindWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_FairyWind',
-      descriptionKey: 'eventDesc_FairyWind',
+      titleKey: 'eventTitle_FairyTaleWindWaveActionProps',
+      descriptionKey: 'eventDesc_FairyTaleWindWaveActionProps',
       icon: Icons.air,
       color: const Color(0xFFBE5DBA),
       darkColor: const Color(0xFFBD99BB),
@@ -218,14 +218,104 @@ class EventRegistry {
       initialDataFactory: () => FairyTaleWindWaveActionData(),
     ),
     'MagicMirrorWaveActionProps': EventMetadata(
-      titleKey: 'eventTitle_MagicMirror',
-      descriptionKey: 'eventDesc_MagicMirror',
+      titleKey: 'eventTitle_MagicMirrorWaveActionProps',
+      descriptionKey: 'eventDesc_MagicMirrorWaveActionProps',
       icon: Icons.blur_circular,
       color: const Color(0xFF607D8B),
       darkColor: const Color(0xFFB0BEC5),
       defaultAlias: 'MagicMirrorEvent',
       defaultObjClass: 'MagicMirrorWaveActionProps',
       initialDataFactory: () => MagicMirrorWaveActionData(),
+    ),
+    'WaveActionMagicMirrorTeleportationArrayProps2': EventMetadata(
+      titleKey: 'eventTitle_MagicMirrorWaveActionProps',
+      descriptionKey: 'eventDesc_MagicMirrorWaveActionProps',
+      icon: Icons.blur_circular,
+      color: const Color(0xFF607D8B),
+      darkColor: const Color(0xFFB0BEC5),
+      defaultAlias: 'MagicMirrorEvent',
+      defaultObjClass: 'WaveActionMagicMirrorTeleportationArrayProps2',
+      initialDataFactory: () => MagicMirrorWaveActionData(),
+    ),
+    'SpiderRainZombieSpawnerProps': EventMetadata(
+      titleKey: 'eventTitle_SpiderRainZombieSpawnerProps',
+      descriptionKey: 'eventDesc_SpiderRainZombieSpawnerProps',
+      icon: Icons.pest_control,
+      color: const Color(0xFFFF9800),
+      darkColor: const Color(0xFFFFCC80),
+      defaultAlias: 'SpiderRainEvent',
+      defaultObjClass: 'SpiderRainZombieSpawnerProps',
+      initialDataFactory: () => ParachuteRainEventData(),
+      summaryProvider: (obj) {
+        try {
+          final data = ParachuteRainEventData.fromJson(
+            obj.objData as Map<String, dynamic>,
+          );
+          return '${data.groupSize}x${data.spiderCount}';
+        } catch (_) {
+          return '';
+        }
+      },
+    ),
+    'ParachuteRainZombieSpawnerProps': EventMetadata(
+      titleKey: 'eventTitle_ParachuteRainZombieSpawnerProps',
+      descriptionKey: 'eventDesc_ParachuteRainZombieSpawnerProps',
+      icon: Icons.paragliding,
+      color: const Color(0xFFFF9800),
+      darkColor: const Color(0xFFFFCC80),
+      defaultAlias: 'ParachuteRainEvent',
+      defaultObjClass: 'ParachuteRainZombieSpawnerProps',
+      initialDataFactory: () => ParachuteRainEventData(),
+      summaryProvider: (obj) {
+        try {
+          final data = ParachuteRainEventData.fromJson(
+            obj.objData as Map<String, dynamic>,
+          );
+          return '${data.groupSize}x${data.spiderCount}';
+        } catch (_) {
+          return '';
+        }
+      },
+    ),
+    'BassRainZombieSpawnerProps': EventMetadata(
+      titleKey: 'eventTitle_BassRainZombieSpawnerProps',
+      descriptionKey: 'eventDesc_BassRainZombieSpawnerProps',
+      icon: Icons.music_note,
+      color: const Color(0xFFFF9800),
+      darkColor: const Color(0xFFFFCC80),
+      defaultAlias: 'BassRainEvent',
+      defaultObjClass: 'BassRainZombieSpawnerProps',
+      initialDataFactory: () => ParachuteRainEventData(),
+      summaryProvider: (obj) {
+        try {
+          final data = ParachuteRainEventData.fromJson(
+            obj.objData as Map<String, dynamic>,
+          );
+          return '${data.groupSize}x${data.spiderCount}';
+        } catch (_) {
+          return '';
+        }
+      },
+    ),
+    'BlackHoleWaveActionProps': EventMetadata(
+      titleKey: 'eventTitle_BlackHoleWaveActionProps',
+      descriptionKey: 'eventDesc_BlackHoleWaveActionProps',
+      icon: Icons.circle_outlined,
+      color: const Color(0xFF9C27B0),
+      darkColor: const Color(0xFFCE93D8),
+      defaultAlias: 'BlackHoleEvent',
+      defaultObjClass: 'BlackHoleWaveActionProps',
+      initialDataFactory: () => BlackHoleEventData(),
+      summaryProvider: (obj) {
+        try {
+          final data = BlackHoleEventData.fromJson(
+            obj.objData as Map<String, dynamic>,
+          );
+          return 'col: ${data.colNumPlantIsDragged}';
+        } catch (_) {
+          return '';
+        }
+      },
     ),
   };
 

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 
 /// JSON code viewer. Ported from Z-Editor-master JsonCodeViewerScreen.kt
-class JsonViewerScreen extends StatelessWidget {
+/// Includes font size slider for readability.
+class JsonViewerScreen extends StatefulWidget {
   const JsonViewerScreen({
     super.key,
     required this.fileName,
@@ -16,31 +17,59 @@ class JsonViewerScreen extends StatelessWidget {
   final VoidCallback onBack;
 
   @override
+  State<JsonViewerScreen> createState() => _JsonViewerScreenState();
+}
+
+class _JsonViewerScreenState extends State<JsonViewerScreen> {
+  double _fontSize = 12;
+
+  @override
   Widget build(BuildContext context) {
-    final pretty = const JsonEncoder.withIndent('  ').convert(levelFile.toJson());
+    final pretty =
+        const JsonEncoder.withIndent('  ').convert(widget.levelFile.toJson());
 
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: onBack),
-        title: Text(fileName),
+        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack),
+        title: Text(widget.fileName),
       ),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Scrollbar(
-              thumbVisibility: true,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(right: 8),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: SelectableText(
-                    pretty,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontFamily: 'monospace',
-                      fontSize: 12,
+          Card(
+            margin: EdgeInsets.zero,
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Icon(Icons.format_size, size: 20, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Text('${_fontSize.toInt()}', style: Theme.of(context).textTheme.bodyMedium),
+                  Expanded(
+                    child: Slider(
+                      value: _fontSize,
+                      min: 6,
+                      max: 18,
+                      divisions: 12,
+                      onChanged: (v) => setState(() => _fontSize = v),
                     ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: InteractiveViewer(
+              constrained: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: SelectableText(
+                  pretty,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontFamily: 'monospace',
+                    fontSize: _fontSize,
+                    height: 1.3,
                   ),
                 ),
               ),

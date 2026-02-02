@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/plant_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
-import 'package:z_editor/widgets/asset_image.dart';
+import 'package:z_editor/l10n/resource_names.dart';
+import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 
 /// Plant selection. Ported from Z-Editor-master PlantSelectionScreen.kt
 class PlantSelectionScreen extends StatefulWidget {
@@ -170,6 +171,7 @@ class _PlantGridItem extends StatelessWidget {
                   child: iconPath != null
                       ? AssetImageWidget(
                           assetPath: iconPath,
+                          altCandidates: imageAltCandidates(iconPath),
                           width: 48,
                           height: 48,
                           fit: BoxFit.cover,
@@ -179,7 +181,7 @@ class _PlantGridItem extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                plant.name,
+                ResourceNames.lookup(context, plant.name),
                 style: theme.textTheme.bodySmall,
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -199,3 +201,4 @@ class _PlantGridItem extends StatelessWidget {
     );
   }
 }
+

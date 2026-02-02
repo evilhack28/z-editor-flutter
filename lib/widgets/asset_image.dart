@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+/// Supported image extensions: png, jpg, gif (gif files play animation).
+const List<String> kImageExtensions = ['.gif', '.png', '.jpg', '.webp'];
+
+/// Returns alternate asset paths for fallback when primary path fails.
+/// Prefers .gif first so animated icons display correctly.
+List<String> imageAltCandidates(String assetPath) {
+  final idx = assetPath.lastIndexOf('.');
+  final base = idx == -1 ? assetPath : assetPath.substring(0, idx);
+  final currentExt = idx == -1 ? '' : assetPath.substring(idx).toLowerCase();
+  return kImageExtensions
+      .where((e) => e != currentExt)
+      .map((e) => '$base$e')
+      .toList();
+}
 
 /// Loads and displays images from assets. Ported from Z-Editor-master AssetImage.kt
-class AssetImageWidget extends StatelessWidget {
+/// GIF files play animation automatically via Flutter's Image.asset.
+class AssetImageWidget extends StatefulWidget {
   const AssetImageWidget({
     super.key,
     required this.assetPath,
@@ -9,6 +26,7 @@ class AssetImageWidget extends StatelessWidget {
     this.height,
     this.fit = BoxFit.cover,
     this.errorWidget,
+    this.altCandidates,
   });
 
   /// Path relative to assets folder, e.g. 'images/stages/Stage_Modern.png'
@@ -17,21 +35,80 @@ class AssetImageWidget extends StatelessWidget {
   final double? height;
   final BoxFit fit;
   final Widget? errorWidget;
+  /// Alternative asset paths to try if [assetPath] is not found.
+  /// Useful for multi-extension fallback (e.g., .gif, .png, .jpg).
+  final List<String>? altCandidates;
+
+  @override
+  State<AssetImageWidget> createState() => _AssetImageWidgetState();
+}
+
+class _AssetImageWidgetState extends State<AssetImageWidget> {
+  String? _resolvedPath;
+  bool _resolving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolveAsset();
+  }
+
+  @override
+  void didUpdateWidget(covariant AssetImageWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.assetPath != widget.assetPath ||
+        oldWidget.altCandidates != widget.altCandidates) {
+      _resolveAsset();
+    }
+  }
+
+  Future<void> _resolveAsset() async {
+    setState(() {
+      _resolving = true;
+      _resolvedPath = null;
+    });
+    final candidates = <String>[widget.assetPath, ...?widget.altCandidates];
+    for (final path in candidates) {
+      try {
+        await rootBundle.load(path);
+        setState(() {
+          _resolvedPath = path;
+          _resolving = false;
+        });
+        return;
+      } catch (_) {
+        // try next
+      }
+    }
+    setState(() {
+      _resolving = false;
+      _resolvedPath = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final placeholder = widget.errorWidget ??
+        Icon(
+          Icons.image_not_supported,
+          size: widget.width ?? widget.height ?? 48,
+          color: Theme.of(context).colorScheme.outline,
+        );
+    if (_resolving) {
+      return SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      );
+    }
+    if (_resolvedPath == null) {
+      return placeholder;
+    }
     return Image.asset(
-      assetPath,
-      width: width,
-      height: height,
-      fit: fit,
-      errorBuilder: (_, __, ___) =>
-          errorWidget ??
-          Icon(
-            Icons.image_not_supported,
-            size: width ?? height ?? 48,
-            color: Theme.of(context).colorScheme.outline,
-          ),
+      _resolvedPath!,
+      width: widget.width,
+      height: widget.height,
+      fit: widget.fit,
     );
   }
 }

@@ -63,9 +63,7 @@ class _IZombieTabState extends State<IZombieTab> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     if (_evilDaveObj == null) {
-      return Center(
-        child: Text(l10n?.noLevelDefinition ?? 'Module not found'),
-      );
+      return Center(child: Text(l10n?.noLevelDefinition ?? 'Module not found'));
     }
 
     if (_isLoading) {
@@ -90,7 +88,10 @@ class _IZombieTabState extends State<IZombieTab> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Text('Plant Reserve Column (PlantDistance)'),
+            Text(
+              l10n?.iZombiePlantReserveLabel ??
+                  'Plant Reserve Column (PlantDistance)',
+            ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -102,7 +103,7 @@ class _IZombieTabState extends State<IZombieTab> {
                       : null,
                 ),
                 Text(
-                  'Column ${_data.plantDistance}',
+                  '${l10n?.column ?? "Column"} ${_data.plantDistance}',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 IconButton(
@@ -133,10 +134,11 @@ class _IZombieTabState extends State<IZombieTab> {
             const SizedBox(width: 16),
             Expanded(
               child: Text(
-                'In I, Zombie mode, preset plants and zombies must be configured in the Level Module (Preset Plants) and Seed Bank respectively.',
+                l10n?.iZombieInfoText ??
+                    'In I, Zombie mode, preset plants and zombies must be configured in the Level Module (Preset Plants) and Seed Bank respectively.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ],
