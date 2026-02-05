@@ -248,21 +248,24 @@ class _CustomZombiePropertiesScreenState
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Select size'),
-        content: RadioGroup<String?>(
-          groupValue: selected,
-          onChanged: (val) {
-            selected = val;
-            setState(() {});
+        content: StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: options.map((opt) {
+                return RadioListTile<String?>(
+                  value: opt,
+                  groupValue: selected,
+                  onChanged: (val) {
+                    setState(() {
+                      selected = val;
+                    });
+                  },
+                  title: Text(opt ?? 'null'),
+                );
+              }).toList(),
+            );
           },
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: options.map((opt) {
-              return RadioListTile<String?>(
-                value: opt,
-                title: Text(opt ?? 'null'),
-              );
-            }).toList(),
-          ),
         ),
         actions: [
           TextButton(
@@ -358,6 +361,7 @@ class _CustomZombiePropertiesScreenState
           onPressed: widget.onBack,
         ),
         title: const Text('Custom zombie properties'),
+        backgroundColor: theme.colorScheme.primaryContainer,
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
@@ -858,11 +862,10 @@ class _CustomZombiePropertiesScreenState
     required bool checked,
     required ValueChanged<bool> onChanged,
   }) {
-    return Row(
-      children: [
-        Expanded(child: Text(title)),
-        Switch(value: checked, onChanged: onChanged),
-      ],
+    return SwitchListTile(
+      title: Text(title),
+      value: checked,
+      onChanged: onChanged,
     );
   }
 
