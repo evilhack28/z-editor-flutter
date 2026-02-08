@@ -131,6 +131,8 @@ class ModuleRegistry {
         return l10n.moduleTitle_DeathHoleModuleProperties;
       case 'moduleTitle_ZombieMoveFastModuleProperties':
         return l10n.moduleTitle_ZombieMoveFastModuleProperties;
+      case 'moduleTitle_InitialPlantProperties':
+        return l10n.moduleTitle_InitialPlantProperties;
       case 'moduleTitle_InitialPlantEntryProperties':
         return l10n.moduleTitle_InitialPlantEntryProperties;
       case 'moduleTitle_InitialZombieProperties':
@@ -223,6 +225,8 @@ class ModuleRegistry {
         return l10n.moduleDesc_DeathHoleModuleProperties;
       case 'moduleDesc_ZombieMoveFastModuleProperties':
         return l10n.moduleDesc_ZombieMoveFastModuleProperties;
+      case 'moduleDesc_InitialPlantProperties':
+        return l10n.moduleDesc_InitialPlantProperties;
       case 'moduleDesc_InitialPlantEntryProperties':
         return l10n.moduleDesc_InitialPlantEntryProperties;
       case 'moduleDesc_InitialZombieProperties':
@@ -550,6 +554,17 @@ class ModuleRegistry {
       defaultAlias: 'FastSpeed',
       initialDataFactory: () => ZombieMoveFastModulePropertiesData(),
       routeId: 'ZombieMoveFastModule',
+    ),
+    'InitialPlantProperties': ModuleMetadata(
+      titleKey: 'moduleTitle_InitialPlantProperties',
+      descriptionKey: 'moduleDesc_InitialPlantProperties',
+      icon: Icons.ac_unit,
+      isCore: true,
+      allowMultiple: true,
+      category: ModuleCategory.scene,
+      defaultAlias: 'FrozenPlantPlacement',
+      initialDataFactory: () => InitialPlantPropertiesData(),
+      routeId: 'InitialPlantProperties',
     ),
     'InitialPlantEntryProperties': ModuleMetadata(
       titleKey: 'moduleTitle_InitialPlantEntryProperties',

@@ -48,6 +48,10 @@ class ConflictRegistry {
       description: 'Pre-placed plants on the roof will cause a crash.',
     ),
     ModuleConflictRule(
+      conflictingClasses: {'InitialPlantProperties', 'RoofProperties'},
+      description: 'Legacy preset plants on the roof will cause a crash.',
+    ),
+    ModuleConflictRule(
       conflictingClasses: {'ProtectThePlantChallengeProperties', 'RoofProperties'},
       description: 'Protected plants on the roof will cause a crash.',
     ),

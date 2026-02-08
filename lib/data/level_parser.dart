@@ -52,4 +52,11 @@ class LevelParser {
     }
     return rtid;
   }
+
+  /// Returns true if the lawn uses DeepSea or DeepSeaLand grid (6x10).
+  static bool isDeepSeaLawn(LevelDefinitionData? levelDef) {
+    if (levelDef == null || levelDef.stageModule.isEmpty) return false;
+    final alias = extractAlias(levelDef.stageModule);
+    return alias == 'DeepseaStage' || alias == 'DeepseaLandStage';
+  }
 }

@@ -28,6 +28,7 @@ class ObjectOrderRegistry {
     'LevelScoringModuleProperties',
     'LevelMutatorStartingPlantfoodProps',
     'LevelMutatorMaxSunProps',
+    'InitialPlantProperties',
     'InitialPlantEntryProperties',
     'InitialZombieProperties',
     'InitialGridItemProperties',

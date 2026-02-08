@@ -2140,6 +2140,18 @@ abstract class AppLocalizations {
   /// **'Zombies move fast on entry'**
   String get moduleDesc_ZombieMoveFastModuleProperties;
 
+  /// No description provided for @moduleTitle_InitialPlantProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy Preset Plants'**
+  String get moduleTitle_InitialPlantProperties;
+
+  /// No description provided for @moduleDesc_InitialPlantProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy preset plants with frozen plant support'**
+  String get moduleDesc_InitialPlantProperties;
+
   /// No description provided for @moduleTitle_InitialPlantEntryProperties.
   ///
   /// In en, this message translates to:
@@ -2151,6 +2163,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Plants present at start'**
   String get moduleDesc_InitialPlantEntryProperties;
+
+  /// No description provided for @frozenPlantPlacementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy Preset Plants'**
+  String get frozenPlantPlacementTitle;
+
+  /// No description provided for @frozenPlantPlacementLastStand.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Stand mode'**
+  String get frozenPlantPlacementLastStand;
+
+  /// No description provided for @frozenPlantPlacementSelectedPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected position'**
+  String get frozenPlantPlacementSelectedPosition;
+
+  /// No description provided for @frozenPlantPlacementPlaceHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Place here'**
+  String get frozenPlantPlacementPlaceHere;
+
+  /// No description provided for @frozenPlantPlacementPlantList.
+  ///
+  /// In en, this message translates to:
+  /// **'Plant list (row-first)'**
+  String get frozenPlantPlacementPlantList;
+
+  /// No description provided for @frozenPlantPlacementEditPlant.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit {name}'**
+  String frozenPlantPlacementEditPlant(Object name);
+
+  /// No description provided for @frozenPlantPlacementLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get frozenPlantPlacementLevel;
+
+  /// No description provided for @frozenPlantPlacementCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get frozenPlantPlacementCondition;
+
+  /// No description provided for @frozenPlantPlacementConditionNull.
+  ///
+  /// In en, this message translates to:
+  /// **'None (null)'**
+  String get frozenPlantPlacementConditionNull;
+
+  /// No description provided for @frozenPlantPlacementHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy Preset Plants - Help'**
+  String get frozenPlantPlacementHelpTitle;
+
+  /// No description provided for @frozenPlantPlacementHelpOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get frozenPlantPlacementHelpOverviewTitle;
+
+  /// No description provided for @frozenPlantPlacementHelpOverviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This module configures plant layout before the level starts. Similar to preset plant layout but with a different structure and special state support.'**
+  String get frozenPlantPlacementHelpOverviewBody;
+
+  /// No description provided for @frozenPlantPlacementHelpConditionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Special State'**
+  String get frozenPlantPlacementHelpConditionTitle;
+
+  /// No description provided for @frozenPlantPlacementHelpConditionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Plants can be set to frozen state, commonly used in Ice Age levels.'**
+  String get frozenPlantPlacementHelpConditionBody;
+
+  /// No description provided for @frozenPlantPlacementHelpLastStandTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Stand Mode'**
+  String get frozenPlantPlacementHelpLastStandTitle;
+
+  /// No description provided for @frozenPlantPlacementHelpLastStandBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When Last Stand mode is enabled, initial plants will be destroyed after the game starts. Note: Chinese version does not show the plant destruction fire effect.'**
+  String get frozenPlantPlacementHelpLastStandBody;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
 
   /// No description provided for @moduleTitle_InitialZombieProperties.
   ///

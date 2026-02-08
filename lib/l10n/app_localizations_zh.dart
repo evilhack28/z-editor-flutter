@@ -1062,10 +1062,71 @@ class AppLocalizationsZh extends AppLocalizations {
   String get moduleDesc_ZombieMoveFastModuleProperties => '僵尸入场加速';
 
   @override
+  String get moduleTitle_InitialPlantProperties => '旧版预置植物';
+
+  @override
+  String get moduleDesc_InitialPlantProperties => '预置植物传统写法，可放置冰封植物';
+
+  @override
   String get moduleTitle_InitialPlantEntryProperties => '初始植物';
 
   @override
   String get moduleDesc_InitialPlantEntryProperties => '开局已有植物';
+
+  @override
+  String get frozenPlantPlacementTitle => '旧版预置植物';
+
+  @override
+  String get frozenPlantPlacementLastStand => '复活之战模式';
+
+  @override
+  String get frozenPlantPlacementSelectedPosition => '选中位置';
+
+  @override
+  String get frozenPlantPlacementPlaceHere => '在此放置';
+
+  @override
+  String get frozenPlantPlacementPlantList => '植物分布列表（行优先）';
+
+  @override
+  String frozenPlantPlacementEditPlant(Object name) {
+    return '编辑 $name';
+  }
+
+  @override
+  String get frozenPlantPlacementLevel => '等级';
+
+  @override
+  String get frozenPlantPlacementCondition => '初始状态';
+
+  @override
+  String get frozenPlantPlacementConditionNull => '无状态 (null)';
+
+  @override
+  String get frozenPlantPlacementHelpTitle => '初始植物配置模块说明';
+
+  @override
+  String get frozenPlantPlacementHelpOverviewTitle => '简要介绍';
+
+  @override
+  String get frozenPlantPlacementHelpOverviewBody =>
+      '此模块用于在关卡开始前配置植物布局，与预置植物布局类似，但结构不同且支持特殊状态。';
+
+  @override
+  String get frozenPlantPlacementHelpConditionTitle => '特殊状态';
+
+  @override
+  String get frozenPlantPlacementHelpConditionBody => '可以为植物设置冰封状态，常见于冰河世界关卡。';
+
+  @override
+  String get frozenPlantPlacementHelpLastStandTitle => '复活之战模式';
+
+  @override
+  String get frozenPlantPlacementHelpLastStandBody =>
+      '开启复活之战模式后，初始植物将于开始游戏后被销毁。注意中文版没有销毁植物的火焰效果。';
+
+  @override
+  String get save => '保存';
 
   @override
   String get moduleTitle_InitialZombieProperties => '初始僵尸';

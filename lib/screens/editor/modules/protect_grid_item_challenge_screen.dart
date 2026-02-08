@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/grid_item_repository.dart';
+import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
@@ -108,6 +109,14 @@ class _ProtectGridItemChallengeScreenState
     );
     _sync();
   }
+
+  bool get _isDeepSeaLawn {
+    final parsed = LevelParser.parseLevel(widget.levelFile);
+    return LevelParser.isDeepSeaLawn(parsed.levelDef);
+  }
+
+  int get _gridRows => _isDeepSeaLawn ? 6 : 5;
+  int get _gridCols => _isDeepSeaLawn ? 10 : 9;
 
   @override
   void dispose() {
@@ -246,6 +255,8 @@ class _ProtectGridItemChallengeScreenState
             const SizedBox(height: 8),
             ...sorted.map((item) => _GridItemTile(
                   item: item,
+                  gridRows: _gridRows,
+                  gridCols: _gridCols,
                   onDelete: () => _removeItem(item),
                   onSelect: () => setState(() {
                     _selectedX = item.gridX;
@@ -264,7 +275,7 @@ class _ProtectGridItemChallengeScreenState
       child: Container(
         constraints: const BoxConstraints(maxWidth: 480),
         child: AspectRatio(
-          aspectRatio: 1.8,
+          aspectRatio: _gridCols / _gridRows,
           child: Container(
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
@@ -274,10 +285,10 @@ class _ProtectGridItemChallengeScreenState
               border: Border.all(color: const Color(0xFF6B899A), width: 1),
             ),
             child: Column(
-              children: List.generate(5, (row) {
+              children: List.generate(_gridRows, (row) {
                 return Expanded(
                   child: Row(
-                    children: List.generate(9, (col) {
+                    children: List.generate(_gridCols, (col) {
                       final isSelected = row == _selectedY && col == _selectedX;
                       final item = _data.gridItems.firstWhereOrNull(
                         (p) => p.gridX == col && p.gridY == row,
@@ -303,8 +314,20 @@ class _ProtectGridItemChallengeScreenState
                               ),
                             ),
                             child: item != null
-                                ? Center(
-                                    child: _GridItemIconSmall(item.gridItemType),
+                                ? Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      Positioned.fill(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(2),
+                                          child: FittedBox(
+                                            fit: BoxFit.contain,
+                                            child: _GridItemIconSmall(
+                                                item.gridItemType),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   )
                                 : null,
                           ),
@@ -365,13 +388,20 @@ class _GridItemIconSmall extends StatelessWidget {
 class _GridItemTile extends StatelessWidget {
   const _GridItemTile({
     required this.item,
+    required this.gridRows,
+    required this.gridCols,
     required this.onDelete,
     required this.onSelect,
   });
 
   final ProtectGridItemData item;
+  final int gridRows;
+  final int gridCols;
   final VoidCallback onDelete;
   final VoidCallback onSelect;
+
+  bool get _isOutOfBounds =>
+      item.gridX >= gridCols || item.gridY >= gridRows;
 
   @override
   Widget build(BuildContext context) {
@@ -382,8 +412,20 @@ class _GridItemTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         onTap: onSelect,
-        leading: path != null
-            ? ClipRRect(
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_isOutOfBounds)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.amber.shade700,
+                  size: 24,
+                ),
+              ),
+            if (path != null)
+              ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: AssetImageWidget(
                   assetPath: path,
@@ -393,7 +435,10 @@ class _GridItemTile extends StatelessWidget {
                   altCandidates: imageAltCandidates(path),
                 ),
               )
-            : const Icon(Icons.grid_4x4),
+            else
+              const Icon(Icons.grid_4x4),
+          ],
+        ),
         title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(
           'R${item.gridY + 1}:C${item.gridX + 1}',

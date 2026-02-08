@@ -210,7 +210,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
   void _openTemplateSelector() async {
     List<String> list;
     try {
-      final manifest = await rootBundle.loadString('assets/template/manifest.json');
+      final manifest = await rootBundle.loadString('assets/reference/template/manifest.json');
       list = LevelRepository.parseTemplateManifest(manifest);
     } catch (_) {
       list = [];
@@ -311,7 +311,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
     // Load template from assets
     String content;
     try {
-      content = await rootBundle.loadString('assets/template/$_selectedTemplate');
+      content = await rootBundle.loadString('assets/reference/template/$_selectedTemplate');
     } catch (_) {
       content = '{"objects":[{"objclass":"LevelDefinition","objdata":{"Name":"","LevelNumber":1,"Description":"","StageModule":"RTID(TutorialStage@LevelModules)","Loot":"RTID(DefaultLoot@LevelModules)","StartingSun":200,"VictoryModule":"RTID(VictoryOutro@LevelModules)","MusicType":"","Modules":[]}}],"version":1}';
     }

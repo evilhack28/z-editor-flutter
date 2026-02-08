@@ -493,7 +493,74 @@ class InitialPlantListData {
   };
 }
 
-// === Initial Plant ===
+// === Initial Plant (Frozen Plant Placement - legacy format) ===
+
+class InitialPlantPropertiesData {
+  InitialPlantPropertiesData({
+    this.placements = const [],
+    this.isInitialIntensiveCarrotPlacements,
+  });
+
+  List<InitialPlantPlacementData> placements;
+  bool? isInitialIntensiveCarrotPlacements;
+
+  factory InitialPlantPropertiesData.fromJson(Map<String, dynamic> json) {
+    return InitialPlantPropertiesData(
+      placements:
+          (json['InitialPlantPlacements'] as List<dynamic>?)
+              ?.map(
+                (e) =>
+                    InitialPlantPlacementData.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
+      isInitialIntensiveCarrotPlacements:
+          json['IsInitialIntensiveCarrotPlacements'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'InitialPlantPlacements': placements.map((e) => e.toJson()).toList(),
+    if (isInitialIntensiveCarrotPlacements != null)
+      'IsInitialIntensiveCarrotPlacements': isInitialIntensiveCarrotPlacements,
+  };
+}
+
+class InitialPlantPlacementData {
+  InitialPlantPlacementData({
+    this.gridX = 0,
+    this.gridY = 0,
+    this.typeName = '',
+    this.level = 1,
+    this.condition,
+  });
+
+  int gridX;
+  int gridY;
+  String typeName;
+  int level;
+  String? condition;
+
+  factory InitialPlantPlacementData.fromJson(Map<String, dynamic> json) {
+    return InitialPlantPlacementData(
+      gridX: json['GridX'] as int? ?? 0,
+      gridY: json['GridY'] as int? ?? 0,
+      typeName: json['TypeName'] as String? ?? '',
+      level: json['Level'] as int? ?? 1,
+      condition: json['Condition'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'GridX': gridX,
+    'GridY': gridY,
+    'TypeName': typeName,
+    'Level': level,
+    if (condition != null) 'Condition': condition,
+  };
+}
+
+// === Initial Plant Entry (standard format) ===
 
 class InitialPlantEntryData {
   InitialPlantEntryData({this.plants = const []});

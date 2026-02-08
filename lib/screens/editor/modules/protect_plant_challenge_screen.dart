@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
@@ -99,6 +100,14 @@ class _ProtectPlantChallengeScreenState
     _data = ProtectThePlantChallengePropertiesData(plants: list);
     _sync();
   }
+
+  bool get _isDeepSeaLawn {
+    final parsed = LevelParser.parseLevel(widget.levelFile);
+    return LevelParser.isDeepSeaLawn(parsed.levelDef);
+  }
+
+  int get _gridRows => _isDeepSeaLawn ? 6 : 5;
+  int get _gridCols => _isDeepSeaLawn ? 10 : 9;
 
   @override
   Widget build(BuildContext context) {
@@ -210,6 +219,8 @@ class _ProtectPlantChallengeScreenState
             const SizedBox(height: 8),
             ...sorted.map((p) => _PlantListTile(
                   plant: p,
+                  gridRows: _gridRows,
+                  gridCols: _gridCols,
                   onDelete: () => _removePlant(p),
                   onSelect: () => setState(() {
                     _selectedX = p.gridX;
@@ -228,7 +239,7 @@ class _ProtectPlantChallengeScreenState
       child: Container(
         constraints: const BoxConstraints(maxWidth: 480),
         child: AspectRatio(
-          aspectRatio: 1.8,
+          aspectRatio: _gridCols / _gridRows,
           child: Container(
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
@@ -238,10 +249,10 @@ class _ProtectPlantChallengeScreenState
               border: Border.all(color: const Color(0xFFA5D6A7), width: 1),
             ),
             child: Column(
-              children: List.generate(5, (row) {
+              children: List.generate(_gridRows, (row) {
                 return Expanded(
                   child: Row(
-                    children: List.generate(9, (col) {
+                    children: List.generate(_gridCols, (col) {
                       final isSelected = row == _selectedY && col == _selectedX;
                       final plant = _data.plants.firstWhereOrNull(
                         (p) => p.gridX == col && p.gridY == row,
@@ -267,8 +278,19 @@ class _ProtectPlantChallengeScreenState
                               ),
                             ),
                             child: plant != null
-                                ? Center(
-                                    child: _PlantIconSmall(plant.plantType),
+                                ? Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      Positioned.fill(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(2),
+                                          child: FittedBox(
+                                            fit: BoxFit.contain,
+                                            child: _PlantIconSmall(plant.plantType),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   )
                                 : null,
                           ),
@@ -313,13 +335,20 @@ class _PlantIconSmall extends StatelessWidget {
 class _PlantListTile extends StatelessWidget {
   const _PlantListTile({
     required this.plant,
+    required this.gridRows,
+    required this.gridCols,
     required this.onDelete,
     required this.onSelect,
   });
 
   final ProtectPlantData plant;
+  final int gridRows;
+  final int gridCols;
   final VoidCallback onDelete;
   final VoidCallback onSelect;
+
+  bool get _isOutOfBounds =>
+      plant.gridX >= gridCols || plant.gridY >= gridRows;
 
   @override
   Widget build(BuildContext context) {
@@ -332,15 +361,29 @@ class _PlantListTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         onTap: onSelect,
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: AssetImageWidget(
-            assetPath: path,
-            width: 40,
-            height: 40,
-            fit: BoxFit.cover,
-            altCandidates: imageAltCandidates(path),
-          ),
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_isOutOfBounds)
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.amber.shade700,
+                  size: 24,
+                ),
+              ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: AssetImageWidget(
+                assetPath: path,
+                width: 40,
+                height: 40,
+                fit: BoxFit.cover,
+                altCandidates: imageAltCandidates(path),
+              ),
+            ),
+          ],
         ),
         title: Text(
           info?.name ?? plant.plantType,

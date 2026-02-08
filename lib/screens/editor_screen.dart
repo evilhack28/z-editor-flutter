@@ -32,6 +32,7 @@ import 'package:z_editor/screens/editor/modules/zombie_move_fast_module_screen.d
 import 'package:z_editor/screens/editor/modules/wave_manager_settings_screen.dart';
 import 'package:z_editor/screens/editor/modules/last_stand_minigame_screen.dart';
 import 'package:z_editor/screens/editor/modules/initial_plant_entry_screen.dart';
+import 'package:z_editor/screens/editor/modules/initial_plant_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/initial_zombie_entry_screen.dart';
 import 'package:z_editor/screens/editor/modules/initial_grid_item_entry_screen.dart';
 import 'package:z_editor/screens/editor/modules/manhole_pipeline_module_screen.dart';
@@ -1425,6 +1426,21 @@ class _EditorScreenState extends State<EditorScreen> {
                 ),
               );
             },
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'InitialPlantProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => InitialPlantPropertiesScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
           ),
         ),
       );

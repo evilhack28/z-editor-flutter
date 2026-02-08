@@ -1,16 +1,17 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
+import 'package:z_editor/data/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/zombie_repository.dart';
-import 'package:z_editor/screens/select/zombie_selection_screen.dart';
+import 'package:z_editor/theme/app_theme.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/screens/select/plant_selection_screen.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
-/// Initial zombie entry. Ported from Z-Editor-master InitialZombieEntryEP.kt
-class InitialZombieEntryScreen extends StatefulWidget {
-  const InitialZombieEntryScreen({
+/// Legacy preset plants (frozen plant placement). Ported from Z-Editor-master InitialPlantPropertiesEP.kt
+class InitialPlantPropertiesScreen extends StatefulWidget {
+  const InitialPlantPropertiesScreen({
     super.key,
     required this.rtid,
     required this.levelFile,
@@ -24,22 +25,16 @@ class InitialZombieEntryScreen extends StatefulWidget {
   final VoidCallback onBack;
 
   @override
-  State<InitialZombieEntryScreen> createState() =>
-      _InitialZombieEntryScreenState();
+  State<InitialPlantPropertiesScreen> createState() =>
+      _InitialPlantPropertiesScreenState();
 }
 
-class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
+class _InitialPlantPropertiesScreenState extends State<InitialPlantPropertiesScreen> {
   late PvzObject _moduleObj;
-  late InitialZombieEntryData _data;
+  late InitialPlantPropertiesData _data;
   int _selectedX = 0;
   int _selectedY = 0;
-  InitialZombieData? _editingPlacement;
-
-  static const _zombieConditions = [
-    ('icecubed', 'Icecubed (icecubed)'),
-    ('freeze', 'Frozen (freeze)'),
-    ('stun', 'Stunned (stun)'),
-  ];
+  InitialPlantPlacementData? _editingPlacement;
 
   @override
   void initState() {
@@ -54,21 +49,24 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
       (o) => o.aliases?.contains(alias) == true,
       orElse: () => PvzObject(
         aliases: [alias],
-        objClass: 'InitialZombieProperties',
-        objData: InitialZombieEntryData().toJson(),
+        objClass: 'InitialPlantProperties',
+        objData: InitialPlantPropertiesData().toJson(),
       ),
     );
     if (!widget.levelFile.objects.contains(_moduleObj)) {
       widget.levelFile.objects.add(_moduleObj);
     }
     try {
-      _data = InitialZombieEntryData.fromJson(
+      _data = InitialPlantPropertiesData.fromJson(
         Map<String, dynamic>.from(_moduleObj.objData as Map),
       );
     } catch (_) {
-      _data = InitialZombieEntryData();
+      _data = InitialPlantPropertiesData();
     }
-    _data = InitialZombieEntryData(placements: List.from(_data.placements));
+    _data = InitialPlantPropertiesData(
+      placements: List.from(_data.placements),
+      isInitialIntensiveCarrotPlacements: _data.isInitialIntensiveCarrotPlacements,
+    );
   }
 
   void _sync() {
@@ -77,31 +75,27 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
     setState(() {});
   }
 
-  void _handleAddZombie() {
-    final repo = ZombieRepository();
+  void _handleSelectPlant() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ZombieSelectionScreen(
-          multiSelect: false,
-          onZombieSelected: (id) {
+        builder: (_) => PlantSelectionScreen(
+          isMultiSelect: false,
+          onPlantSelected: (id) {
             Navigator.pop(context);
-            final isElite = repo.getZombieById(id)?.tags.contains(ZombieTag.elite) ?? false;
-            if (isElite) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cannot add elite zombies')),
-              );
-              return;
-            }
-            final aliases = repo.buildZombieAliases(id);
-            final newList = List<InitialZombieData>.from(_data.placements);
-            newList.add(InitialZombieData(
+            final newList = List<InitialPlantPlacementData>.from(_data.placements);
+            newList.add(InitialPlantPlacementData(
               gridX: _selectedX,
               gridY: _selectedY,
-              typeName: aliases,
-              condition: 'icecubed',
+              typeName: id,
+              level: 1,
+              condition: null,
             ));
-            _data = InitialZombieEntryData(placements: newList);
+            _data = InitialPlantPropertiesData(
+              placements: newList,
+              isInitialIntensiveCarrotPlacements:
+                  _data.isInitialIntensiveCarrotPlacements,
+            );
             _sync();
           },
           onBack: () => Navigator.pop(context),
@@ -110,20 +104,31 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
     );
   }
 
-  void _updatePlacement(InitialZombieData oldItem, InitialZombieData newItem) {
-    final newList = List<InitialZombieData>.from(_data.placements);
-    final idx = newList.indexOf(oldItem);
+  void _updatePlacement(
+    InitialPlantPlacementData oldPlacement,
+    InitialPlantPlacementData newPlacement,
+  ) {
+    final newList = List<InitialPlantPlacementData>.from(_data.placements);
+    final idx = newList.indexOf(oldPlacement);
     if (idx >= 0) {
-      newList[idx] = newItem;
-      _data = InitialZombieEntryData(placements: newList);
+      newList[idx] = newPlacement;
+      _data = InitialPlantPropertiesData(
+        placements: newList,
+        isInitialIntensiveCarrotPlacements:
+            _data.isInitialIntensiveCarrotPlacements,
+      );
       _sync();
     }
   }
 
-  void _deletePlacement(InitialZombieData target) {
-    final newList = List<InitialZombieData>.from(_data.placements);
+  void _deletePlacement(InitialPlantPlacementData target) {
+    final newList = List<InitialPlantPlacementData>.from(_data.placements);
     newList.remove(target);
-    _data = InitialZombieEntryData(placements: newList);
+    _data = InitialPlantPropertiesData(
+      placements: newList,
+      isInitialIntensiveCarrotPlacements:
+          _data.isInitialIntensiveCarrotPlacements,
+    );
     _sync();
   }
 
@@ -135,10 +140,38 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
   int get _gridRows => _isDeepSeaLawn ? 6 : 5;
   int get _gridCols => _isDeepSeaLawn ? 10 : 9;
 
+  void _showHelp() {
+    final l10n = AppLocalizations.of(context)!;
+    showEditorHelpDialog(
+      context,
+      title: l10n.frozenPlantPlacementHelpTitle,
+      themeColor: Theme.of(context).brightness == Brightness.dark
+          ? pvzGreenDark
+          : pvzGreenLight,
+      sections: [
+        HelpSectionData(
+          title: l10n.frozenPlantPlacementHelpOverviewTitle,
+          body: l10n.frozenPlantPlacementHelpOverviewBody,
+        ),
+        HelpSectionData(
+          title: l10n.frozenPlantPlacementHelpConditionTitle,
+          body: l10n.frozenPlantPlacementHelpConditionBody,
+        ),
+        HelpSectionData(
+          title: l10n.frozenPlantPlacementHelpLastStandTitle,
+          body: l10n.frozenPlantPlacementHelpLastStandBody,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final sortedPlacements = List<InitialZombieData>.from(_data.placements)
+    final l10n = AppLocalizations.of(context)!;
+    final isDark = theme.brightness == Brightness.dark;
+    final barColor = isDark ? pvzGreenDark : pvzGreenLight;
+    final sortedPlacements = List<InitialPlantPlacementData>.from(_data.placements)
       ..sort((a, b) {
         final c = a.gridY.compareTo(b.gridY);
         return c != 0 ? c : a.gridX.compareTo(b.gridX);
@@ -146,11 +179,19 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Initial zombie layout'),
+        title: Text(l10n.frozenPlantPlacementTitle),
+        backgroundColor: barColor,
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: _showHelp,
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -159,6 +200,29 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Card(
+                  child: SwitchListTile(
+                    title: Text(
+                      l10n.frozenPlantPlacementLastStand,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      'IsInitialIntensiveCarrotPlacements',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    value: _data.isInitialIntensiveCarrotPlacements == true,
+                    onChanged: (v) {
+                      _data = InitialPlantPropertiesData(
+                        placements: _data.placements,
+                        isInitialIntensiveCarrotPlacements: v ? true : null,
+                      );
+                      _sync();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -171,7 +235,7 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Selected position',
+                                  l10n.frozenPlantPlacementSelectedPosition,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
@@ -187,9 +251,9 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
                             ),
                             const Spacer(),
                             FilledButton.icon(
-                              onPressed: _handleAddZombie,
+                              onPressed: _handleSelectPlant,
                               icon: const Icon(Icons.add, size: 18),
-                              label: const Text('Place zombie'),
+                              label: Text(l10n.frozenPlantPlacementPlaceHere),
                             ),
                           ],
                         ),
@@ -201,26 +265,27 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Zombie list (row-first)',
+                  l10n.frozenPlantPlacementPlantList,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 8),
-                ...sortedPlacements.map((p) => _InitialZombieCard(
-                  item: p,
-                  gridRows: _gridRows,
-                  gridCols: _gridCols,
-                  isSelected: p.gridX == _selectedX && p.gridY == _selectedY,
-                  onTap: () {
-                    setState(() {
-                      _selectedX = p.gridX;
-                      _selectedY = p.gridY;
-                      _editingPlacement = p;
-                    });
-                  },
-                )),
+                ...sortedPlacements.map((p) => _PlacementCard(
+                      placement: p,
+                      gridRows: _gridRows,
+                      gridCols: _gridCols,
+                      isSelected:
+                          p.gridX == _selectedX && p.gridY == _selectedY,
+                      onTap: () {
+                        setState(() {
+                          _selectedX = p.gridX;
+                          _selectedY = p.gridY;
+                          _editingPlacement = p;
+                        });
+                      },
+                    )),
               ],
             ),
           ),
@@ -232,31 +297,35 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
 
   Widget _buildGrid() {
     final theme = Theme.of(context);
+    final rows = _gridRows;
+    final cols = _gridCols;
     return scaleTableForDesktop(
       context: context,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 480),
         child: AspectRatio(
-          aspectRatio: _gridCols / _gridRows,
+          aspectRatio: cols / rows,
           child: Container(
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
-                  ? const Color(0xFF40404B)
-                  : const Color(0xFFEFEFFF),
+                  ? const Color(0xFF3C483D)
+                  : const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFFBAC4FA), width: 1),
+              border: Border.all(color: const Color(0xFFC8E6C9), width: 1),
             ),
             child: Column(
-              children: List.generate(_gridRows, (row) {
+              children: List.generate(rows, (row) {
                 return Expanded(
                   child: Row(
-                    children: List.generate(_gridCols, (col) {
-                      final isSelected = row == _selectedY && col == _selectedX;
-                      final cellZombies = _data.placements
+                    children: List.generate(cols, (col) {
+                      final isSelected =
+                          row == _selectedY && col == _selectedX;
+                      final cellPlacements = _data.placements
                           .where((p) => p.gridX == col && p.gridY == row)
                           .toList();
-                      final firstZombie = cellZombies.firstOrNull;
-                      final count = cellZombies.length;
+                      final firstPlacement =
+                          cellPlacements.isNotEmpty ? cellPlacements.first : null;
+                      final count = cellPlacements.length;
                       return Expanded(
                         child: GestureDetector(
                           onTap: () => setState(() {
@@ -274,11 +343,11 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
                               border: Border.all(
                                 color: isSelected
                                     ? theme.colorScheme.primary
-                                    : const Color(0xFF8581FA),
+                                    : const Color(0xFFA5D6A7),
                                 width: 0.5,
                               ),
                             ),
-                            child: count > 0 && firstZombie != null
+                            child: count > 0 && firstPlacement != null
                                 ? Stack(
                                     fit: StackFit.expand,
                                     children: [
@@ -287,8 +356,8 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
                                           padding: const EdgeInsets.all(2),
                                           child: FittedBox(
                                             fit: BoxFit.contain,
-                                            child: _ZombieIconSmall(
-                                                firstZombie.typeName),
+                                            child: _PlantIconSmall(
+                                                firstPlacement.typeName),
                                           ),
                                         ),
                                       ),
@@ -338,7 +407,7 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
 
   Widget _buildEditDialog() {
     final placement = _editingPlacement!;
-    return _InitialZombieEditDialog(
+    return _PlacementEditDialog(
       placement: placement,
       onSave: (updated) {
         _updatePlacement(placement, updated);
@@ -353,19 +422,16 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
   }
 }
 
-class _ZombieIconSmall extends StatelessWidget {
-  const _ZombieIconSmall(this.typeName);
+class _PlantIconSmall extends StatelessWidget {
+  const _PlantIconSmall(this.plantType);
 
-  final String typeName;
+  final String plantType;
 
   @override
   Widget build(BuildContext context) {
-    final info = ZombieRepository().getZombieById(typeName) ??
-        ZombieRepository().getZombieById(
-          typeName.replaceAll('_elite', ''),
-        );
+    final info = PlantRepository().getPlantInfoById(plantType);
     final path = info?.icon != null
-        ? 'assets/images/zombies/${info!.icon}'
+        ? 'assets/images/plants/${info!.icon}'
         : 'assets/images/others/unknown.webp';
     return ClipRRect(
       borderRadius: BorderRadius.circular(4),
@@ -380,41 +446,38 @@ class _ZombieIconSmall extends StatelessWidget {
   }
 }
 
-class _InitialZombieCard extends StatelessWidget {
-  const _InitialZombieCard({
-    required this.item,
+class _PlacementCard extends StatelessWidget {
+  const _PlacementCard({
+    required this.placement,
     required this.gridRows,
     required this.gridCols,
     required this.isSelected,
     required this.onTap,
   });
 
-  final InitialZombieData item;
+  final InitialPlantPlacementData placement;
   final int gridRows;
   final int gridCols;
   final bool isSelected;
   final VoidCallback onTap;
 
   bool get _isOutOfBounds =>
-      item.gridX >= gridCols || item.gridY >= gridRows;
+      placement.gridX >= gridCols || placement.gridY >= gridRows;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final info = ZombieRepository().getZombieById(item.typeName) ??
-        ZombieRepository().getZombieById(
-          item.typeName.replaceAll('_elite', ''),
-        );
+    final info = PlantRepository().getPlantInfoById(placement.typeName);
     final path = info?.icon != null
-        ? 'assets/images/zombies/${info!.icon}'
+        ? 'assets/images/plants/${info!.icon}'
         : 'assets/images/others/unknown.webp';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       color: isSelected
           ? (theme.brightness == Brightness.dark
-              ? const Color(0xFF40404B)
-              : const Color(0xFFD9D7F6))
+              ? const Color(0xFF3C483D)
+              : const Color(0xFFD5F3D6))
           : theme.cardTheme.color,
       shape: RoundedRectangleBorder(
         side: isSelected
@@ -458,15 +521,15 @@ class _InitialZombieCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'R${item.gridY + 1}:C${item.gridX + 1}',
+                    'R${placement.gridY + 1}:C${placement.gridX + 1}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
-                      color: Color(0xFF654B80),
+                      color: Color(0xFF2E7D32),
                     ),
                   ),
                   Text(
-                    item.condition,
+                    placement.condition ?? 'null',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -481,130 +544,98 @@ class _InitialZombieCard extends StatelessWidget {
   }
 }
 
-class _InitialZombieEditDialog extends StatefulWidget {
-  const _InitialZombieEditDialog({
+class _PlacementEditDialog extends StatefulWidget {
+  const _PlacementEditDialog({
     required this.placement,
     required this.onSave,
     required this.onDelete,
     required this.onCancel,
   });
 
-  final InitialZombieData placement;
-  final void Function(InitialZombieData) onSave;
+  final InitialPlantPlacementData placement;
+  final void Function(InitialPlantPlacementData) onSave;
   final VoidCallback onDelete;
   final VoidCallback onCancel;
 
   @override
-  State<_InitialZombieEditDialog> createState() =>
-      _InitialZombieEditDialogState();
+  State<_PlacementEditDialog> createState() => _PlacementEditDialogState();
 }
 
-class _InitialZombieEditDialogState extends State<_InitialZombieEditDialog> {
-  late String _condition;
-  late bool _isCustomInput;
-  late TextEditingController _conditionController;
+class _PlacementEditDialogState extends State<_PlacementEditDialog> {
+  late int _level;
+  late String? _condition;
 
   @override
   void initState() {
     super.initState();
+    _level = widget.placement.level;
     _condition = widget.placement.condition;
-    _isCustomInput = !_InitialZombieEntryScreenState._zombieConditions
-        .any((e) => e.$1 == _condition);
-    _conditionController = TextEditingController(text: _condition);
-  }
-
-  @override
-  void dispose() {
-    _conditionController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final name = ZombieRepository().getName(widget.placement.typeName);
+    final l10n = AppLocalizations.of(context)!;
+    final name =
+        PlantRepository().getName(widget.placement.typeName);
     return AlertDialog(
-      title: Text('Edit preset zombie: $name'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SwitchListTile(
-              title: const Text('Manual input'),
-              value: _isCustomInput,
-              onChanged: (v) => setState(() => _isCustomInput = v),
+      title: Text(l10n.frozenPlantPlacementEditPlant(name)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${l10n.frozenPlantPlacementLevel}: $_level',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Slider(
+            value: _level.toDouble(),
+            min: 1,
+            max: 5,
+            divisions: 4,
+            onChanged: (v) => setState(() => _level = v.round()),
+          ),
+          const Divider(),
+          DropdownButtonFormField<String?>(
+            initialValue: _condition,
+            decoration: InputDecoration(
+              labelText: l10n.frozenPlantPlacementCondition,
             ),
-            if (_isCustomInput) ...[
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Enter condition value',
-                  border: OutlineInputBorder(),
-                ),
-                controller: _conditionController,
-                onChanged: (v) => setState(() => _condition = v),
+            items: [
+              DropdownMenuItem<String?>(
+                value: null,
+                child: Text(l10n.frozenPlantPlacementConditionNull),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Custom input must be accurate',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ] else ...[
-              DropdownButtonFormField<String>(
-                initialValue: _InitialZombieEntryScreenState._zombieConditions
-                        .any((e) => e.$1 == _condition)
-                    ? _condition
-                    : _InitialZombieEntryScreenState._zombieConditions.first.$1,
-                decoration: const InputDecoration(
-                  labelText: 'Preset conditions',
-                  border: OutlineInputBorder(),
-                ),
-                items: _InitialZombieEntryScreenState._zombieConditions
-                    .map((e) => DropdownMenuItem(
-                          value: e.$1,
-                          child: Text(e.$2),
-                        ))
-                    .toList(),
-                onChanged: (v) {
-                  if (v != null) setState(() => _condition = v);
-                },
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Select from preset condition list',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+              const DropdownMenuItem<String?>(
+                value: 'icecubed',
+                child: Text('icecubed'),
               ),
             ],
-          ],
-        ),
+            onChanged: (v) => setState(() => _condition = v),
+          ),
+        ],
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            widget.onDelete();
-          },
+          onPressed: widget.onDelete,
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.error,
           ),
-          child: const Text('Delete'),
+          child: Text(l10n.delete),
         ),
-        TextButton(onPressed: widget.onCancel, child: const Text('Cancel')),
+        TextButton(
+          onPressed: widget.onCancel,
+          child: Text(l10n.cancel),
+        ),
         FilledButton(
           onPressed: () {
-            final cond = _isCustomInput
-                ? _conditionController.text
-                : _condition;
-            widget.onSave(InitialZombieData(
+            widget.onSave(InitialPlantPlacementData(
               gridX: widget.placement.gridX,
               gridY: widget.placement.gridY,
               typeName: widget.placement.typeName,
-              condition: cond,
+              level: _level,
+              condition: _condition,
             ));
           },
-          child: const Text('Save'),
+          child: Text(l10n.save),
         ),
       ],
     );

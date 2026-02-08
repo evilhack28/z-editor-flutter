@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 // PVZ2-style colors from Z-Editor-master Color.kt
 const Color _pvzGreenPrimary = Color(0xFF4CAF50);
 const Color _pvzGreenDark = Color(0xFF2E7D32);
+
+/// Green for Initial Plant top bar: light green in light mode, dark green in dark mode
+const Color pvzGreenLight = Color(0xFF4CAF50);
+const Color pvzGreenDark = Color(0xFF2E7D32);
 const Color _pvzGreenContainer = Color(0xFFC8E6C9);
 const Color _pvzBluePrimary = Color(0xFF2196F3);
 

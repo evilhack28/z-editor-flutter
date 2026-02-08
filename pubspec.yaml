@@ -32,7 +32,7 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    - assets/template/
+    - assets/reference/template/
     - assets/icon.png
     - assets/reference/
     - assets/resources/

@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
@@ -111,6 +112,14 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
     _sync();
   }
 
+  bool get _isDeepSeaLawn {
+    final parsed = LevelParser.parseLevel(widget.levelFile);
+    return LevelParser.isDeepSeaLawn(parsed.levelDef);
+  }
+
+  int get _gridRows => _isDeepSeaLawn ? 6 : 5;
+  int get _gridCols => _isDeepSeaLawn ? 10 : 9;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -186,6 +195,8 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
                 const SizedBox(height: 8),
                 ...sortedPlants.map((p) => _InitialPlantCard(
                   plant: p,
+                  gridRows: _gridRows,
+                  gridCols: _gridCols,
                   isSelected: p.gridX == _selectedX && p.gridY == _selectedY,
                   onTap: () {
                     setState(() {
@@ -211,7 +222,7 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 480),
         child: AspectRatio(
-          aspectRatio: 1.8,
+          aspectRatio: _gridCols / _gridRows,
           child: Container(
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
@@ -221,10 +232,10 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
               border: Border.all(color: const Color(0xFFC8E6C9), width: 1),
             ),
             child: Column(
-              children: List.generate(5, (row) {
+              children: List.generate(_gridRows, (row) {
                 return Expanded(
                   child: Row(
-                    children: List.generate(9, (col) {
+                    children: List.generate(_gridCols, (col) {
                       final isSelected = row == _selectedY && col == _selectedX;
                       final cellPlants = _data.plants
                           .where((p) => p.gridX == col && p.gridY == row)
@@ -257,10 +268,16 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
                                 ? Stack(
                                     fit: StackFit.expand,
                                     children: [
-                                      Center(
-                                        child: _PlantIconSmall(
-                                          firstPlant.plantTypes.firstOrNull ??
-                                              '',
+                                      Positioned.fill(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(2),
+                                          child: FittedBox(
+                                            fit: BoxFit.contain,
+                                            child: _PlantIconSmall(
+                                              firstPlant.plantTypes.firstOrNull ??
+                                                  '',
+                                            ),
+                                          ),
                                         ),
                                       ),
                                       if (count > 1)
@@ -351,13 +368,20 @@ class _PlantIconSmall extends StatelessWidget {
 class _InitialPlantCard extends StatelessWidget {
   const _InitialPlantCard({
     required this.plant,
+    required this.gridRows,
+    required this.gridCols,
     required this.isSelected,
     required this.onTap,
   });
 
   final InitialPlantData plant;
+  final int gridRows;
+  final int gridCols;
   final bool isSelected;
   final VoidCallback onTap;
+
+  bool get _isOutOfBounds =>
+      plant.gridX >= gridCols || plant.gridY >= gridRows;
 
   @override
   Widget build(BuildContext context) {
@@ -388,6 +412,15 @@ class _InitialPlantCard extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           child: Row(
             children: [
+              if (_isOutOfBounds)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.amber.shade700,
+                    size: 24,
+                  ),
+                ),
               Stack(
                 children: [
                   ClipRRect(

@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/grid_item_repository.dart';
+import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
@@ -99,6 +100,14 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
     _sync();
   }
 
+  bool get _isDeepSeaLawn {
+    final parsed = LevelParser.parseLevel(widget.levelFile);
+    return LevelParser.isDeepSeaLawn(parsed.levelDef);
+  }
+
+  int get _gridRows => _isDeepSeaLawn ? 6 : 5;
+  int get _gridCols => _isDeepSeaLawn ? 10 : 9;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -174,6 +183,8 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
                 const SizedBox(height: 8),
                 ...sortedItems.map((item) => _GridItemCard(
                   item: item,
+                  gridRows: _gridRows,
+                  gridCols: _gridCols,
                   isSelected: item.gridX == _selectedX && item.gridY == _selectedY,
                   onTap: () => setState(() {
                     _selectedX = item.gridX;
@@ -197,7 +208,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
       child: Container(
         constraints: const BoxConstraints(maxWidth: 480),
         child: AspectRatio(
-          aspectRatio: 1.8,
+          aspectRatio: _gridCols / _gridRows,
           child: Container(
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
@@ -207,10 +218,10 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
               border: Border.all(color: const Color(0xFF6B899A), width: 1),
             ),
             child: Column(
-              children: List.generate(5, (row) {
+              children: List.generate(_gridRows, (row) {
                 return Expanded(
                   child: Row(
-                    children: List.generate(9, (col) {
+                    children: List.generate(_gridCols, (col) {
                       final isSelected = row == _selectedY && col == _selectedX;
                       final cellItems = _data.placements
                           .where((p) => p.gridX == col && p.gridY == row)
@@ -242,9 +253,15 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
                                 ? Stack(
                                     fit: StackFit.expand,
                                     children: [
-                                      Center(
-                                        child:
-                                            _GridItemIconSmall(firstItem.typeName),
+                                      Positioned.fill(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(2),
+                                          child: FittedBox(
+                                            fit: BoxFit.contain,
+                                            child: _GridItemIconSmall(
+                                                firstItem.typeName),
+                                          ),
+                                        ),
                                       ),
                                       if (count > 1)
                                         Positioned(
@@ -361,15 +378,22 @@ class _GridItemIconSmall extends StatelessWidget {
 class _GridItemCard extends StatelessWidget {
   const _GridItemCard({
     required this.item,
+    required this.gridRows,
+    required this.gridCols,
     required this.isSelected,
     required this.onTap,
     required this.onDelete,
   });
 
   final InitialGridItemData item;
+  final int gridRows;
+  final int gridCols;
   final bool isSelected;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+
+  bool get _isOutOfBounds =>
+      item.gridX >= gridCols || item.gridY >= gridRows;
 
   @override
   Widget build(BuildContext context) {
@@ -420,6 +444,15 @@ class _GridItemCard extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
+                  if (_isOutOfBounds)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.amber.shade700,
+                        size: 24,
+                      ),
+                    ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: path != null

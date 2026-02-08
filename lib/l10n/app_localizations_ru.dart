@@ -1108,11 +1108,78 @@ class AppLocalizationsRu extends AppLocalizations {
       'Зомби быстрее входят';
 
   @override
+  String get moduleTitle_InitialPlantProperties =>
+      'Устаревшие предустановленные растения';
+
+  @override
+  String get moduleDesc_InitialPlantProperties =>
+      'Предустановленные растения (замороженные)';
+
+  @override
   String get moduleTitle_InitialPlantEntryProperties => 'Начальные растения';
 
   @override
   String get moduleDesc_InitialPlantEntryProperties =>
       'Растения в начале уровня';
+
+  @override
+  String get frozenPlantPlacementTitle =>
+      'Устаревшие предустановленные растения';
+
+  @override
+  String get frozenPlantPlacementLastStand => 'Режим последнего рубежа';
+
+  @override
+  String get frozenPlantPlacementSelectedPosition => 'Выбранная позиция';
+
+  @override
+  String get frozenPlantPlacementPlaceHere => 'Разместить здесь';
+
+  @override
+  String get frozenPlantPlacementPlantList => 'Список растений (по рядам)';
+
+  @override
+  String frozenPlantPlacementEditPlant(Object name) {
+    return 'Редактировать $name';
+  }
+
+  @override
+  String get frozenPlantPlacementLevel => 'Уровень';
+
+  @override
+  String get frozenPlantPlacementCondition => 'Состояние';
+
+  @override
+  String get frozenPlantPlacementConditionNull => 'Нет (null)';
+
+  @override
+  String get frozenPlantPlacementHelpTitle =>
+      'Устаревшие предустановленные растения - Справка';
+
+  @override
+  String get frozenPlantPlacementHelpOverviewTitle => 'Обзор';
+
+  @override
+  String get frozenPlantPlacementHelpOverviewBody =>
+      'Этот модуль настраивает раскладку растений до начала уровня. Похож на предустановленную раскладку, но с другой структурой и поддержкой особых состояний.';
+
+  @override
+  String get frozenPlantPlacementHelpConditionTitle => 'Особое состояние';
+
+  @override
+  String get frozenPlantPlacementHelpConditionBody =>
+      'Растения можно установить в замороженное состояние, часто используется на уровнях Ледникового периода.';
+
+  @override
+  String get frozenPlantPlacementHelpLastStandTitle =>
+      'Режим последнего рубежа';
+
+  @override
+  String get frozenPlantPlacementHelpLastStandBody =>
+      'При включении режима последнего рубежа начальные растения будут уничтожены после старта игры. Примечание: в китайской версии не отображается эффект огня при уничтожении растений.';
+
+  @override
+  String get save => 'Сохранить';
 
   @override
   String get moduleTitle_InitialZombieProperties => 'Начальные зомби';

@@ -1107,11 +1107,74 @@ class AppLocalizationsEn extends AppLocalizations {
       'Zombies move fast on entry';
 
   @override
+  String get moduleTitle_InitialPlantProperties => 'Legacy Preset Plants';
+
+  @override
+  String get moduleDesc_InitialPlantProperties =>
+      'Legacy preset plants with frozen plant support';
+
+  @override
   String get moduleTitle_InitialPlantEntryProperties => 'Initial Plants';
 
   @override
   String get moduleDesc_InitialPlantEntryProperties =>
       'Plants present at start';
+
+  @override
+  String get frozenPlantPlacementTitle => 'Legacy Preset Plants';
+
+  @override
+  String get frozenPlantPlacementLastStand => 'Last Stand mode';
+
+  @override
+  String get frozenPlantPlacementSelectedPosition => 'Selected position';
+
+  @override
+  String get frozenPlantPlacementPlaceHere => 'Place here';
+
+  @override
+  String get frozenPlantPlacementPlantList => 'Plant list (row-first)';
+
+  @override
+  String frozenPlantPlacementEditPlant(Object name) {
+    return 'Edit $name';
+  }
+
+  @override
+  String get frozenPlantPlacementLevel => 'Level';
+
+  @override
+  String get frozenPlantPlacementCondition => 'Condition';
+
+  @override
+  String get frozenPlantPlacementConditionNull => 'None (null)';
+
+  @override
+  String get frozenPlantPlacementHelpTitle => 'Legacy Preset Plants - Help';
+
+  @override
+  String get frozenPlantPlacementHelpOverviewTitle => 'Overview';
+
+  @override
+  String get frozenPlantPlacementHelpOverviewBody =>
+      'This module configures plant layout before the level starts. Similar to preset plant layout but with a different structure and special state support.';
+
+  @override
+  String get frozenPlantPlacementHelpConditionTitle => 'Special State';
+
+  @override
+  String get frozenPlantPlacementHelpConditionBody =>
+      'Plants can be set to frozen state, commonly used in Ice Age levels.';
+
+  @override
+  String get frozenPlantPlacementHelpLastStandTitle => 'Last Stand Mode';
+
+  @override
+  String get frozenPlantPlacementHelpLastStandBody =>
+      'When Last Stand mode is enabled, initial plants will be destroyed after the game starts. Note: Chinese version does not show the plant destruction fire effect.';
+
+  @override
+  String get save => 'Save';
 
   @override
   String get moduleTitle_InitialZombieProperties => 'Initial Zombies';
