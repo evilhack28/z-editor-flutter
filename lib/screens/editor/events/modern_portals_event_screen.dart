@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
-import 'package:z_editor/data/portal_repository.dart';
-import 'package:z_editor/data/zombie_repository.dart';
+import 'package:z_editor/data/repository/portal_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart';
 import 'package:z_editor/widgets/editor_components.dart';
@@ -68,16 +69,17 @@ class _ModernPortalsEventScreenState extends State<ModernPortalsEventScreen> {
     setState(() {});
   }
 
-  void _showPreviewDialog(BuildContext context, PortalWorldDef def) {
+  void _showPreviewDialog(BuildContext context, AppLocalizations? l10n, PortalWorldDef def) {
     showDialog(
       context: context,
-      builder: (ctx) => _buildPreviewDialog(ctx, def),
+      builder: (ctx) => _buildPreviewDialog(ctx, l10n, def),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
 
     return Scaffold(
@@ -89,9 +91,9 @@ class _ModernPortalsEventScreenState extends State<ModernPortalsEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Time rift',
+              l10n?.eventTimeRift ?? 'Event: Time rift',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -101,19 +103,19 @@ class _ModernPortalsEventScreenState extends State<ModernPortalsEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Time rift event',
-              sections: const [
+              title: l10n?.eventTimeRift ?? 'Time rift event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: '在场地上刷新出固定种类的时空裂缝，常见于摩登世界和回忆之旅。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpModernPortalsBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Portal type',
-                  body: '游戏内有非常多种裂缝类型，可以在此选择具体的裂缝种类。',
+                  title: l10n?.portalType ?? 'Portal type',
+                  body: l10n?.eventHelpModernPortalsType ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Ignore gravestone',
-                  body: '开启此开关后，裂缝不会因为被墓碑冲浪板等障碍物挡住而不生成。',
+                  title: l10n?.ignoreGravestone ?? 'Ignore gravestone',
+                  body: l10n?.eventHelpModernPortalsIgnore ?? '',
                 ),
               ],
             ),
@@ -137,7 +139,7 @@ class _ModernPortalsEventScreenState extends State<ModernPortalsEventScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Position',
+                            l10n?.position ?? 'Position',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -211,7 +213,7 @@ class _ModernPortalsEventScreenState extends State<ModernPortalsEventScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Portal type',
+                        l10n?.portalType ?? 'Portal type',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -257,7 +259,7 @@ class _ModernPortalsEventScreenState extends State<ModernPortalsEventScreen> {
                                         icon: const Icon(Icons.info_outline),
                                         iconSize: 18,
                                         onPressed: () =>
-                                            _showPreviewDialog(context, def),
+                                            _showPreviewDialog(context, l10n, def),
                                       ),
                                     ],
                                   ),
@@ -274,9 +276,9 @@ class _ModernPortalsEventScreenState extends State<ModernPortalsEventScreen> {
               const SizedBox(height: 16),
               Card(
                 child: SwitchListTile(
-                  title: const Text('Ignore gravestone (IgnoreGraveStone)'),
-                  subtitle: const Text(
-                    'Enable to spawn regardless of obstacles',
+                  title: Text(l10n?.ignoreGravestone ?? 'Ignore gravestone (IgnoreGraveStone)'),
+                  subtitle: Text(
+                    l10n?.ignoreGravestoneSubtitle ?? 'Enable to spawn regardless of obstacles',
                   ),
                   value: _data.ignoreGraveStone,
                   onChanged: (v) {
@@ -300,19 +302,19 @@ class _ModernPortalsEventScreenState extends State<ModernPortalsEventScreen> {
     );
   }
 
-  Widget _buildPreviewDialog(BuildContext context, PortalWorldDef def) {
+  Widget _buildPreviewDialog(BuildContext context, AppLocalizations? l10n, PortalWorldDef def) {
     final theme = Theme.of(context);
     final zombieRepo = ZombieRepository();
 
     return AlertDialog(
-      title: Text('${def.name} - Zombie preview'),
+      title: Text(l10n?.zombiePreview(def.name) ?? '${def.name} - Zombie preview'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'This portal spawns:',
+              l10n?.thisPortalSpawns ?? 'This portal spawns:',
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
@@ -367,7 +369,7 @@ class _ModernPortalsEventScreenState extends State<ModernPortalsEventScreen> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
+          child: Text(l10n?.close ?? 'Close'),
         ),
       ],
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 
 /// Roof properties. Ported from Z-Editor-master RoofPropertiesEP.kt
@@ -80,7 +81,7 @@ class _RoofPropertiesScreenState extends State<RoofPropertiesScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Roof flower pot'),
+        title: Text(AppLocalizations.of(context)?.roofFlowerPot ?? 'Roof flower pot'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,

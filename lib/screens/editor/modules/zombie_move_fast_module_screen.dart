@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 
@@ -80,7 +81,7 @@ class _ZombieMoveFastModuleScreenState extends State<ZombieMoveFastModuleScreen>
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack),
-        title: const Text('Zombie Move Fast'),
+        title: Text(AppLocalizations.of(context)?.zombieMoveFast ?? 'Zombie Move Fast'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/event_registry.dart';
+import 'package:z_editor/data/registry/event_registry.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/theme/app_theme.dart';

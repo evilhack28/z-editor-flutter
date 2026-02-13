@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/module_registry.dart';
+import 'package:z_editor/data/registry/module_registry.dart';
 
 class ModuleConflictRule {
   final Set<String> conflictingClasses;
@@ -54,6 +54,10 @@ class ConflictRegistry {
     ModuleConflictRule(
       conflictingClasses: {'ProtectThePlantChallengeProperties', 'RoofProperties'},
       description: 'Protected plants on the roof will cause a crash.',
+    ),
+    ModuleConflictRule(
+      conflictingClasses: {'CustomLevelModuleProperties', 'LawnMowerProperties'},
+      description: 'Lawn mowers are ineffective in Yard module.',
     ),
   ];
 

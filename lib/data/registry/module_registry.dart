@@ -161,6 +161,12 @@ class ModuleRegistry {
         return l10n.moduleTitle_WarMistProperties;
       case 'moduleTitle_RainDarkProperties':
         return l10n.moduleTitle_RainDarkProperties;
+      case 'moduleTitle_LawnMowerProperties':
+        return l10n.moduleTitle_LawnMowerProperties;
+      case 'moduleTitle_TunnelDefendModuleProperties':
+        return l10n.moduleTitle_TunnelDefendModuleProperties;
+      case 'moduleTitle_ZombieRushModuleProperties':
+        return l10n.moduleTitle_ZombieRushModuleProperties;
       default:
         return key;
     }
@@ -255,6 +261,12 @@ class ModuleRegistry {
         return l10n.moduleDesc_WarMistProperties;
       case 'moduleDesc_RainDarkProperties':
         return l10n.moduleDesc_RainDarkProperties;
+      case 'moduleDesc_LawnMowerProperties':
+        return l10n.moduleDesc_LawnMowerProperties;
+      case 'moduleDesc_TunnelDefendModuleProperties':
+        return l10n.moduleDesc_TunnelDefendModuleProperties;
+      case 'moduleDesc_ZombieRushModuleProperties':
+        return l10n.moduleDesc_ZombieRushModuleProperties;
       default:
         return key;
     }
@@ -560,7 +572,7 @@ class ModuleRegistry {
       descriptionKey: 'moduleDesc_InitialPlantProperties',
       icon: Icons.ac_unit,
       isCore: true,
-      allowMultiple: true,
+      allowMultiple: false,
       category: ModuleCategory.scene,
       defaultAlias: 'FrozenPlantPlacement',
       initialDataFactory: () => InitialPlantPropertiesData(),
@@ -571,7 +583,7 @@ class ModuleRegistry {
       descriptionKey: 'moduleDesc_InitialPlantEntryProperties',
       icon: Icons.widgets,
       isCore: true,
-      allowMultiple: true,
+      allowMultiple: false,
       category: ModuleCategory.scene,
       defaultAlias: 'InitialPlants',
       initialDataFactory: () => InitialPlantEntryData(),
@@ -582,7 +594,7 @@ class ModuleRegistry {
       descriptionKey: 'moduleDesc_InitialZombieProperties',
       icon: Icons.widgets,
       isCore: true,
-      allowMultiple: true,
+      allowMultiple: false,
       category: ModuleCategory.scene,
       defaultAlias: 'FrozenZombiePlacement',
       initialDataFactory: () => InitialZombieEntryData(),
@@ -593,7 +605,7 @@ class ModuleRegistry {
       descriptionKey: 'moduleDesc_InitialGridItemProperties',
       icon: Icons.widgets,
       isCore: true,
-      allowMultiple: true,
+      allowMultiple: false,
       category: ModuleCategory.scene,
       defaultAlias: 'GridItemPlacement',
       initialDataFactory: () => InitialGridItemEntryData(),
@@ -604,7 +616,7 @@ class ModuleRegistry {
       descriptionKey: 'moduleDesc_ProtectThePlantChallengeProperties',
       icon: Icons.security,
       isCore: true,
-      allowMultiple: true,
+      allowMultiple: false,
       category: ModuleCategory.scene,
       defaultAlias: 'ProtectThePlant',
       initialDataFactory: () => ProtectThePlantChallengePropertiesData(),
@@ -615,7 +627,7 @@ class ModuleRegistry {
       descriptionKey: 'moduleDesc_ProtectTheGridItemChallengeProperties',
       icon: Icons.security,
       isCore: true,
-      allowMultiple: true,
+      allowMultiple: false,
       category: ModuleCategory.scene,
       defaultAlias: 'ProtectTheGridItem',
       initialDataFactory: () => ProtectTheGridItemChallengePropertiesData(),
@@ -626,7 +638,7 @@ class ModuleRegistry {
       descriptionKey: 'moduleDesc_ZombiePotionModuleProperties',
       icon: Icons.science,
       isCore: true,
-      allowMultiple: true,
+      allowMultiple: false,
       category: ModuleCategory.scene,
       defaultAlias: 'ZombiePotions',
       initialDataFactory: () => ZombiePotionModulePropertiesData(),
@@ -711,6 +723,36 @@ class ModuleRegistry {
       defaultAlias: 'DefaultSnow',
       defaultSource: 'LevelModules',
       routeId: 'RainDarkProperties',
+    ),
+    'LawnMowerProperties': const ModuleMetadata(
+      titleKey: 'moduleTitle_LawnMowerProperties',
+      descriptionKey: 'moduleDesc_LawnMowerProperties',
+      icon: Icons.cleaning_services,
+      isCore: true,
+      category: ModuleCategory.base,
+      defaultAlias: 'FrontLawnMowers',
+      defaultSource: 'LevelModules',
+      routeId: 'LawnMower',
+    ),
+    'TunnelDefendModuleProperties': ModuleMetadata(
+      titleKey: 'moduleTitle_TunnelDefendModuleProperties',
+      descriptionKey: 'moduleDesc_TunnelDefendModuleProperties',
+      icon: Icons.landscape,
+      isCore: true,
+      category: ModuleCategory.scene,
+      defaultAlias: 'TunnelDefend',
+      initialDataFactory: () => TunnelDefendModuleData(),
+      routeId: 'TunnelDefendModule',
+    ),
+    'ZombieRushModuleProperties': ModuleMetadata(
+      titleKey: 'moduleTitle_ZombieRushModuleProperties',
+      descriptionKey: 'moduleDesc_ZombieRushModuleProperties',
+      icon: Icons.timer,
+      isCore: true,
+      category: ModuleCategory.mode,
+      defaultAlias: 'ZombieRushModule',
+      initialDataFactory: () => ZombieRushModuleData(),
+      routeId: 'ZombieRushModule',
     ),
   };
 

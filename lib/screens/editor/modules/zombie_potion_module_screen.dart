@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/grid_item_repository.dart';
+import 'package:z_editor/data/repository/grid_item_repository.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
@@ -77,8 +79,9 @@ class _ZombiePotionModuleScreenState extends State<ZombiePotionModuleScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => GridItemSelectionScreen(
-          onGridItemSelected: (id) {
+                builder: (_) => GridItemSelectionScreen(
+                    filterMode: GridItemFilterMode.all,
+                    onGridItemSelected: (id) {
             Navigator.pop(context);
             final list = List<String>.from(_data.potionTypes);
             if (!list.contains(id)) {
@@ -121,16 +124,19 @@ class _ZombiePotionModuleScreenState extends State<ZombiePotionModuleScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
         title: const Text('Zombie potion'),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
+            tooltip: l10n?.tooltipAboutModule ?? 'About this module',
             onPressed: () => showEditorHelpDialog(
               context,
               title: 'Zombie potion',
@@ -284,25 +290,28 @@ class _ZombiePotionModuleScreenState extends State<ZombiePotionModuleScreen> {
                       ),
                     ..._data.potionTypes.map((id) {
                       final path = GridItemRepository.getIconPath(id);
+                      final displayName = ResourceNames.lookup(context, 'griditem_$id');
+                      final name = displayName != 'griditem_$id'
+                          ? displayName
+                          : id;
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
-                          leading: path != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: AssetImageWidget(
-                                    assetPath: path,
-                                    width: 40,
-                                    height: 40,
-                                    fit: BoxFit.cover,
-                                    altCandidates: imageAltCandidates(path),
-                                  ),
-                                )
-                              : const Icon(Icons.science),
-                          title: Text(GridItemRepository.getName(id)),
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: AssetImageWidget(
+                              assetPath: path,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                              altCandidates: imageAltCandidates(path),
+                            ),
+                          ),
+                          title: Text(name),
                           subtitle: Text(id),
                           trailing: IconButton(
                             icon: const Icon(Icons.delete_outline),
+                            tooltip: l10n?.delete ?? 'Delete',
                             onPressed: () => _removePotionType(id),
                           ),
                         ),

@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:z_editor/data/level_parser.dart';
-import 'package:z_editor/data/level_repository.dart';
-import 'package:z_editor/data/module_registry.dart';
+import 'package:z_editor/data/repository/level_repository.dart';
+import 'package:z_editor/data/registry/module_registry.dart';
 import 'package:z_editor/data/pvz_models.dart';
-import 'package:z_editor/data/reference_repository.dart';
+import 'package:z_editor/data/repository/reference_repository.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
-import 'package:z_editor/data/plant_repository.dart';
-import 'package:z_editor/data/zombie_properties_repository.dart';
-import 'package:z_editor/data/zombie_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/screens/editor/basic_info_screen.dart';
 import 'package:z_editor/screens/editor/json_viewer_screen.dart';
 import 'package:z_editor/screens/editor/others/custom_zombie_properties_screen.dart';
@@ -35,8 +36,6 @@ import 'package:z_editor/screens/editor/modules/initial_plant_entry_screen.dart'
 import 'package:z_editor/screens/editor/modules/initial_plant_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/initial_zombie_entry_screen.dart';
 import 'package:z_editor/screens/editor/modules/initial_grid_item_entry_screen.dart';
-import 'package:z_editor/screens/editor/modules/manhole_pipeline_module_screen.dart';
-import 'package:z_editor/screens/editor/modules/penny_classroom_module_screen.dart';
 import 'package:z_editor/screens/editor/modules/power_tile_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/protect_grid_item_challenge_screen.dart';
 import 'package:z_editor/screens/editor/modules/protect_plant_challenge_screen.dart';
@@ -45,13 +44,18 @@ import 'package:z_editor/screens/editor/modules/rain_dark_properties_screen.dart
 import 'package:z_editor/screens/editor/modules/sun_bomb_challenge_screen.dart';
 import 'package:z_editor/screens/editor/modules/war_mist_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/zombie_potion_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/penny_classroom_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/manhole_pipeline_module_screen.dart';
 import 'package:z_editor/screens/editor/modules/wave_manager_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/lawn_mower_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/tunnel_defend_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/zombie_rush_module_screen.dart';
 import 'package:z_editor/screens/editor/tabs/izombie_tab.dart';
 import 'package:z_editor/screens/editor/tabs/level_settings_tab.dart';
 import 'package:z_editor/screens/editor/tabs/vase_breaker_tab.dart';
 import 'package:z_editor/screens/editor/tabs/zomboss_battle_tab.dart';
 import 'package:z_editor/screens/editor/tabs/wave_timeline_tab.dart';
-import 'package:z_editor/data/event_registry.dart';
+import 'package:z_editor/data/registry/event_registry.dart';
 import 'package:z_editor/screens/editor/events/invalid_event_screen.dart';
 import 'package:z_editor/screens/editor/events/beach_stage_event_screen.dart';
 import 'package:z_editor/screens/editor/events/black_hole_event_screen.dart';
@@ -71,6 +75,7 @@ import 'package:z_editor/screens/editor/events/tidal_change_event_screen.dart';
 import 'package:z_editor/screens/editor/events/zombie_potion_event_screen.dart';
 import 'package:z_editor/screens/editor/events/zombie_spawn_event_screen.dart';
 import 'package:z_editor/screens/select/event_selection_screen.dart';
+import 'package:z_editor/data/repository/grid_item_repository.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
 import 'package:z_editor/screens/select/module_selection_screen.dart';
 import 'package:z_editor/screens/select/plant_selection_screen.dart';
@@ -80,6 +85,10 @@ import 'package:z_editor/screens/select/stage_selection_screen.dart';
 import 'package:z_editor/theme/app_theme.dart';
 
 enum EditorTabType { settings, timeline, iZombie, vaseBreaker, zomboss }
+
+class _EditorEscapeIntent extends Intent {
+  const _EditorEscapeIntent();
+}
 
 class EditorScreen extends StatefulWidget {
   const EditorScreen({
@@ -273,25 +282,28 @@ class _EditorScreenState extends State<EditorScreen> {
 
   Future<void> _save() async {
     if (_levelFile == null) return;
+    final hadChanges = _hasChanges;
     await LevelRepository.saveAndExport(widget.filePath, _levelFile!);
     if (mounted) {
       setState(() => _hasChanges = false);
-      final l10n = AppLocalizations.of(context);
-      final theme = Theme.of(context);
-      final isDark = theme.brightness == Brightness.dark;
-      final snackColor = isDark ? pvzGreenDark : pvzGreenLight;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: snackColor,
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Text(l10n?.saved ?? 'Saved'),
-            ],
+      if (hadChanges) {
+        final l10n = AppLocalizations.of(context);
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        final snackColor = isDark ? pvzGreenDark : pvzGreenLight;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: snackColor,
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text(l10n?.saved ?? 'Saved'),
+              ],
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -349,38 +361,36 @@ class _EditorScreenState extends State<EditorScreen> {
           levelFile: _levelFile!,
           levelDef: _parsedData!.levelDef!,
           onBack: () => Navigator.pop(context),
-          onStageTap: () {
-            _openStageSelection();
-          },
+          onStageTap: (levelDef, onStagePicked) =>
+              _openStageSelection(levelDef: levelDef, onStagePicked: onStagePicked),
           onChanged: _markDirty,
         ),
       ),
     );
   }
 
-  void _openStageSelection() {
-    if (_levelFile == null ||
-        _parsedData == null ||
-        _parsedData!.levelDef == null) {
-      return;
-    }
-    final current = _parsedData!.levelDef!.stageModule;
-    Navigator.push(
+  Future<void> _openStageSelection({
+    required LevelDefinitionData levelDef,
+    VoidCallback? onStagePicked,
+  }) async {
+    if (_levelFile == null) return;
+    final current = levelDef.stageModule;
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => StageSelectionScreen(
           currentStageRtid: current,
           onStageSelected: (newRtid) {
-            final def = _parsedData!.levelDef!;
-            def.stageModule = newRtid;
+            levelDef.stageModule = newRtid;
             for (final o in _levelFile!.objects) {
               if (o.objClass == 'LevelDefinition') {
-                o.objData = def.toJson();
+                o.objData = levelDef.toJson();
                 break;
               }
             }
             _markDirty();
             setState(() {});
+            onStagePicked?.call();
             if (!mounted) return;
             Navigator.pop(context);
           },
@@ -472,6 +482,7 @@ class _EditorScreenState extends State<EditorScreen> {
 
   Future<void> _handleEditEvent(String rtid, int waveIndex) async {
     if (_levelFile == null || _parsedData == null) return;
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(rtid);
     final obj = _parsedData!.objectMap[alias];
 
@@ -510,6 +521,7 @@ class _EditorScreenState extends State<EditorScreen> {
                       onSelected(id);
                     },
                     onBack: () => Navigator.pop(context),
+                    filterMode: GridItemFilterMode.all,
                   ),
                 ),
               );
@@ -864,6 +876,7 @@ class _EditorScreenState extends State<EditorScreen> {
                       onSelected(id);
                     },
                     onBack: () => Navigator.pop(context),
+                    filterMode: GridItemFilterMode.all,
                   ),
                 ),
               );
@@ -909,6 +922,7 @@ class _EditorScreenState extends State<EditorScreen> {
                       onSelected(id);
                     },
                     onBack: () => Navigator.pop(context),
+                    filterMode: GridItemFilterMode.all,
                   ),
                 ),
               );
@@ -980,8 +994,8 @@ class _EditorScreenState extends State<EditorScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Event editor in development'),
+      SnackBar(
+        content: Text(l10n?.eventEditorInDevelopment ?? 'Event editor in development'),
       ),
     );
   }
@@ -1077,6 +1091,77 @@ class _EditorScreenState extends State<EditorScreen> {
         ),
       ),
     );
+  }
+
+  void _handleCreateWaveContainer() {
+    if (_levelFile == null) return;
+    var alias = 'WaveManagerProps';
+    var count = 0;
+    while (_levelFile!.objects.any(
+      (o) => o.aliases?.contains(alias) == true,
+    )) {
+      count++;
+      alias = 'WaveManagerProps_$count';
+    }
+    final wm = WaveManagerData(
+      waveCount: 0,
+      waves: [],
+    );
+    _levelFile!.objects.add(
+      PvzObject(
+        aliases: [alias],
+        objClass: 'WaveManagerProperties',
+        objData: wm.toJson(),
+      ),
+    );
+    final wmmObj = _levelFile!.objects
+        .firstWhereOrNull((o) => o.objClass == 'WaveManagerModuleProperties');
+    if (wmmObj != null && wmmObj.objData is Map<String, dynamic>) {
+      final data = WaveManagerModuleData.fromJson(
+        Map<String, dynamic>.from(wmmObj.objData as Map),
+      );
+      data.waveManagerProps = RtidParser.build(alias, 'CurrentLevel');
+      wmmObj.objData = data.toJson();
+    }
+    _parsedData = LevelParser.parseLevel(_levelFile!);
+    _markDirty();
+    setState(() {});
+  }
+
+  Future<void> _handleDeleteWaveContainer() async {
+    if (_levelFile == null) return;
+    final l10n = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n?.deleteWaveContainerTitle ?? 'Delete wave container?'),
+        content: Text(
+          l10n?.deleteWaveContainerConfirm ??
+              'Are you sure you want to delete the empty wave container? You can create a new one later.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n?.cancel ?? 'Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n?.confirm ?? 'Confirm'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) {
+      _levelFile!.objects.removeWhere(
+        (o) => o.objClass == 'WaveManagerProperties',
+      );
+      _parsedData = LevelParser.parseLevel(_levelFile!);
+      _markDirty();
+      setState(() {});
+    }
   }
 
   void _handleEditCustomZombie(String rtid) {
@@ -1313,19 +1398,28 @@ class _EditorScreenState extends State<EditorScreen> {
       );
       return;
     }
-    if (info.source == 'CurrentLevel' &&
-        objClass == 'SunDropperProperties') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SunDropperPropertiesScreen(
-            rtid: rtid,
-            levelFile: _levelFile!,
-            onChanged: _markDirty,
-            onBack: () => Navigator.pop(context),
+    if (objClass == 'SunDropperProperties' && _parsedData?.levelDef != null) {
+      void openSunDropper(String rt) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SunDropperPropertiesScreen(
+              rtid: rt,
+              levelFile: _levelFile!,
+              levelDef: _parsedData!.levelDef!,
+              onChanged: _markDirty,
+              onBack: () => Navigator.pop(context),
+              onModeToggled: (newRtid) {
+                _parsedData = LevelParser.parseLevel(_levelFile!);
+                setState(() {});
+                Navigator.pop(context);
+                openSunDropper(newRtid);
+              },
+            ),
           ),
-        ),
-      );
+        );
+      }
+      openSunDropper(rtid);
       return;
     }
     if (info.source == 'CurrentLevel' &&
@@ -1682,6 +1776,50 @@ class _EditorScreenState extends State<EditorScreen> {
       }
       return;
     }
+    if (objClass == 'LawnMowerProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LawnMowerPropertiesScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'TunnelDefendModuleProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TunnelDefendModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'ZombieRushModuleProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ZombieRushModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
     if (info.source == 'CurrentLevel' &&
         objClass == 'WaveManagerModuleProperties') {
       Navigator.push(
@@ -1739,7 +1877,10 @@ class _EditorScreenState extends State<EditorScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
+    final isDesktop = Theme.of(context).platform == TargetPlatform.windows ||
+        Theme.of(context).platform == TargetPlatform.macOS ||
+        Theme.of(context).platform == TargetPlatform.linux;
+    Widget body = Scaffold(
         appBar: AppBar(
           title: Text(widget.fileName),
           leading: IconButton(
@@ -1756,23 +1897,29 @@ class _EditorScreenState extends State<EditorScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.code),
+              tooltip: l10n?.tooltipJsonViewer ?? 'View/edit JSON',
               onPressed: _levelFile != null
-                  ? () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => JsonViewerScreen(
-                          fileName: widget.fileName,
-                          filePath: widget.filePath,
-                          levelFile: _levelFile!,
-                          onBack: () => Navigator.pop(context),
-                          onSaved: () {
-                            _markDirty();
-                            _parsedData = LevelParser.parseLevel(_levelFile!);
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                    )
+                  ? () async {
+                      await _save();
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => JsonViewerScreen(
+                              fileName: widget.fileName,
+                              filePath: widget.filePath,
+                              levelFile: _levelFile!,
+                              onBack: () => Navigator.pop(context),
+                              onSaved: () {
+                                _markDirty();
+                                _parsedData = LevelParser.parseLevel(_levelFile!);
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                    }
                   : null,
             ),
             IconButton(
@@ -1781,10 +1928,12 @@ class _EditorScreenState extends State<EditorScreen> {
                     ? Icons.light_mode
                     : Icons.dark_mode,
               ),
+              tooltip: l10n?.toggleTheme ?? 'Toggle theme',
               onPressed: widget.onCycleTheme,
             ),
             IconButton(
               icon: const Icon(Icons.save),
+              tooltip: l10n?.tooltipSave ?? 'Save',
               onPressed: _hasChanges ? _save : null,
             ),
           ],
@@ -1837,7 +1986,7 @@ class _EditorScreenState extends State<EditorScreen> {
                         ),
                         Expanded(
                           child: TabBarView(
-                            children: _availableTabs.map((t) {
+                            children: _availableTabs.map<Widget>((t) {
                               switch (t) {
                                 case EditorTabType.settings:
                                   return LevelSettingsTab(
@@ -1861,6 +2010,8 @@ class _EditorScreenState extends State<EditorScreen> {
                                         _handleEditWaveManagerSettings,
                                     onEditCustomZombie: _handleEditCustomZombie,
                                     openWaveSheetNotifier: _openWaveSheetNotifier,
+                                    onCreateContainer: () => _handleCreateWaveContainer(),
+                                    onDeleteContainer: () => _handleDeleteWaveContainer(),
                                   );
                                 case EditorTabType.iZombie:
                                   return IZombieTab(
@@ -1887,5 +2038,29 @@ class _EditorScreenState extends State<EditorScreen> {
                 ),
               ),
     );
+    if (isDesktop) {
+      body = Shortcuts(
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.escape): _EditorEscapeIntent(),
+        },
+        child: Actions(
+          actions: {
+            _EditorEscapeIntent: CallbackAction<_EditorEscapeIntent>(
+              onInvoke: (_) async {
+                if (_hasChanges) {
+                  final leave = await _confirmLeave();
+                  if (leave && mounted) widget.onBack();
+                } else {
+                  widget.onBack();
+                }
+                return null;
+              },
+            ),
+          },
+          child: body,
+        ),
+      );
+    }
+    return body;
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/zomboss_repository.dart';
+import 'package:z_editor/data/repository/zomboss_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
@@ -72,7 +72,7 @@ class _ZombossSelectionScreenState extends State<ZombossSelectionScreen> {
                   Icon(Icons.search_off, size: 64, color: theme.colorScheme.outline),
                   const SizedBox(height: 16),
                   Text(
-                    'No zomboss found', // TODO: Localize
+                    l10n?.noZombossFound ?? 'No zomboss found',
                     style: theme.textTheme.bodyLarge,
                   ),
                 ],

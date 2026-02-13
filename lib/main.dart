@@ -8,8 +8,15 @@ void main() async {
   await ResourceNames.ensureLoaded();
   final prefs = await SharedPreferences.getInstance();
 
-  final localeCode = prefs.getString('locale') ?? 'en';
-  final locale = Locale(localeCode);
+  final savedLocale = prefs.getString('locale');
+  final locale = savedLocale != null
+      ? Locale(savedLocale)
+      : () {
+          const supported = ['en', 'ru', 'zh'];
+          final systemCode = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+          final code = supported.contains(systemCode) ? systemCode : 'en';
+          return Locale(code);
+        }();
 
   final themeModeStr = prefs.getString('theme_mode');
   final ThemeMode themeMode;

@@ -1,9 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/grid_item_repository.dart';
+import 'package:z_editor/data/repository/grid_item_repository.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
@@ -22,7 +24,8 @@ class SpawnGraveStonesEventScreen extends StatefulWidget {
   final PvzLevelFile levelFile;
   final VoidCallback onChanged;
   final VoidCallback onBack;
-  final void Function(void Function(String) onSelected) onRequestGridItemSelection;
+  final void Function(void Function(String) onSelected)
+  onRequestGridItemSelection;
 
   @override
   State<SpawnGraveStonesEventScreen> createState() =>
@@ -76,8 +79,9 @@ class _SpawnGraveStonesEventScreenState
   }
 
   void _togglePosition(int col, int row) {
-    final existing = _data.spawnPositionsPool
-        .firstWhereOrNull((p) => p.x == col && p.y == row);
+    final existing = _data.spawnPositionsPool.firstWhereOrNull(
+      (p) => p.x == col && p.y == row,
+    );
     if (existing != null) {
       _data.spawnPositionsPool.remove(existing);
     } else {
@@ -92,12 +96,15 @@ class _SpawnGraveStonesEventScreenState
         GridItemRepository.buildGridAliases(typeName),
         'GridItemTypes',
       );
-      final existingIdx =
-          _data.gravestonePool.indexWhere((i) => i.type == fullRtid);
+      final existingIdx = _data.gravestonePool.indexWhere(
+        (i) => i.type == fullRtid,
+      );
       if (existingIdx >= 0) {
         final item = _data.gravestonePool[existingIdx];
-        _data.gravestonePool[existingIdx] =
-            GravestonePoolItem(count: item.count + 1, type: item.type);
+        _data.gravestonePool[existingIdx] = GravestonePoolItem(
+          count: item.count + 1,
+          type: item.type,
+        );
       } else {
         _data.gravestonePool.add(GravestonePoolItem(count: 1, type: fullRtid));
       }
@@ -112,12 +119,16 @@ class _SpawnGraveStonesEventScreenState
 
   void _updateCount(int index, int count) {
     final item = _data.gravestonePool[index];
-    _data.gravestonePool[index] = GravestonePoolItem(count: count, type: item.type);
+    _data.gravestonePool[index] = GravestonePoolItem(
+      count: count,
+      type: item.type,
+    );
     _sync();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final info = RtidParser.parse(widget.rtid);
     final alias = info?.alias ?? '';
@@ -129,14 +140,15 @@ class _SpawnGraveStonesEventScreenState
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Spawn gravestones',
+              l10n?.eventSpawnGravestones ?? 'Event: Spawn gravestones',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -144,21 +156,24 @@ class _SpawnGraveStonesEventScreenState
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
+            tooltip: l10n?.tooltipAboutEvent ?? 'About this event',
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Spawn gravestones event',
-              sections: const [
+              title: l10n?.eventSpawnGravestones ?? 'Spawn gravestones event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'This event randomly spawns obstacles during a wave, e.g. gravestones in Dark Ages.',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpGravestoneBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Logic',
-                  body: 'The event picks random cells from the position pool to spawn obstacles. Total item count must not exceed position count, or some items will not spawn.',
+                  title: l10n?.logic ?? 'Logic',
+                  body: l10n?.eventHelpGravestoneLogic ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Missing assets',
-                  body: 'Some maps without gravestone spawn effects may show sun textures instead.',
+                  title: l10n?.missingAssets ?? 'Missing assets',
+                  body:
+                      l10n?.eventHelpGravestoneMissingAssets ??
+                      'Some maps without gravestone spawn effects may show sun textures instead.',
                 ),
               ],
             ),
@@ -172,11 +187,11 @@ class _SpawnGraveStonesEventScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildPositionPoolCard(theme),
+              _buildPositionPoolCard(theme, l10n),
               const SizedBox(height: 16),
-              _buildInfoCard(theme),
+              _buildInfoCard(theme, l10n),
               const SizedBox(height: 16),
-              _buildGravestonePoolHeader(theme),
+              _buildGravestonePoolHeader(theme, l10n),
               const SizedBox(height: 8),
               ..._data.gravestonePool.asMap().entries.map((e) {
                 final idx = e.key;
@@ -187,6 +202,7 @@ class _SpawnGraveStonesEventScreenState
                   item,
                   idx,
                   internalAliases,
+                  l10n,
                 );
               }),
               const SizedBox(height: 32),
@@ -197,12 +213,13 @@ class _SpawnGraveStonesEventScreenState
     );
   }
 
-  Widget _buildPositionPoolCard(ThemeData theme) {
+  Widget _buildPositionPoolCard(ThemeData theme, AppLocalizations? l10n) {
     final posCount = _data.spawnPositionsPool.length;
-    final itemCount =
-        _data.gravestonePool.fold<int>(0, (s, i) => s + i.count);
+    final itemCount = _data.gravestonePool.fold<int>(0, (s, i) => s + i.count);
     final isDark = theme.brightness == Brightness.dark;
-    final gridColor = isDark ? const Color(0xFF3B332F) : const Color(0xFFD7CCC8);
+    final gridColor = isDark
+        ? const Color(0xFF3B332F)
+        : const Color(0xFFD7CCC8);
     const borderColor = Color(0xFF8D6E63);
 
     return Card(
@@ -212,14 +229,16 @@ class _SpawnGraveStonesEventScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Position pool (SpawnPositionsPool)',
+              l10n?.positionPoolSpawnPositions ??
+                  'Position pool (SpawnPositionsPool)',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Tap cells to select/deselect spawn positions',
+              l10n?.tapCellsSelectDeselect ??
+                  'Tap cells to select/deselect spawn positions',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -233,7 +252,8 @@ class _SpawnGraveStonesEventScreenState
                   final isDeepSea = LevelParser.isDeepSeaLawn(parsed.levelDef);
                   final cols = isDeepSea ? 10 : 9;
                   final rows = isDeepSea ? 6 : 5;
-                  final cellSize = (constraints.maxWidth / cols).floorToDouble();
+                  final cellSize = (constraints.maxWidth / cols)
+                      .floorToDouble();
                   return Container(
                     decoration: BoxDecoration(
                       color: gridColor,
@@ -246,8 +266,9 @@ class _SpawnGraveStonesEventScreenState
                         return Row(
                           mainAxisSize: MainAxisSize.min,
                           children: List.generate(cols, (col) {
-                            final isSelected = _data.spawnPositionsPool
-                                .any((p) => p.x == col && p.y == row);
+                            final isSelected = _data.spawnPositionsPool.any(
+                              (p) => p.x == col && p.y == row,
+                            );
                             return GestureDetector(
                               onTap: () => _togglePosition(col, row),
                               child: Container(
@@ -284,14 +305,14 @@ class _SpawnGraveStonesEventScreenState
             Row(
               children: [
                 Text(
-                  'Positions: $posCount',
+                  l10n?.positionsCount(posCount) ?? 'Positions: $posCount',
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
                 Text(
-                  'Total items: $itemCount',
+                  l10n?.totalItemsCount(itemCount) ?? 'Total items: $itemCount',
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: itemCount > posCount
@@ -305,7 +326,8 @@ class _SpawnGraveStonesEventScreenState
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  'Warning: item count exceeds positions. Some will not spawn.',
+                  l10n?.itemCountExceedsPositionsWarning ??
+                      'Warning: item count exceeds positions. Some will not spawn.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.error,
                     fontSize: 11,
@@ -318,7 +340,7 @@ class _SpawnGraveStonesEventScreenState
     );
   }
 
-  Widget _buildInfoCard(ThemeData theme) {
+  Widget _buildInfoCard(ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -328,7 +350,8 @@ class _SpawnGraveStonesEventScreenState
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Gravestones and similar obstacles blocked by plants cannot spawn. Use other methods to force spawn.',
+                l10n?.gravestoneBlockedInfo ??
+                    'Gravestones and similar obstacles blocked by plants cannot spawn. Use other methods to force spawn.',
                 style: theme.textTheme.bodySmall,
               ),
             ),
@@ -338,12 +361,12 @@ class _SpawnGraveStonesEventScreenState
     );
   }
 
-  Widget _buildGravestonePoolHeader(ThemeData theme) {
+  Widget _buildGravestonePoolHeader(ThemeData theme, AppLocalizations? l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Gravestone pool (GravestonePool)',
+          l10n?.gravestonePool ?? 'Gravestone pool (GravestonePool)',
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -351,7 +374,7 @@ class _SpawnGraveStonesEventScreenState
         FilledButton.icon(
           onPressed: _addItem,
           icon: const Icon(Icons.add, size: 16),
-          label: const Text('Add type'),
+          label: Text(l10n?.addType ?? 'Add type'),
         ),
       ],
     );
@@ -363,6 +386,7 @@ class _SpawnGraveStonesEventScreenState
     GravestonePoolItem item,
     int index,
     Set<String> internalAliases,
+    AppLocalizations? l10n,
   ) {
     final parsed = RtidParser.parse(item.type);
     final alias = parsed?.alias ?? item.type;
@@ -371,7 +395,8 @@ class _SpawnGraveStonesEventScreenState
         ? internalAliases.contains(alias)
         : GridItemRepository.isValid(alias);
     final iconPath = GridItemRepository.getIconPath(alias);
-    final name = GridItemRepository.getName(alias);
+    final displayName = ResourceNames.lookup(context, 'griditem_$alias');
+    final name = displayName != 'griditem_$alias' ? displayName : alias;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -391,20 +416,12 @@ class _SpawnGraveStonesEventScreenState
               child: SizedBox(
                 width: 48,
                 height: 48,
-                child: iconPath != null
-                    ? AssetImageWidget(
-                        assetPath: iconPath,
-                        width: 48,
-                        height: 48,
-                        fit: BoxFit.cover,
-                      )
-                    : Container(
-                        color: theme.colorScheme.surfaceContainerHighest,
-                        child: Icon(
-                          Icons.widgets,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
+                child: AssetImageWidget(
+                  assetPath: iconPath,
+                  width: 48,
+                  height: 48,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -450,6 +467,7 @@ class _SpawnGraveStonesEventScreenState
             const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.delete_outline),
+              tooltip: l10n?.delete ?? 'Delete',
               onPressed: () => _removeItem(index),
             ),
           ],

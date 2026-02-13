@@ -2,9 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/zombie_repository.dart';
-import 'package:z_editor/data/zombie_properties_repository.dart';
-import 'package:z_editor/data/plant_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart';
@@ -164,10 +164,11 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
     required ZombieSpawnData zombie,
     required int index,
   }) {
+    final l10n = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Select custom zombie'),
+        title: Text(l10n?.selectCustomZombie ?? 'Select custom zombie'),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.separated(
@@ -181,7 +182,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                 title: Text(opt.alias),
                 trailing: isCurrent
                     ? Text(
-                        'Current',
+                        l10n?.current ?? 'Current',
                         style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
                               color: Theme.of(ctx).colorScheme.primary,
                             ),
@@ -205,7 +206,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
           ),
         ],
       ),
@@ -375,6 +376,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
   }
 
   void _showZombieEditSheet(int index) {
+    final l10n = AppLocalizations.of(context);
     final zombie = _zombies[index];
     final isElite = _isElite(zombie);
     final baseType = _resolveBaseTypeName(zombie);
@@ -436,7 +438,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  AppLocalizations.of(context)?.customLabel ??
+                                  l10n?.customLabel ??
                                       'Custom',
                                   style: TextStyle(
                                     fontSize: 11,
@@ -457,17 +459,17 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                       Expanded(
                         child: DropdownButtonFormField<int>(
                           initialValue: rowValue,
-                          decoration: const InputDecoration(
-                            labelText: 'Row',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: l10n?.row ?? 'Row',
+                            border: const OutlineInputBorder(),
                           ),
-                          items: const [
-                            DropdownMenuItem(value: 0, child: Text('Random')),
-                            DropdownMenuItem(value: 1, child: Text('Row 1')),
-                            DropdownMenuItem(value: 2, child: Text('Row 2')),
-                            DropdownMenuItem(value: 3, child: Text('Row 3')),
-                            DropdownMenuItem(value: 4, child: Text('Row 4')),
-                            DropdownMenuItem(value: 5, child: Text('Row 5')),
+                          items: [
+                            DropdownMenuItem(value: 0, child: Text(l10n?.random ?? 'Random')),
+                            DropdownMenuItem(value: 1, child: Text(l10n?.rowN(1) ?? 'Row 1')),
+                            DropdownMenuItem(value: 2, child: Text(l10n?.rowN(2) ?? 'Row 2')),
+                            DropdownMenuItem(value: 3, child: Text(l10n?.rowN(3) ?? 'Row 3')),
+                            DropdownMenuItem(value: 4, child: Text(l10n?.rowN(4) ?? 'Row 4')),
+                            DropdownMenuItem(value: 5, child: Text(l10n?.rowN(5) ?? 'Row 5')),
                           ],
                           onChanged: (v) {
                             if (v == null) return;
@@ -506,7 +508,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                             });
                           },
                           icon: const Icon(Icons.swap_horiz),
-                          label: const Text('Change'),
+                          label: Text(l10n?.change ?? 'Change'),
                         ),
                       ),
                     ],
@@ -514,12 +516,12 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                   const SizedBox(height: 12),
                   if (isElite)
                     Text(
-                      'Elite zombies use default level.',
+                      l10n?.eliteZombiesUseDefaultLevel ?? 'Elite zombies use default level.',
                       style: Theme.of(context).textTheme.bodySmall,
                     )
                   else ...[
                     SwitchListTile(
-                      title: const Text('Auto level'),
+                      title: Text(l10n?.autoLevel ?? 'Auto level'),
                       value: levelValue == 0,
                       onChanged: (v) {
                         setModalState(() => levelValue = v ? 0 : 1);
@@ -535,7 +537,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Level: $levelValue'),
+                          Text(l10n?.levelFormat(levelValue) ?? 'Level: $levelValue'),
                           Slider(
                             value: levelValue.toDouble(),
                             min: 1,
@@ -573,7 +575,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                             Navigator.pop(ctx);
                           },
                           icon: const Icon(Icons.copy),
-                          label: const Text('Copy'),
+                          label: Text(l10n?.copy ?? 'Copy'),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -588,7 +590,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                             Navigator.pop(ctx);
                           },
                           icon: const Icon(Icons.delete),
-                          label: const Text('Delete'),
+                          label: Text(l10n?.delete ?? 'Delete'),
                         ),
                       ),
                     ],
@@ -623,7 +625,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                                   ),
                                   icon: const Icon(Icons.swap_horiz),
                                   label: Text(
-                                    '${AppLocalizations.of(context)?.switchCustomZombie ?? 'Switch'} (${compatibleCustom.length})',
+                                    '${l10n?.switchCustomZombie ?? 'Switch'} (${compatibleCustom.length})',
                                   ),
                                 ),
                               ),
@@ -644,8 +646,8 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                                   ),
                                   icon: const Icon(Icons.edit),
                                   label: Text(
-                                    AppLocalizations.of(context)?.editCustomZombieProperties ??
-                                        'Edit properties',
+                                    l10n?.editCustomZombieProperties ??
+                                        l10n?.editProperties ?? 'Edit properties',
                                   ),
                                 ),
                               )
@@ -674,8 +676,8 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                                   ),
                                   icon: const Icon(Icons.build),
                                   label: Text(
-                                    AppLocalizations.of(context)?.makeZombieAsCustom ??
-                                        'Make custom',
+                                    l10n?.makeZombieAsCustom ??
+                                        l10n?.makeCustom ?? 'Make custom',
                                   ),
                                 ),
                               ),
@@ -696,6 +698,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final info = RtidParser.parse(widget.rtid);
     final alias = info?.alias ?? '';
 
@@ -708,7 +711,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
               widget.eventSubtitle,
               style: theme.textTheme.bodySmall,
@@ -720,15 +723,17 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: widget.isGroundSpawner ? 'Ground spawn event' : 'Standard spawn event',
-              sections: const [
+              title: widget.isGroundSpawner
+                  ? (l10n?.eventGroundSpawnTitle ?? 'Ground spawn event')
+                  : (l10n?.eventStandardSpawnTitle ?? 'Standard spawn event'),
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Configure zombies that spawn in this wave. Level 0 follows map tier.',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpStandardOverview ?? 'Configure zombies that spawn in this wave. Level 0 follows map tier.',
                 ),
                 HelpSectionData(
-                  title: 'Row',
-                  body: 'Row 0-4. Leave unset for random row.',
+                  title: l10n?.row ?? 'Row',
+                  body: l10n?.eventHelpStandardRow ?? 'Rows 0–4. Leave unset for random row.',
                 ),
               ],
             ),
@@ -742,15 +747,15 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (widget.isGroundSpawner) _buildColumnRangeCard(theme),
+              if (widget.isGroundSpawner) _buildColumnRangeCard(theme, l10n),
               if (widget.isGroundSpawner) const SizedBox(height: 16),
-              if (!widget.isGroundSpawner) _buildNotificationCard(theme),
+              if (!widget.isGroundSpawner) _buildNotificationCard(theme, l10n),
               if (!widget.isGroundSpawner) const SizedBox(height: 16),
-              _buildLaneRows(context, theme),
+              _buildLaneRows(context, theme, l10n),
               const SizedBox(height: 16),
-              _buildBatchLevelCard(theme),
+              _buildBatchLevelCard(theme, l10n),
               const SizedBox(height: 16),
-              _buildDropConfigCard(context, theme),
+              _buildDropConfigCard(context, theme, l10n),
               const SizedBox(height: 32),
             ],
           ),
@@ -759,7 +764,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
     );
   }
 
-  Widget _buildColumnRangeCard(ThemeData theme) {
+  Widget _buildColumnRangeCard(ThemeData theme, AppLocalizations? l10n) {
     final d = _data as SpawnZombiesFromGroundData;
     return Card(
       child: Padding(
@@ -768,7 +773,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Column range',
+              l10n?.columnRange ?? 'Column range',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -779,8 +784,8 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: d.columnStart.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Start',
+                    decoration: InputDecoration(
+                      labelText: l10n?.start ?? 'Start',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -803,8 +808,8 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: d.columnEnd.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'End',
+                    decoration: InputDecoration(
+                      labelText: l10n?.end ?? 'End',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -831,7 +836,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
     );
   }
 
-  Widget _buildNotificationCard(ThemeData theme) {
+  Widget _buildNotificationCard(ThemeData theme, AppLocalizations? l10n) {
     final data = _data as WaveActionData;
     final current = data.notificationEvents?.isNotEmpty == true
         ? data.notificationEvents!.first
@@ -847,7 +852,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                 Icon(Icons.music_note, color: theme.colorScheme.secondary),
                 const SizedBox(width: 8),
                 Text(
-                  'Background music (LevelJam)',
+                  l10n?.backgroundMusicLevelJam ?? 'Background music (LevelJam)',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -872,7 +877,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Only applies to Rock era maps.',
+              l10n?.onlyAppliesRockEra ?? 'Only applies to Rock era maps.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -883,14 +888,14 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
     );
   }
 
-  Widget _buildLaneRows(BuildContext context, ThemeData theme) {
+  Widget _buildLaneRows(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
     return Column(
       children: [
         for (var row = 1; row <= 5; row++) ...[
           _buildLaneRow(
             context,
             theme,
-            label: 'Row $row',
+            label: l10n?.rowN(row) ?? 'Row $row',
             rowValue: row,
             zombies: _zombies
                 .asMap()
@@ -903,7 +908,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
         _buildLaneRow(
           context,
           theme,
-          label: 'Random row',
+          label: l10n?.randomRow ?? 'Random row',
           rowValue: 0,
           zombies: _zombies
               .asMap()
@@ -984,7 +989,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
     );
   }
 
-  Widget _buildBatchLevelCard(ThemeData theme) {
+  Widget _buildBatchLevelCard(ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -996,7 +1001,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                 Icon(Icons.layers, color: theme.colorScheme.secondary),
                 const SizedBox(width: 8),
                 Text(
-                  'Batch level',
+                  l10n?.batchLevel ?? 'Batch level',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -1030,30 +1035,30 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                     final ok = await showDialog<bool>(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text('Apply batch level?'),
+                        title: Text(l10n?.applyBatchLevel ?? 'Apply batch level?'),
                         content: Text(
-                          'Set all zombies in this wave to level ${_batchLevel.round()} (elite unchanged).',
+                          l10n?.applyBatchLevelContent(_batchLevel.round()) ?? 'Set all zombies in this wave to level ${_batchLevel.round()} (elite unchanged).',
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text('Cancel'),
+                            child: Text(l10n?.cancel ?? 'Cancel'),
                           ),
                           FilledButton(
                             onPressed: () => Navigator.pop(ctx, true),
-                            child: const Text('Apply'),
+                            child: Text(l10n?.apply ?? 'Apply'),
                           ),
                         ],
                       ),
                     );
                     if (ok == true) _applyBatchLevel();
                   },
-                  child: const Text('Apply'),
+                  child: Text(l10n?.apply ?? 'Apply'),
                 ),
               ],
             ),
             Text(
-              'Applies to all non-elite zombies in this wave.',
+              l10n?.appliesToAllNonElite ?? 'Applies to all non-elite zombies in this wave.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -1064,7 +1069,7 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
     );
   }
 
-  Widget _buildDropConfigCard(BuildContext context, ThemeData theme) {
+  Widget _buildDropConfigCard(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
     final int count;
     final List<String> plants;
     if (widget.isGroundSpawner) {
@@ -1090,8 +1095,8 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                 const SizedBox(width: 8),
                 Text(
                   isDroppingPlants
-                      ? 'Drop config (Plants)'
-                      : 'Drop config (Plant Food)',
+                      ? (l10n?.dropConfigPlants ?? 'Drop config (Plants)')
+                      : (l10n?.dropConfigPlantFood ?? 'Drop config (Plant Food)'),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -1116,8 +1121,8 @@ class _ZombieSpawnEventScreenState extends State<ZombieSpawnEventScreen> {
                 Expanded(
                   child: Text(
                     isDroppingPlants
-                        ? 'Zombies carrying plants'
-                        : 'Zombies carrying plant food',
+                        ? (l10n?.zombiesCarryingPlants ?? 'Zombies carrying plants')
+                        : (l10n?.zombiesCarryingPlantFood ?? 'Zombies carrying plant food'),
                     style: theme.textTheme.bodySmall,
                   ),
                 ),

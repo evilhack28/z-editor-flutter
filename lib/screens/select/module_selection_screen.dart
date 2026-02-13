@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/module_registry.dart';
+import 'package:z_editor/data/registry/module_registry.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 
 /// Module selection. Ported from Z-Editor-master ModuleSelectionScreen.kt

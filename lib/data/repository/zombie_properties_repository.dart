@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'pvz_models.dart';
-import 'rtid_parser.dart';
+import '../pvz_models.dart';
+import '../rtid_parser.dart';
  
 class ZombiePropertiesRepository {
   ZombiePropertiesRepository._();

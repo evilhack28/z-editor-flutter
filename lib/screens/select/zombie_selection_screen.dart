@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/zombie_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/theme/app_theme.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart'
     show AssetImageWidget, imageAltCandidates;
+
+/// Placeholder when a zombie has no icon or icon fails to load.
+const String _kUnknownIconPath = 'assets/images/others/unknown.webp';
 
 /// Zombie selection. Ported from Z-Editor-master ZombieSelectionScreen.kt
 class ZombieSelectionScreen extends StatefulWidget {
@@ -62,10 +65,11 @@ class _ZombieSelectionScreenState extends State<ZombieSelectionScreen> {
   void _toggleFavorite(BuildContext context, String id) async {
     await ZombieRepository().toggleFavorite(id);
     if (!context.mounted) return;
+    final l10n = AppLocalizations.of(context);
     final isFav = ZombieRepository().isFavorite(id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(isFav ? 'Added to favorites' : 'Removed from favorites'),
+        content: Text(isFav ? (l10n?.addedToFavorites ?? 'Added to favorites') : (l10n?.removedFromFavorites ?? 'Removed from favorites')),
         duration: const Duration(milliseconds: 1200),
       ),
     );
@@ -125,7 +129,7 @@ class _ZombieSelectionScreenState extends State<ZombieSelectionScreen> {
                           onChanged: (v) => setState(() => _searchQuery = v),
                           decoration: InputDecoration(
                             hintText: widget.multiSelect
-                                ? 'Selected ${_selectedIds.length}, tap to search'
+                                ? (l10n?.selectedCountTapToSearch(_selectedIds.length) ?? 'Selected ${_selectedIds.length}, tap to search')
                                 : (l10n?.searchZombie ?? 'Search zombie'),
                             prefixIcon: const Icon(Icons.search),
                             suffixIcon: _searchQuery.isNotEmpty
@@ -272,7 +276,7 @@ class _ZombieSelectionScreenState extends State<ZombieSelectionScreen> {
                             const SizedBox(height: 16),
                             Text(
                               _selectedCategory == ZombieCategory.collection
-                                  ? 'No favorites. Long-press to favorite.'
+                                  ? (l10n?.noFavoritesLongPress ?? 'No favorites. Long-press to favorite.')
                                   : (l10n?.noZombieFound ?? 'No zombie found'),
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
@@ -343,6 +347,7 @@ class _ZombieGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final iconPath = zombie.iconAssetPath;
+    final hasIcon = iconPath != null && iconPath.isNotEmpty;
 
     final borderColor =
         isSelected ? theme.colorScheme.primary : Colors.transparent;
@@ -371,16 +376,22 @@ class _ZombieGridItem extends StatelessWidget {
                     child: SizedBox(
                       width: 44,
                       height: 44,
-                      child: iconPath != null
+                      child: hasIcon
                           ? AssetImageWidget(
                               assetPath: iconPath,
                               altCandidates: imageAltCandidates(iconPath),
                               width: 44,
                               height: 44,
                               fit: BoxFit.cover,
+                              errorWidget: Image.asset(
+                                _kUnknownIconPath,
+                                width: 44,
+                                height: 44,
+                                fit: BoxFit.cover,
+                              ),
                             )
-                          : const AssetImageWidget(
-                              assetPath: 'assets/images/others/unknown.webp',
+                          : Image.asset(
+                              _kUnknownIconPath,
                               width: 44,
                               height: 44,
                               fit: BoxFit.cover,

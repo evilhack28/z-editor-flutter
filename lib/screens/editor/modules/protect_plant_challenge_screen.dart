@@ -1,8 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/data/level_parser.dart';
-import 'package:z_editor/data/plant_repository.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/l10n/resource_names.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/screens/select/plant_selection_screen.dart';
@@ -112,6 +113,7 @@ class _ProtectPlantChallengeScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final sorted = List<ProtectPlantData>.from(_data.plants)
       ..sort((a, b) {
@@ -123,23 +125,25 @@ class _ProtectPlantChallengeScreenState
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n.back,
           onPressed: widget.onBack,
         ),
-        title: const Text('Protect plants'),
+        title: Text(l10n.protectPlants),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
+            tooltip: l10n.tooltipAboutModule,
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Protect plants',
-              sections: const [
+              title: l10n.protectPlants,
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Plants listed here must survive; losing them fails the level.',
+                  title: l10n.overview,
+                  body: l10n.protectPlantsOverview,
                 ),
                 HelpSectionData(
-                  title: 'Auto count',
-                  body: 'The required count follows the number of listed plants.',
+                  title: l10n.autoCount,
+                  body: l10n.protectPlantsAutoCount,
                 ),
               ],
             ),
@@ -161,7 +165,7 @@ class _ProtectPlantChallengeScreenState
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Plant levels follow global level definitions. Seed bank levels are overridden.',
+                        l10n.plantLevelsFollowGlobal,
                         style: theme.textTheme.bodySmall,
                       ),
                     ),
@@ -181,7 +185,7 @@ class _ProtectPlantChallengeScreenState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Selected position',
+                              l10n.selectedPosition,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -199,7 +203,7 @@ class _ProtectPlantChallengeScreenState
                         FilledButton.icon(
                           onPressed: _addPlant,
                           icon: const Icon(Icons.add, size: 18),
-                          label: const Text('Add plant'),
+                          label: Text(l10n.addPlant),
                         ),
                       ],
                     ),
@@ -211,7 +215,7 @@ class _ProtectPlantChallengeScreenState
             ),
             const SizedBox(height: 16),
             Text(
-              'Protected list',
+              l10n.protectedList,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onSurfaceVariant,
@@ -227,6 +231,7 @@ class _ProtectPlantChallengeScreenState
                     _selectedX = p.gridX;
                     _selectedY = p.gridY;
                   }),
+                  deleteTooltip: l10n.delete,
                 )),
           ],
         ),
@@ -340,6 +345,7 @@ class _PlantListTile extends StatelessWidget {
     required this.gridCols,
     required this.onDelete,
     required this.onSelect,
+    required this.deleteTooltip,
   });
 
   final ProtectPlantData plant;
@@ -347,6 +353,7 @@ class _PlantListTile extends StatelessWidget {
   final int gridCols;
   final VoidCallback onDelete;
   final VoidCallback onSelect;
+  final String deleteTooltip;
 
   bool get _isOutOfBounds =>
       plant.gridX >= gridCols || plant.gridY >= gridRows;
@@ -400,6 +407,7 @@ class _PlantListTile extends StatelessWidget {
         ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline),
+          tooltip: deleteTooltip,
           onPressed: onDelete,
         ),
       ),

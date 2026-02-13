@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/theme/app_theme.dart' show pvzCyanDark, pvzCyanLight;
+import 'package:z_editor/widgets/editor_components.dart';
 
 class StartingPlantfoodModuleScreen extends StatefulWidget {
   const StartingPlantfoodModuleScreen({
@@ -24,8 +27,6 @@ class _StartingPlantfoodModuleScreenState extends State<StartingPlantfoodModuleS
   late PvzObject _moduleObj;
   late LevelMutatorStartingPlantfoodPropsData _data;
   late TextEditingController _pfController;
-  late TextEditingController _iconTextController;
-  late TextEditingController _iconImageController;
 
   @override
   void initState() {
@@ -52,8 +53,6 @@ class _StartingPlantfoodModuleScreenState extends State<StartingPlantfoodModuleS
       _data = LevelMutatorStartingPlantfoodPropsData();
     }
     _pfController = TextEditingController(text: '${_data.startingPlantfoodOverride}');
-    _iconTextController = TextEditingController(text: _data.iconText);
-    _iconImageController = TextEditingController(text: _data.iconImage);
   }
 
   void _save() {
@@ -64,26 +63,42 @@ class _StartingPlantfoodModuleScreenState extends State<StartingPlantfoodModuleS
   @override
   void dispose() {
     _pfController.dispose();
-    _iconTextController.dispose();
-    _iconImageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final accentColor = isDark ? pvzCyanDark : pvzCyanLight;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Override Starting Plantfood'),
+        title: Text(l10n?.overrideStartingPlantfood ?? 'Override Starting Plantfood'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
+        backgroundColor: accentColor,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
+            icon: const Icon(Icons.help_outline),
+            tooltip: l10n?.tooltipAboutModule ?? 'About this module',
             onPressed: () {
-              _save();
-              Navigator.pop(context);
+              showEditorHelpDialog(
+                context,
+                title: l10n?.startingPlantfoodHelpTitle ?? 'Starting Plantfood Module',
+                themeColor: accentColor,
+                sections: [
+                  HelpSectionData(
+                    title: l10n?.overview ?? 'Overview',
+                    body: l10n?.startingPlantfoodHelpOverview ??
+                        'This module was originally used to control different difficulty levels in Panchase. Use it to override the initial plant food carried at level start.',
+                  ),
+                ],
+              );
             },
           ),
         ],
@@ -93,49 +108,20 @@ class _StartingPlantfoodModuleScreenState extends State<StartingPlantfoodModuleS
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Starting Plantfood Override', style: TextStyle(fontSize: 16)),
+            Text(l10n?.startingPlantfoodOverride ?? 'Starting Plantfood Override', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 8),
             TextField(
               controller: _pfController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter starting plantfood (0+)',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText: l10n?.enterStartingPlantfoodHint ?? 'Enter starting plantfood (0+)',
               ),
               onChanged: (value) {
                 final parsed = int.tryParse(value) ?? _data.startingPlantfoodOverride;
                 setState(() {
                   _data.startingPlantfoodOverride = parsed.clamp(0, 999);
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            const Text('Icon Text'),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _iconTextController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Optional label',
-              ),
-              onChanged: (v) {
-                setState(() {
-                  _data.iconText = v;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            const Text('Icon Image'),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _iconImageController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'IMAGE_... resource id',
-              ),
-              onChanged: (v) {
-                setState(() {
-                  _data.iconImage = v;
+                  _save();
                 });
               },
             ),

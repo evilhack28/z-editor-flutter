@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/zombie_properties_repository.dart';
-import 'package:z_editor/data/zombie_repository.dart';
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/theme/app_theme.dart';
@@ -135,10 +135,11 @@ class _StormEventScreenState extends State<StormEventScreen> {
     required StormZombieData zombie,
     required int index,
   }) {
+    final l10n = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Select custom zombie'),
+        title: Text(l10n?.selectCustomZombie ?? 'Select custom zombie'),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.separated(
@@ -152,7 +153,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
                 title: Text(opt.alias),
                 trailing: isCurrent
                     ? Text(
-                        'Current',
+                        l10n?.current ?? 'Current',
                         style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
                               color: Theme.of(ctx).colorScheme.primary,
                             ),
@@ -169,7 +170,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
           ),
         ],
       ),
@@ -244,6 +245,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
   }
 
   void _showZombieEditSheet(int index) {
+    final l10n = AppLocalizations.of(context);
     final z = _data.zombies[index];
     final isElite = _isElite(z);
     final baseType = _resolveBaseTypeName(z);
@@ -304,7 +306,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  AppLocalizations.of(context)?.customLabel ??
+                                  l10n?.customLabel ??
                                       'Custom',
                                   style: const TextStyle(
                                     fontSize: 11,
@@ -340,17 +342,17 @@ class _StormEventScreenState extends State<StormEventScreen> {
                       });
                     },
                     icon: const Icon(Icons.swap_horiz),
-                    label: const Text('Change'),
+                    label: Text(l10n?.change ?? 'Change'),
                   ),
                   const SizedBox(height: 12),
                   if (isElite)
                     Text(
-                      'Elite zombies use default level.',
+                      l10n?.eliteZombiesUseDefaultLevel ?? 'Elite zombies use default level.',
                       style: Theme.of(context).textTheme.bodySmall,
                     )
                   else ...[
                     SwitchListTile(
-                      title: const Text('Auto level'),
+                      title: Text(l10n?.autoLevel ?? 'Auto level'),
                       value: levelValue == 0,
                       onChanged: (v) {
                         setModalState(() => levelValue = v ? 0 : 1);
@@ -361,7 +363,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Level: $levelValue'),
+                          Text(l10n?.levelFormat(levelValue) ?? 'Level: $levelValue'),
                           Slider(
                             value: levelValue.toDouble(),
                             min: 1,
@@ -399,7 +401,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
                             Navigator.pop(ctx);
                           },
                           icon: const Icon(Icons.copy),
-                          label: const Text('Copy'),
+                          label: Text(l10n?.copy ?? 'Copy'),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -414,7 +416,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
                             Navigator.pop(ctx);
                           },
                           icon: const Icon(Icons.delete),
-                          label: const Text('Delete'),
+                          label: Text(l10n?.delete ?? 'Delete'),
                         ),
                       ),
                     ],
@@ -449,7 +451,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
                                   ),
                                   icon: const Icon(Icons.swap_horiz),
                                   label: Text(
-                                    '${AppLocalizations.of(context)?.switchCustomZombie ?? 'Switch'} (${compatibleCustom.length})',
+                                    '${l10n?.switchCustomZombie ?? 'Switch'} (${compatibleCustom.length})',
                                   ),
                                 ),
                               ),
@@ -470,8 +472,8 @@ class _StormEventScreenState extends State<StormEventScreen> {
                                   ),
                                   icon: const Icon(Icons.edit),
                                   label: Text(
-                                    AppLocalizations.of(context)?.editCustomZombieProperties ??
-                                        'Edit properties',
+                                    l10n?.editCustomZombieProperties ??
+                                        l10n?.editProperties ?? 'Edit properties',
                                   ),
                                 ),
                               )
@@ -493,8 +495,8 @@ class _StormEventScreenState extends State<StormEventScreen> {
                                   ),
                                   icon: const Icon(Icons.build),
                                   label: Text(
-                                    AppLocalizations.of(context)?.makeZombieAsCustom ??
-                                        'Make custom',
+                                    l10n?.makeZombieAsCustom ??
+                                        l10n?.makeCustom ?? 'Make custom',
                                   ),
                                 ),
                               ),
@@ -515,6 +517,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
     final zombieRepo = ZombieRepository();
 
@@ -527,9 +530,9 @@ class _StormEventScreenState extends State<StormEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Storm spawn',
+              l10n?.eventStormSpawn ?? 'Event: Storm spawn',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -539,19 +542,19 @@ class _StormEventScreenState extends State<StormEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Storm event',
-              sections: const [
+              title: l10n?.stormEvent ?? 'Storm event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: '沙尘暴或暴风雪将僵尸快速传送到前线。极寒风暴可冻结植物。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpStormOverview ?? 'Sandstorm or snowstorm quickly delivers zombies to the front. Excold storm can freeze plants.',
                 ),
                 HelpSectionData(
-                  title: 'Column range',
-                  body: '场地左边界为0列，右边界为9列，起始列要小于结束列。',
+                  title: l10n?.columnRange ?? 'Column range',
+                  body: l10n?.eventHelpStormColumnRange ?? 'Columns 0–9. Left edge is 0, right is 9. Start column must be less than end column.',
                 ),
                 HelpSectionData(
-                  title: 'Zombie levels',
-                  body: 'Storm zombies support level 1-10. Elite zombies use default level.',
+                  title: l10n?.zombieLevels ?? 'Zombie levels',
+                  body: l10n?.zombieLevelsBody ?? 'Storm zombies support level 1-10. Elite zombies use default level.',
                 ),
               ],
             ),
@@ -572,7 +575,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Spawn parameters',
+                        l10n?.spawnParameters ?? 'Spawn parameters',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -583,10 +586,10 @@ class _StormEventScreenState extends State<StormEventScreen> {
                         children: ['sandstorm', 'snowstorm', 'excoldstorm']
                             .map((t) => ChoiceChip(
                                   label: Text(t == 'sandstorm'
-                                      ? 'Sandstorm'
+                                      ? (l10n?.sandstorm ?? 'Sandstorm')
                                       : t == 'snowstorm'
-                                          ? 'Snowstorm'
-                                          : 'Excold storm'),
+                                          ? (l10n?.snowstorm ?? 'Snowstorm')
+                                          : (l10n?.excoldStorm ?? 'Excold storm')),
                                   selected: _data.type == t,
                                   onSelected: (_) {
                                     _data = StormZombieSpawnerPropsData(
@@ -608,8 +611,8 @@ class _StormEventScreenState extends State<StormEventScreen> {
                           Expanded(
                             child: TextFormField(
                               initialValue: _data.columnStart.toString(),
-                              decoration: const InputDecoration(
-                                labelText: 'Column start',
+                              decoration: InputDecoration(
+                                labelText: l10n?.columnStart ?? 'Column start',
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
@@ -633,8 +636,8 @@ class _StormEventScreenState extends State<StormEventScreen> {
                           Expanded(
                             child: TextFormField(
                               initialValue: _data.columnEnd.toString(),
-                              decoration: const InputDecoration(
-                                labelText: 'Column end',
+                              decoration: InputDecoration(
+                                labelText: l10n?.columnEnd ?? 'Column end',
                                 border: OutlineInputBorder(),
                               ),
                               keyboardType: TextInputType.number,
@@ -659,8 +662,8 @@ class _StormEventScreenState extends State<StormEventScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         initialValue: _data.groupSize.toString(),
-                        decoration: const InputDecoration(
-                          labelText: 'Group size',
+                        decoration: InputDecoration(
+                          labelText: l10n?.groupSize ?? 'Group size',
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
@@ -682,8 +685,8 @@ class _StormEventScreenState extends State<StormEventScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         initialValue: _data.timeBetweenGroups.toString(),
-                        decoration: const InputDecoration(
-                          labelText: 'Time between groups',
+                        decoration: InputDecoration(
+                          labelText: l10n?.timeBetweenGroups ?? 'Time between groups',
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
@@ -711,7 +714,7 @@ class _StormEventScreenState extends State<StormEventScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Zombies (${_data.zombies.length})',
+                    l10n?.zombiesCount(_data.zombies.length) ?? 'Zombies (${_data.zombies.length})',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

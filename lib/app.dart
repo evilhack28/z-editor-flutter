@@ -1,15 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:z_editor/escape_override.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
-import 'package:z_editor/data/level_repository.dart';
+import 'package:z_editor/data/repository/level_repository.dart';
 import 'package:z_editor/screens/about_screen.dart';
 import 'package:z_editor/screens/editor_screen.dart';
 import 'package:z_editor/screens/level_list_screen.dart';
 import 'package:z_editor/theme/app_theme.dart';
 
 enum AppScreen { levelList, editor, about }
+
+/// Wraps child and handles Escape key on desktop to trigger back/pop.
+/// Uses HardwareKeyboard.addHandler for immediate, global Escape handling.
+class _DesktopEscapeHandler extends StatefulWidget {
+  const _DesktopEscapeHandler({
+    required this.child,
+    required this.onEscapeNoRouteToPop,
+  });
+
+  final Widget child;
+  final VoidCallback? onEscapeNoRouteToPop;
+
+  @override
+  State<_DesktopEscapeHandler> createState() => _DesktopEscapeHandlerState();
+}
+
+class _DesktopEscapeHandlerState extends State<_DesktopEscapeHandler> {
+  late final KeyEventCallback _keyHandler;
+
+  @override
+  void initState() {
+    super.initState();
+    _keyHandler = _handleKeyEvent;
+    HardwareKeyboard.instance.addHandler(_keyHandler);
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_keyHandler);
+    super.dispose();
+  }
+
+  bool _handleKeyEvent(KeyEvent event) {
+    if (event is KeyRepeatEvent) return false;
+    if (event is! KeyDownEvent) return false;
+    if (event.logicalKey != LogicalKeyboardKey.escape) return false;
+    if (!mounted) return false;
+
+    final platform = Theme.of(context).platform;
+    if (platform != TargetPlatform.windows &&
+        platform != TargetPlatform.macOS &&
+        platform != TargetPlatform.linux) {
+      return false;
+    }
+
+    final nav = Navigator.maybeOf(context);
+    if (nav != null && nav.canPop()) {
+      if (EscapeOverride.tryHandle?.call() == true) return true;
+      nav.pop();
+      return true;
+    }
+
+    widget.onEscapeNoRouteToPop?.call();
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
 
 class ZEditorApp extends StatefulWidget {
   const ZEditorApp({
@@ -76,20 +136,33 @@ class _ZEditorAppState extends State<ZEditorApp> {
         data: MediaQuery.of(context).copyWith(
           textScaler: TextScaler.linear(widget.uiScale),
         ),
-        child: PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, _) async {
-            if (didPop) return;
+        child: _DesktopEscapeHandler(
+          onEscapeNoRouteToPop: () {
             if (_screen == AppScreen.levelList) {
               SystemNavigator.pop();
             } else if (_screen == AppScreen.editor && _editorBackHandler != null) {
-              final shouldLeave = await _editorBackHandler!();
-              if (shouldLeave && mounted) _backToLevelList();
-            } else {
-              if (mounted) _backToLevelList();
+              _editorBackHandler!().then((leave) {
+                if (leave && mounted) _backToLevelList();
+              });
+            } else if (mounted) {
+              _backToLevelList();
             }
           },
-          child: _buildCurrentScreen(),
+          child: PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, _) async {
+              if (didPop) return;
+              if (_screen == AppScreen.levelList) {
+                SystemNavigator.pop();
+              } else if (_screen == AppScreen.editor && _editorBackHandler != null) {
+                final shouldLeave = await _editorBackHandler!();
+                if (shouldLeave && mounted) _backToLevelList();
+              } else {
+                if (mounted) _backToLevelList();
+              }
+            },
+            child: _buildCurrentScreen(),
+          ),
         ),
       ),
     );

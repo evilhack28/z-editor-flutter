@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/theme/app_theme.dart';
 import 'package:z_editor/widgets/asset_image.dart';
 import 'package:z_editor/widgets/editor_components.dart';
@@ -97,6 +98,7 @@ class _CustomZombiePropertiesScreenState
     required RectData initial,
     required ValueChanged<RectData> onConfirm,
   }) async {
+    final l10n = AppLocalizations.of(context);
     final xController = TextEditingController(text: '${initial.mX}');
     final yController = TextEditingController(text: '${initial.mY}');
     final wController = TextEditingController(text: '${initial.mWidth}');
@@ -136,7 +138,7 @@ class _CustomZombiePropertiesScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
           ),
           FilledButton(
             onPressed: () {
@@ -150,7 +152,7 @@ class _CustomZombiePropertiesScreenState
               );
               Navigator.pop(ctx);
             },
-            child: const Text('OK'),
+            child: Text(l10n?.ok ?? 'OK'),
           ),
         ],
       ),
@@ -162,6 +164,7 @@ class _CustomZombiePropertiesScreenState
     required Point2D initial,
     required ValueChanged<Point2D> onConfirm,
   }) async {
+    final l10n = AppLocalizations.of(context);
     final xController = TextEditingController(text: '${initial.x}');
     final yController = TextEditingController(text: '${initial.y}');
     await showDialog<void>(
@@ -178,7 +181,7 @@ class _CustomZombiePropertiesScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
           ),
           FilledButton(
             onPressed: () {
@@ -190,7 +193,7 @@ class _CustomZombiePropertiesScreenState
               );
               Navigator.pop(ctx);
             },
-            child: const Text('OK'),
+            child: Text(l10n?.ok ?? 'OK'),
           ),
         ],
       ),
@@ -202,6 +205,7 @@ class _CustomZombiePropertiesScreenState
     required Point3DDouble initial,
     required ValueChanged<Point3DDouble> onConfirm,
   }) async {
+    final l10n = AppLocalizations.of(context);
     final xController = TextEditingController(text: '${initial.x}');
     final yController = TextEditingController(text: '${initial.y}');
     final zController = TextEditingController(text: '${initial.z}');
@@ -222,7 +226,7 @@ class _CustomZombiePropertiesScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
           ),
           FilledButton(
             onPressed: () {
@@ -235,7 +239,7 @@ class _CustomZombiePropertiesScreenState
               );
               Navigator.pop(ctx);
             },
-            child: const Text('OK'),
+            child: Text(l10n?.ok ?? 'OK'),
           ),
         ],
       ),
@@ -243,12 +247,13 @@ class _CustomZombiePropertiesScreenState
   }
 
   Future<void> _showSizeTypeDialog() async {
+    final l10n = AppLocalizations.of(context);
     final options = <String?>[null, 'small', 'mid', 'large'];
     var selected = _propsData.sizeType;
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Select size'),
+        title: Text(l10n?.selectSize ?? 'Select size'),
         content: StatefulBuilder(
           builder: (context, setState) {
             return RadioGroup<String?>(
@@ -273,7 +278,7 @@ class _CustomZombiePropertiesScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
           ),
           FilledButton(
             onPressed: () {
@@ -281,7 +286,7 @@ class _CustomZombiePropertiesScreenState
               _sync();
               Navigator.pop(ctx);
             },
-            child: const Text('OK'),
+            child: Text(l10n?.ok ?? 'OK'),
           ),
         ],
       ),
@@ -308,6 +313,7 @@ class _CustomZombiePropertiesScreenState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final themeColor = _themeColor;
+    final l10n = AppLocalizations.of(context);
     if (_typeObj == null) {
       return Scaffold(
         appBar: AppBar(
@@ -315,11 +321,11 @@ class _CustomZombiePropertiesScreenState
             icon: const Icon(Icons.arrow_back),
             onPressed: widget.onBack,
           ),
-          title: const Text('Custom zombie'),
+          title: Text(l10n?.customZombie ?? 'Custom zombie'),
         ),
         body: Center(
           child: Text(
-            'Zombie type object not found.',
+            l10n?.zombieTypeNotFound ?? 'Zombie type object not found.',
             style: theme.textTheme.titleMedium,
           ),
         ),
@@ -333,7 +339,7 @@ class _CustomZombiePropertiesScreenState
             icon: const Icon(Icons.arrow_back),
             onPressed: widget.onBack,
           ),
-          title: const Text('Custom zombie properties'),
+          title: Text(l10n?.customZombieProperties ?? 'Custom zombie properties'),
           backgroundColor: themeColor,
           foregroundColor: theme.colorScheme.onPrimary,
         ),
@@ -345,14 +351,14 @@ class _CustomZombiePropertiesScreenState
               Icon(Icons.warning, size: 80, color: themeColor),
               const SizedBox(height: 16),
               Text(
-                'Property object not found',
+                l10n?.propertyObjectNotFound ?? 'Property object not found',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'The custom zombie\'s property object ($propsAlias) was not found in the level. The property definition does not point to level internals, so it cannot be edited here.',
+                l10n?.propertyObjectNotFoundHint(propsAlias) ?? 'The custom zombie\'s property object ($propsAlias) was not found in the level. The property definition does not point to level internals, so it cannot be edited here.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
@@ -371,7 +377,7 @@ class _CustomZombiePropertiesScreenState
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
-        title: const Text('Custom zombie properties'),
+        title: Text(l10n?.customZombieProperties ?? 'Custom zombie properties'),
         backgroundColor: themeColor,
         foregroundColor: theme.colorScheme.onPrimary,
         actions: [
@@ -379,27 +385,23 @@ class _CustomZombiePropertiesScreenState
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Custom zombie',
-              sections: const [
+              title: l10n?.customZombie ?? 'Custom zombie',
+              sections: [
                 HelpSectionData(
-                  title: 'Brief introduction',
-                  body:
-                      'This screen edits custom zombie parameters injected into the level. Only common properties are supported; many special attributes require manual JSON editing.',
+                  title: l10n?.customZombieHelpIntro ?? 'Brief introduction',
+                  body: l10n?.customZombieHelpIntroBody ?? 'This screen edits custom zombie parameters injected into the level. Only common properties are supported; many special attributes require manual JSON editing.',
                 ),
                 HelpSectionData(
-                  title: 'Base properties',
-                  body:
-                      'Custom zombies can modify base stats (HP, speed, eat damage). Custom zombies do not appear in the level preview pool.',
+                  title: l10n?.customZombieHelpBase ?? 'Base properties',
+                  body: l10n?.customZombieHelpBaseBody ?? 'Custom zombies can modify base stats (HP, speed, eat damage). Custom zombies do not appear in the level preview pool.',
                 ),
                 HelpSectionData(
-                  title: 'Hit/position',
-                  body:
-                      'X and Y are offsets; W and H are width and height. Offsetting ArtCenter can hide the zombie sprite. Leaving ground track empty lets the zombie walk in place.',
+                  title: l10n?.customZombieHelpHit ?? 'Hit/position',
+                  body: l10n?.customZombieHelpHitBody ?? 'X and Y are offsets; W and H are width and height. Offsetting ArtCenter can hide the zombie sprite. Leaving ground track empty lets the zombie walk in place.',
                 ),
                 HelpSectionData(
-                  title: 'Manual editing',
-                  body:
-                      'Custom injection auto-fills all properties from game files. You can further edit the JSON file manually if needed.',
+                  title: l10n?.customZombieHelpManual ?? 'Manual editing',
+                  body: l10n?.customZombieHelpManualBody ?? 'Custom injection auto-fills all properties from game files. You can further edit the JSON file manually if needed.',
                 ),
               ],
             ),
@@ -414,7 +416,7 @@ class _CustomZombiePropertiesScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Base stats',
+              Text(l10n?.baseStats ?? 'Base stats',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: themeColor,
@@ -426,7 +428,7 @@ class _CustomZombiePropertiesScreenState
                   child: Column(
                     children: [
                       _doubleInput(
-                        label: 'Hitpoints',
+                        label: l10n?.hitpoints ?? 'Hitpoints',
                         value: _propsData.hitpoints,
                         onChanged: (v) {
                           _propsData.hitpoints = v;
@@ -438,7 +440,7 @@ class _CustomZombiePropertiesScreenState
                         children: [
                           Expanded(
                             child: _doubleInput(
-                              label: 'Speed',
+                              label: l10n?.speed ?? 'Speed',
                               value: _propsData.speed,
                               onChanged: (v) {
                                 _propsData.speed = v;
@@ -449,7 +451,7 @@ class _CustomZombiePropertiesScreenState
                           const SizedBox(width: 12),
                           Expanded(
                             child: _doubleInput(
-                              label: 'Speed variance',
+                              label: l10n?.speedVariance ?? 'Speed variance',
                               value: _propsData.speedVariance ?? 0.1,
                               onChanged: (v) {
                                 _propsData.speedVariance = v;
@@ -461,7 +463,7 @@ class _CustomZombiePropertiesScreenState
                       ),
                       const SizedBox(height: 12),
                       _doubleInput(
-                        label: 'EatDPS',
+                        label: l10n?.eatDPS ?? 'EatDPS',
                         value: _propsData.eatDPS,
                         onChanged: (v) {
                           _propsData.eatDPS = v;
@@ -473,7 +475,7 @@ class _CustomZombiePropertiesScreenState
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Hit / position',
+              Text(l10n?.hitPosition ?? 'Hit / position',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: themeColor,
@@ -483,11 +485,11 @@ class _CustomZombiePropertiesScreenState
                 child: Column(
                   children: [
                     _editRow(
-                      title: 'HitRect',
+                      title: l10n?.hitRect ?? 'HitRect',
                       subtitle: _formatRect(_propsData.hitRect),
                       icon: Icons.aspect_ratio,
                       onTap: () => _showRectDialog(
-                        title: 'Edit HitRect',
+                        title: l10n?.editHitRect ?? 'Edit HitRect',
                         initial: _propsData.hitRect ??
                             RectData(mX: 10, mY: 10, mWidth: 32, mHeight: 95),
                         onConfirm: (r) {
@@ -498,11 +500,11 @@ class _CustomZombiePropertiesScreenState
                     ),
                     const Divider(height: 1),
                     _editRow(
-                      title: 'AttackRect',
+                      title: l10n?.attackRect ?? 'AttackRect',
                       subtitle: _formatRect(_propsData.attackRect),
                       icon: Icons.aspect_ratio,
                       onTap: () => _showRectDialog(
-                        title: 'Edit AttackRect',
+                        title: l10n?.editAttackRect ?? 'Edit AttackRect',
                         initial: _propsData.attackRect ??
                             RectData(mX: 15, mY: 0, mWidth: 20, mHeight: 95),
                         onConfirm: (r) {
@@ -513,11 +515,11 @@ class _CustomZombiePropertiesScreenState
                     ),
                     const Divider(height: 1),
                     _editRow(
-                      title: 'ArtCenter',
+                      title: l10n?.artCenter ?? 'ArtCenter',
                       subtitle: _formatPoint(_propsData.artCenter),
                       icon: Icons.center_focus_strong,
                       onTap: () => _showPoint2Dialog(
-                        title: 'Edit ArtCenter',
+                        title: l10n?.editArtCenter ?? 'Edit ArtCenter',
                         initial:
                             _propsData.artCenter ?? Point2D(x: 90, y: 125),
                         onConfirm: (p) {
@@ -528,11 +530,11 @@ class _CustomZombiePropertiesScreenState
                     ),
                     const Divider(height: 1),
                     _editRow(
-                      title: 'ShadowOffset',
+                      title: l10n?.shadowOffset ?? 'ShadowOffset',
                       subtitle: _formatPoint3D(_propsData.shadowOffset),
                       icon: Icons.layers,
                       onTap: () => _showPoint3Dialog(
-                        title: 'Edit ShadowOffset',
+                        title: l10n?.editShadowOffset ?? 'Edit ShadowOffset',
                         initial: _propsData.shadowOffset ??
                             Point3DDouble(x: 5.0, y: 0.0, z: 1.2),
                         onConfirm: (p) {
@@ -548,18 +550,18 @@ class _CustomZombiePropertiesScreenState
                         initialValue: _propsData.groundTrackName == 'ground_swatch'
                             ? 'ground_swatch'
                             : '',
-                        decoration: const InputDecoration(
-                          labelText: 'GroundTrackName (行进轨迹)',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n?.groundTrackName ?? 'GroundTrackName (行进轨迹)',
+                          border: const OutlineInputBorder(),
                         ),
-                        items: const [
+                        items: [
                           DropdownMenuItem(
                             value: 'ground_swatch',
-                            child: Text('Normal ground (ground_swatch)'),
+                            child: Text(l10n?.groundTrackNormal ?? 'Normal ground (ground_swatch)'),
                           ),
                           DropdownMenuItem(
                             value: '',
-                            child: Text('None (null)'),
+                            child: Text(l10n?.groundTrackNone ?? 'None (null)'),
                           ),
                         ],
                         onChanged: (val) {
@@ -573,7 +575,7 @@ class _CustomZombiePropertiesScreenState
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Appearance & behavior',
+              Text(l10n?.appearanceBehavior ?? 'Appearance & behavior',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: themeColor,
@@ -609,8 +611,8 @@ class _CustomZombiePropertiesScreenState
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('SizeType',
-                                        style: TextStyle(
+                                    Text(l10n?.sizeType ?? 'SizeType',
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     Text(
                                       _propsData.sizeType ?? 'null',
@@ -627,7 +629,7 @@ class _CustomZombiePropertiesScreenState
                         ),
                         const Divider(height: 24),
                       _switchRow(
-                        title: 'Disable drop fractions',
+                        title: l10n?.disableDropFractions ?? 'Disable drop fractions',
                         checked: _propsData.armDropFraction != null ||
                             _propsData.headDropFraction != null,
                         onChanged: (checked) {
@@ -642,7 +644,7 @@ class _CustomZombiePropertiesScreenState
                         },
                       ),
                       _switchRow(
-                        title: 'Immune to knockback',
+                        title: l10n?.immuneToKnockback ?? 'Immune to knockback',
                         checked: _propsData.canBeLaunchedByPlants != null ||
                             _propsData.canBePlantTossedStrong != null ||
                             _propsData.canBePlantTossedweak != null,
@@ -660,7 +662,7 @@ class _CustomZombiePropertiesScreenState
                         },
                       ),
                       _switchRow(
-                        title: 'Show health bar on damage',
+                        title: l10n?.showHealthBarOnDamage ?? 'Show health bar on damage',
                         checked: _propsData.enableShowHealthBarByDamage == true,
                         onChanged: (checked) {
                           _propsData.enableShowHealthBarByDamage =
@@ -673,7 +675,7 @@ class _CustomZombiePropertiesScreenState
                       ),
                       if (_propsData.enableShowHealthBarByDamage == true)
                         _doubleInput(
-                          label: 'DrawHealthBarTime',
+                          label: l10n?.drawHealthBarTime ?? 'DrawHealthBarTime',
                           value: _propsData.drawHealthBarTime ?? 4.0,
                           onChanged: (v) {
                             _propsData.drawHealthBarTime = v;
@@ -681,7 +683,7 @@ class _CustomZombiePropertiesScreenState
                           },
                         ),
                       _switchRow(
-                        title: 'Enable elite scale',
+                        title: l10n?.enableEliteScale ?? 'Enable elite scale',
                         checked: _propsData.enableEliteScale == true,
                         onChanged: (checked) {
                           _propsData.enableEliteScale = checked ? true : null;
@@ -693,7 +695,7 @@ class _CustomZombiePropertiesScreenState
                       ),
                       if (_propsData.enableEliteScale == true)
                         _doubleInput(
-                          label: 'EliteScale',
+                          label: l10n?.eliteScale ?? 'EliteScale',
                           value: _propsData.eliteScale ?? 1.2,
                           onChanged: (v) {
                             _propsData.eliteScale = v;
@@ -701,7 +703,7 @@ class _CustomZombiePropertiesScreenState
                           },
                         ),
                       _switchRow(
-                        title: 'Enable elite immunities',
+                        title: l10n?.enableEliteImmunities ?? 'Enable elite immunities',
                         checked: _propsData.enableEliteImmunities == true,
                         onChanged: (checked) {
                           _propsData.enableEliteImmunities =
@@ -710,7 +712,7 @@ class _CustomZombiePropertiesScreenState
                         },
                       ),
                       _switchRow(
-                        title: 'Can spawn plant food',
+                        title: l10n?.canSpawnPlantFood ?? 'Can spawn plant food',
                         checked: _propsData.canSpawnPlantFood,
                         onChanged: (checked) {
                           _propsData.canSpawnPlantFood = checked;
@@ -718,7 +720,7 @@ class _CustomZombiePropertiesScreenState
                         },
                       ),
                       _switchRow(
-                        title: 'Can surrender',
+                        title: l10n?.canSurrender ?? 'Can surrender',
                         checked: _propsData.canSurrender == true,
                         onChanged: (checked) {
                           _propsData.canSurrender = checked ? true : null;
@@ -726,7 +728,7 @@ class _CustomZombiePropertiesScreenState
                         },
                       ),
                       _switchRow(
-                        title: 'Can trigger zombie win',
+                        title: l10n?.canTriggerZombieWin ?? 'Can trigger zombie win',
                         checked: _propsData.canTriggerZombieWin != false,
                         onChanged: (checked) {
                           _propsData.canTriggerZombieWin = checked ? null : false;
@@ -739,7 +741,7 @@ class _CustomZombiePropertiesScreenState
               ),
             ),
               const SizedBox(height: 16),
-              Text('Resistences',
+              Text(l10n?.resilience ?? 'Resilience',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: themeColor,
@@ -751,34 +753,39 @@ class _CustomZombiePropertiesScreenState
                   child: Column(
                     children: [
                       _resistanceInput(
+                        context: context,
                         index: 0,
-                        label: 'Instant kill resistance',
+                        label: l10n?.instantKillResistance ?? 'Instant kill resistance',
                         iconPath: null,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       for (var i = 0; i < 3; i++)
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _resistanceInput(
-                                index: 1 + i * 2,
-                                label: _resLabels[1 + i * 2],
-                                iconPath: _resIcons[1 + i * 2],
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _resistanceInput(
+                                  context: context,
+                                  index: 1 + i * 2,
+                                  label: _resLabel(context, 1 + i * 2),
+                                  iconPath: _resIcons[1 + i * 2],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: _resistanceInput(
-                                index: 2 + i * 2,
-                                label: _resLabels[2 + i * 2],
-                                iconPath: _resIcons[2 + i * 2],
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _resistanceInput(
+                                  context: context,
+                                  index: 2 + i * 2,
+                                  label: _resLabel(context, 2 + i * 2),
+                                  iconPath: _resIcons[2 + i * 2],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      const SizedBox(height: 8),
                       Text(
-                        '0.0 = none, 1.0 = full immunity',
+                        l10n?.resilienceHint ?? '0.0 = none, 1.0 = full immunity',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -789,13 +796,13 @@ class _CustomZombiePropertiesScreenState
               ),
               const SizedBox(height: 16),
               Text(
-                'Zombie type: ${_typeData.typeName}',
+                l10n?.zombieTypeLabel(_typeData.typeName) ?? 'Zombie type: ${_typeData.typeName}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               Text(
-                'Property alias: ${RtidParser.parse(_typeData.properties)?.alias ?? ''}',
+                l10n?.propertyAliasLabel(RtidParser.parse(_typeData.properties)?.alias ?? '') ?? 'Property alias: ${RtidParser.parse(_typeData.properties)?.alias ?? ''}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -808,15 +815,18 @@ class _CustomZombiePropertiesScreenState
     );
   }
 
-  static const _resLabels = [
-    'Instant kill',
-    'Physics',
-    'Poison',
-    'Electric',
-    'Magic',
-    'Ice',
-    'Fire',
-  ];
+  String _resLabel(BuildContext context, int index) {
+    final l10n = AppLocalizations.of(context);
+    switch (index) {
+      case 1: return l10n?.resiliencePhysics ?? 'Physics';
+      case 2: return l10n?.resiliencePoison ?? 'Poison';
+      case 3: return l10n?.resilienceElectric ?? 'Electric';
+      case 4: return l10n?.resilienceMagic ?? 'Magic';
+      case 5: return l10n?.resilienceIce ?? 'Ice';
+      case 6: return l10n?.resilienceFire ?? 'Fire';
+      default: return '';
+    }
+  }
 
   static const _resIcons = [
     null,
@@ -829,37 +839,19 @@ class _CustomZombiePropertiesScreenState
   ];
 
   Widget _resistanceInput({
+    required BuildContext context,
     required int index,
     required String label,
     required String? iconPath,
   }) {
-    final controller = TextEditingController(
-      text: _resistances[index].toStringAsFixed(2),
-    );
-    return TextField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: iconPath != null
-            ? Padding(
-                padding: const EdgeInsets.all(8),
-                child: AssetImageWidget(
-                  assetPath: iconPath,
-                  width: 20,
-                  height: 20,
-                  fit: BoxFit.contain,
-                  altCandidates: imageAltCandidates(iconPath),
-                ),
-              )
-            : null,
-      ),
+    return _ResilienceInputField(
+      key: ValueKey('resistance_$index'),
+      label: label,
+      value: _resistances[index],
+      iconPath: iconPath,
       onChanged: (v) {
-        final val = double.tryParse(v);
-        if (val != null) {
-          _resistances[index] = val.clamp(0.0, 1.0);
-          _sync();
-        }
+        _resistances[index] = v.clamp(0.0, 1.0);
+        _sync();
       },
     );
   }
@@ -991,6 +983,93 @@ class _DoubleInputFieldState extends State<_DoubleInputField> {
       onChanged: (v) {
         final n = double.tryParse(v);
         if (n != null) widget.onChanged(n);
+      },
+    );
+  }
+}
+
+/// Resilience input field with same styling as base stats (_DoubleInputField).
+class _ResilienceInputField extends StatefulWidget {
+  const _ResilienceInputField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    this.iconPath,
+  });
+
+  final String label;
+  final double value;
+  final ValueChanged<double> onChanged;
+  final String? iconPath;
+
+  @override
+  State<_ResilienceInputField> createState() => _ResilienceInputFieldState();
+}
+
+class _ResilienceInputFieldState extends State<_ResilienceInputField> {
+  late TextEditingController _controller;
+  late FocusNode _focusNode;
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value.toStringAsFixed(2));
+    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    final focused = _focusNode.hasFocus;
+    if (_isFocused != focused) {
+      setState(() => _isFocused = focused);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _ResilienceInputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_isFocused && oldWidget.value != widget.value) {
+      _controller.text = widget.value.toStringAsFixed(2);
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      focusNode: _focusNode,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        labelText: widget.label,
+        border: const OutlineInputBorder(),
+        prefixIcon: widget.iconPath != null
+            ? Padding(
+                padding: const EdgeInsets.all(8),
+                child: AssetImageWidget(
+                  assetPath: widget.iconPath!,
+                  width: 20,
+                  height: 20,
+                  fit: BoxFit.contain,
+                  altCandidates: imageAltCandidates(widget.iconPath!),
+                ),
+              )
+            : null,
+      ),
+      onChanged: (v) {
+        final val = double.tryParse(v);
+        if (val != null) {
+          widget.onChanged(val.clamp(0.0, 1.0));
+        }
       },
     );
   }

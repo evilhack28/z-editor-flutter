@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -91,10 +92,16 @@ class AboutScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Text(
-              l10n.version('1.1.7'),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+            FutureBuilder<PackageInfo>(
+              future: PackageInfo.fromPlatform(),
+              builder: (context, snapshot) {
+                final versionStr = snapshot.data?.version ?? '1.2.0';
+                return Text(
+                  l10n.version(versionStr),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                );
+              },
             ),
           ],
         ),

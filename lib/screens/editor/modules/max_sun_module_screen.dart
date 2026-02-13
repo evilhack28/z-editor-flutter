@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
- 
+import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/theme/app_theme.dart' show pvzLightOrangeDark, pvzLightOrangeLight;
+import 'package:z_editor/widgets/editor_components.dart';
+
 class MaxSunModuleScreen extends StatefulWidget {
   const MaxSunModuleScreen({
     super.key,
@@ -65,19 +68,37 @@ class _MaxSunModuleScreenState extends State<MaxSunModuleScreen> {
  
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final accentColor = isDark ? pvzLightOrangeDark : pvzLightOrangeLight;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Override Max Sun'),
+        title: Text(l10n?.overrideMaxSun ?? 'Override Max Sun'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
+        backgroundColor: accentColor,
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
+            icon: const Icon(Icons.help_outline),
+            tooltip: l10n?.tooltipAboutModule ?? 'About this module',
             onPressed: () {
-              _save();
-              Navigator.pop(context);
+              showEditorHelpDialog(
+                context,
+                title: l10n?.maxSunHelpTitle ?? 'Max Sun Module',
+                themeColor: accentColor,
+                sections: [
+                  HelpSectionData(
+                    title: l10n?.overview ?? 'Overview',
+                    body: l10n?.maxSunHelpOverview ??
+                        'This module was originally used to control different difficulty levels in Panchase. Use it to override the maximum sun that can be stored in the level.',
+                  ),
+                ],
+              );
             },
           ),
         ],
@@ -87,63 +108,22 @@ class _MaxSunModuleScreenState extends State<MaxSunModuleScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Max Sun Override', style: TextStyle(fontSize: 16)),
+            Text(l10n?.maxSunOverride ?? 'Max Sun Override', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 8),
             TextField(
               controller: _sunController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Enter max sun (e.g., 9900)',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText: l10n?.enterMaxSunHint ?? 'Enter max sun (e.g., 9900)',
               ),
               onChanged: (value) {
                 final parsed = int.tryParse(value) ?? _data.maxSunOverride;
                 setState(() {
                   _data.maxSunOverride = parsed.clamp(0, 99999);
+                  _save();
                 });
               },
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Text('Icon Text'),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: TextEditingController(text: _data.iconText),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Optional label',
-                    ),
-                    onChanged: (v) {
-                      setState(() {
-                        _data.iconText = v;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Text('Icon Image'),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: TextEditingController(text: _data.iconImage),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'IMAGE_... resource id',
-                    ),
-                    onChanged: (v) {
-                      setState(() {
-                        _data.iconImage = v;
-                      });
-                    },
-                  ),
-                ),
-              ],
             ),
           ],
         ),

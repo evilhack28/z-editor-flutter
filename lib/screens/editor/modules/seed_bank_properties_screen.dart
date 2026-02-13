@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/plant_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/zombie_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/theme/app_theme.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
@@ -129,7 +130,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
     showDialog(
       context: context,
       builder: (ctx) => SimpleDialog(
-        title: const Text('Add type'),
+        title: Text(AppLocalizations.of(context)?.addType ?? 'Add type'),
         children: [
           SimpleDialogOption(
             onPressed: () {
@@ -144,7 +145,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
                 });
               });
             },
-            child: const Text('Zombie'),
+            child: Text(AppLocalizations.of(context)?.zombie ?? 'Zombie'),
           ),
           SimpleDialogOption(
             onPressed: () {
@@ -156,7 +157,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
                 });
               });
             },
-            child: const Text('Plant (Fun/Experimental)'),
+            child: Text(AppLocalizations.of(context)?.plantFunExperimental ?? 'Plant (Fun/Experimental)'),
           ),
         ],
       ),
@@ -173,6 +174,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isZombieMode = _data.zombieMode == true;
     final isReversedZombie =
         _data.seedPacketType == 'UIIZombieSeedPacket';
@@ -187,7 +189,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
-        title: Text(isZombieMode ? 'Seed bank (I, Zombie)' : 'Seed bank'),
+        title: Text(isZombieMode ? (l10n?.seedBankIZombie ?? 'Seed bank (I, Zombie)') : (l10n?.moduleTitle_SeedBankProperties ?? 'Seed bank')),
         backgroundColor: isZombieMode ? izombieColor : null,
         foregroundColor: isZombieMode ? theme.colorScheme.surface : null,
         iconTheme: isZombieMode
@@ -207,12 +209,12 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildBasicRulesCard(context, isZombieMode),
+              _buildBasicRulesCard(context, isZombieMode, l10n),
               const SizedBox(height: 16),
               if (isZombieMode)
                 _ResourceListEditor(
-                  title: 'Available zombies',
-                  description: 'Zombies available for I, Zombie mode',
+                  title: l10n?.availableZombies ?? 'Available zombies',
+                  description: l10n?.availableZombiesDescription ?? 'Zombies available for I, Zombie mode',
                   items: _data.presetPlantList,
                   accentColor: izombieColor,
                   isZombie: true,
@@ -221,8 +223,8 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
                 )
               else ...[
                 _ResourceListEditor(
-                  title: 'Preset plants (PresetPlantList)',
-                  description: 'Plants available at start',
+                  title: l10n?.presetPlants ?? 'Preset plants (PresetPlantList)',
+                  description: l10n?.plantsAvailableAtStart ?? 'Plants available at start',
                   items: _data.presetPlantList,
                   accentColor: theme.colorScheme.secondary,
                   isZombie: false,
@@ -231,8 +233,8 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
                 ),
                 const SizedBox(height: 16),
                 _ResourceListEditor(
-                  title: 'White list (WhiteList)',
-                  description: 'Only these plants allowed (empty = no limit)',
+                  title: l10n?.whiteList ?? 'White list (WhiteList)',
+                  description: l10n?.whiteListDescription ?? 'Only these plants allowed (empty = no limit)',
                   items: _data.plantWhiteList,
                   accentColor: theme.colorScheme.primary,
                   isZombie: false,
@@ -241,8 +243,8 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
                 ),
                 const SizedBox(height: 16),
                 _ResourceListEditor(
-                  title: 'Black list (BlackList)',
-                  description: 'These plants are forbidden',
+                  title: l10n?.blackList ?? 'Black list (BlackList)',
+                  description: l10n?.blackListDescription ?? 'These plants are forbidden',
                   items: _data.plantBlackList,
                   accentColor: theme.colorScheme.error,
                   isZombie: false,
@@ -263,7 +265,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Only some zombies have IZ card slots. Check Other category in zombie selection.',
+                            l10n?.izombieCardSlotsHint ?? 'Only some zombies have IZ card slots. Check Other category in zombie selection.',
                             style: theme.textTheme.bodySmall,
                           ),
                         ),
@@ -285,7 +287,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
     );
   }
 
-  Widget _buildBasicRulesCard(BuildContext context, bool isZombieMode) {
+  Widget _buildBasicRulesCard(BuildContext context, bool isZombieMode, AppLocalizations? l10n) {
     final theme = Theme.of(context);
     final izombieColor = theme.brightness == Brightness.dark
         ? pvzPurpleDark
@@ -307,7 +309,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Basic rules',
+                  l10n?.basicRules ?? 'Basic rules',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -316,7 +318,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
             ),
             const Divider(height: 24),
             Text(
-              'Selection method',
+              l10n?.selectionMethod ?? 'Selection method',
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -326,7 +328,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
               spacing: 8,
               children: [
                 FilterChip(
-                  label: const Text('Chooser'),
+                  label: Text(AppLocalizations.of(context)?.chooser ?? 'Chooser'),
                   selected:
                       _data.selectionMethod == 'chooser' && !isZombieMode,
                   onSelected: isZombieMode
@@ -339,7 +341,7 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
                         },
                 ),
                 FilterChip(
-                  label: const Text('Preset'),
+                  label: Text(AppLocalizations.of(context)?.preset ?? 'Preset'),
                   selected:
                       _data.selectionMethod == 'preset' || isZombieMode,
                   onSelected: isZombieMode
@@ -433,12 +435,12 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
           ),
         ),
         child: SwitchListTile(
-          title: const Text(
-            'I, Zombie mode',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(
+            AppLocalizations.of(context)?.izombieModeTitle ?? 'I, Zombie mode',
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          subtitle: const Text(
-            'Enable to place zombies. Locks selection method.',
+          subtitle: Text(
+            AppLocalizations.of(context)?.izombieModeSubtitle ?? 'Enable to place zombies. Locks selection method.',
           ),
           value: isZombieMode,
           onChanged: (v) {
@@ -477,12 +479,12 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
           ),
         ),
         child: SwitchListTile(
-        title: const Text(
-          'Reverse zombie faction',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          AppLocalizations.of(context)?.reverseZombieFactionTitle ?? 'Reverse zombie faction',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: const Text(
-          'Enable to make zombies plant faction. For ZvZ.',
+        subtitle: Text(
+          AppLocalizations.of(context)?.reverseZombieFactionSubtitle ?? 'Enable to make zombies plant faction. For ZvZ.',
         ),
         value: isReversedZombie,
         onChanged: (v) {
@@ -498,32 +500,30 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
   }
 
   void _showHelp(BuildContext context, bool isZombieMode) {
+    final l10n = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Seed bank help'),
-        content: const SingleChildScrollView(
+        title: Text(l10n?.seedBankHelp ?? 'Seed bank help'),
+        content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                  'Seed bank lets players choose plants. In courtyard mode you can set global level and all plants.'),
-              SizedBox(height: 8),
-              Text('White list: empty = no limit. Black list overrides white list.'),
-              SizedBox(height: 8),
-              Text(
-                  'I, Zombie mode: preset zombies for player. Selection locked to preset.'),
-              SizedBox(height: 8),
-              Text(
-                  'Invalid IDs leave empty slots. Zombie IDs in plant mode and vice versa. Put zombie slots first.'),
+              Text(l10n?.seedBankLetsPlayersChoose ?? 'Seed bank lets players choose plants. In courtyard mode you can set global level and all plants.'),
+              const SizedBox(height: 8),
+              Text(l10n?.whiteListBlackListHint ?? 'White list: empty = no limit. Black list overrides white list.'),
+              const SizedBox(height: 8),
+              Text(l10n?.iZombieModePresetHint ?? 'I, Zombie mode: preset zombies for player. Selection locked to preset.'),
+              const SizedBox(height: 8),
+              Text(l10n?.invalidIdsHint ?? 'Invalid IDs leave empty slots. Zombie IDs in plant mode and vice versa. Put zombie slots first.'),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
+            child: Text(l10n?.ok ?? 'OK'),
           ),
         ],
       ),
@@ -626,7 +626,7 @@ class _ResourceListEditor extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Empty list',
+                  AppLocalizations.of(context)?.emptyList ?? 'Empty list',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Invalid/broken event reference screen. Ported from Z-Editor-master InvalidEventEP.kt
@@ -20,6 +21,7 @@ class InvalidEventScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(rtid);
 
     return Scaffold(
@@ -28,7 +30,7 @@ class InvalidEventScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: onBack,
         ),
-        title: const Text('Invalid reference'),
+        title: Text(l10n?.invalidReference ?? 'Invalid reference'),
         backgroundColor: theme.colorScheme.error,
         foregroundColor: theme.colorScheme.onError,
         actions: [
@@ -36,16 +38,16 @@ class InvalidEventScreen extends StatelessWidget {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Invalid event',
+              title: l10n?.invalidEventTitle ?? 'Invalid event',
               themeColor: theme.colorScheme.error,
-              sections: const [
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'This event is referenced in the wave container but the parser cannot find its entity definition. The RTID points to nothing.',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpInvalidBody ?? 'This event is referenced in the wave container but the parser cannot find its entity definition. The RTID points to nothing.',
                 ),
                 HelpSectionData(
-                  title: 'Impact',
-                  body: 'Keeping this invalid reference in the level will cause the game to crash when loading. You must remove it manually.',
+                  title: l10n?.impact ?? 'Impact',
+                  body: l10n?.eventHelpInvalidImpact ?? 'Keeping this invalid reference in the level will cause the game to crash when loading. You must remove it manually.',
                 ),
               ],
             ),
@@ -65,7 +67,7 @@ class InvalidEventScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Alias "$alias" not found',
+                l10n?.aliasNotFound(alias) ?? 'Alias "$alias" not found',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -73,7 +75,7 @@ class InvalidEventScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Wave $waveIndex references this event, but no matching entity exists in the level. This usually happens when an object was deleted or renamed. Keeping it will cause a crash.',
+                l10n?.invalidRefBody(waveIndex) ?? 'Wave $waveIndex references this event, but no matching entity exists in the level. This usually happens when an object was deleted or renamed. Keeping it will cause a crash.',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -88,7 +90,7 @@ class InvalidEventScreen extends StatelessWidget {
                     onBack();
                   },
                   icon: const Icon(Icons.delete_forever),
-                  label: const Text('Remove this invalid reference from wave'),
+                  label: Text(l10n?.removeInvalidRef ?? 'Remove this invalid reference from wave'),
                   style: FilledButton.styleFrom(
                     backgroundColor: theme.colorScheme.error,
                   ),

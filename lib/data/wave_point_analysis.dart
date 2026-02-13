@@ -1,6 +1,6 @@
 import 'pvz_models.dart';
 import 'rtid_parser.dart';
-import 'zombie_properties_repository.dart';
+import 'repository/zombie_properties_repository.dart';
  
 class WavePointAnalysis {
   static Map<String, double> calculate(

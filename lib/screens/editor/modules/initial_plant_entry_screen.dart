@@ -1,7 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
-import 'package:z_editor/data/plant_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
@@ -124,6 +125,7 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final sortedPlants = List<InitialPlantData>.from(_data.plants)
       ..sort((a, b) {
         final c = a.gridY.compareTo(b.gridY);
@@ -132,7 +134,7 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Initial plant layout'),
+        title: Text(l10n?.initialPlantLayout ?? 'Initial plant layout'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
@@ -157,7 +159,7 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Selected position',
+                                  l10n?.selectedPosition ?? 'Selected position',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
@@ -175,7 +177,7 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
                             PvzAddButton(
                               onPressed: _handleSelectPlant,
                               size: 40,
-                              label: 'Place here',
+                              label: l10n?.placeHere ?? 'Place here',
                             ),
                           ],
                         ),
@@ -187,7 +189,7 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Plant list (row-first)',
+                  l10n?.plantList ?? 'Plant list (row-first)',
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurfaceVariant,
@@ -210,7 +212,7 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
               ],
             ),
           ),
-          if (_editingPlant != null) _buildEditDialog(),
+          if (_editingPlant != null) _buildEditDialog(l10n),
         ],
       ),
     );
@@ -325,9 +327,10 @@ class _InitialPlantEntryScreenState extends State<InitialPlantEntryScreen> {
     );
   }
 
-  Widget _buildEditDialog() {
+  Widget _buildEditDialog(AppLocalizations? l10n) {
     final plant = _editingPlant!;
     return _InitialPlantEditDialog(
+      l10n: l10n,
       plant: plant,
       onSave: (updated) {
         _updatePlant(plant, updated);
@@ -477,7 +480,7 @@ class _InitialPlantCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Level: ${plant.level}',
+                      AppLocalizations.of(context)?.levelFormat(plant.level) ?? 'Level: ${plant.level}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -495,12 +498,14 @@ class _InitialPlantCard extends StatelessWidget {
 
 class _InitialPlantEditDialog extends StatefulWidget {
   const _InitialPlantEditDialog({
+    required this.l10n,
     required this.plant,
     required this.onSave,
     required this.onDelete,
     required this.onCancel,
   });
 
+  final AppLocalizations? l10n;
   final InitialPlantData plant;
   final void Function(InitialPlantData) onSave;
   final VoidCallback onDelete;
@@ -523,16 +528,17 @@ class _InitialPlantEditDialogState extends State<_InitialPlantEditDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n ?? AppLocalizations.of(context);
     final nameKey = PlantRepository().getName(
       widget.plant.plantTypes.firstOrNull ?? '',
     );
     final name = ResourceNames.lookup(context, nameKey);
     return AlertDialog(
-      title: Text('Edit $name'),
+      title: Text(l10n?.editAlias(name) ?? 'Edit $name'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Level: $_level', style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text('${l10n?.level ?? 'Level'}: $_level', style: const TextStyle(fontWeight: FontWeight.bold)),
           Slider(
             value: _level.toDouble(),
             min: 1,
@@ -542,7 +548,7 @@ class _InitialPlantEditDialogState extends State<_InitialPlantEditDialog> {
           ),
           const Divider(),
           SwitchListTile(
-            title: const Text('First costume (Avatar)'),
+            title: Text(l10n?.firstCostume ?? 'First costume (Avatar)'),
             value: _avatar,
             onChanged: (v) => setState(() => _avatar = v),
           ),
@@ -556,9 +562,9 @@ class _InitialPlantEditDialogState extends State<_InitialPlantEditDialog> {
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.error,
           ),
-          child: const Text('Delete'),
+          child: Text(l10n?.delete ?? 'Delete'),
         ),
-        TextButton(onPressed: widget.onCancel, child: const Text('Cancel')),
+        TextButton(onPressed: widget.onCancel, child: Text(l10n?.cancel ?? 'Cancel')),
         FilledButton(
           onPressed: () {
             widget.onSave(InitialPlantData(
@@ -569,7 +575,7 @@ class _InitialPlantEditDialogState extends State<_InitialPlantEditDialog> {
               plantTypes: widget.plant.plantTypes,
             ));
           },
-          child: const Text('Save'),
+          child: Text(l10n?.save ?? 'Save'),
         ),
       ],
     );

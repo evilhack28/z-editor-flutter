@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Tidal change event editor. Ported from Z-Editor-master TidalChangeEventEP.kt
@@ -72,6 +73,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final info = RtidParser.parse(widget.rtid);
     final alias = info?.alias ?? '';
     final hasTideModule = widget.levelFile.objects
@@ -86,9 +88,9 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Tidal change',
+              l10n?.eventDesc_TidalChangeWaveActionProps ?? 'Event: Tidal change',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -98,15 +100,15 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Tidal change event',
-              sections: const [
+              title: l10n?.eventTitle_TidalChangeWaveActionProps ?? 'Tidal change event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'This event changes the tide position during a wave.',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpTidalChangeBody ?? 'This event changes the tide position during a wave.',
                 ),
                 HelpSectionData(
-                  title: 'Position',
-                  body: 'Column 0 is rightmost, 9 is leftmost. ChangeAmount sets the water boundary.',
+                  title: l10n?.position ?? 'Position',
+                  body: l10n?.eventHelpTidalChangePosition ?? 'Column 0 is rightmost, 9 is leftmost. ChangeAmount sets the water boundary.',
                 ),
               ],
             ),
@@ -137,7 +139,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Missing tide module',
+                                l10n?.missingTideModule ?? 'Missing tide module',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: theme.colorScheme.error,
@@ -145,7 +147,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Level has no TideProperties. This event may not work.',
+                                l10n?.levelHasNoTideProperties ?? 'Level has no TideProperties. This event may not work.',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.error,
                                 ),
@@ -165,7 +167,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Change position (ChangeAmount)',
+                        l10n?.changePositionChangeAmount ?? 'Change position (ChangeAmount)',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -173,9 +175,9 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         initialValue: _data.tidalChange.changeAmount.toString(),
-                        decoration: const InputDecoration(
-                          labelText: 'Water boundary column',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n?.waterBoundaryColumn ?? 'Water boundary column',
+                          border: const OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
                         onChanged: (v) {
@@ -203,7 +205,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Preview',
+                        l10n?.preview ?? 'Preview',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -270,7 +272,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Water',
+                            l10n?.water ?? 'Water',
                             style: theme.textTheme.bodySmall,
                           ),
                           const SizedBox(width: 24),
@@ -288,7 +290,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Land',
+                            l10n?.land ?? 'Land',
                             style: theme.textTheme.bodySmall,
                           ),
                         ],
@@ -311,7 +313,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Column 0 is rightmost, 9 is leftmost.',
+                          l10n?.eventHelpTidalChangePosition ?? 'Column 0 is rightmost, 9 is leftmost.',
                           style: theme.textTheme.bodySmall,
                         ),
                       ),

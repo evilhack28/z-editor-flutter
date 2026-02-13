@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/conflict_registry.dart';
-import 'package:z_editor/data/module_registry.dart';
+import 'package:z_editor/data/registry/conflict_registry.dart';
+import 'package:z_editor/theme/app_theme.dart';
+import 'package:z_editor/data/registry/module_registry.dart';
 import 'package:z_editor/data/pvz_models.dart';
-import 'package:z_editor/data/reference_repository.dart';
+import 'package:z_editor/data/repository/reference_repository.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 
@@ -152,6 +153,7 @@ class _LevelSettingsTabState extends State<LevelSettingsTab> {
             ...coreModules.map(
               (item) => ModuleCard(
                 info: item,
+                removeTooltip: l10n?.removeModule ?? 'Remove module',
                 onClick: () => widget.onEditModule(item.rtid),
                 onDelete: () => setState(() => pendingDeleteRtid = item.rtid),
               ),
@@ -170,6 +172,7 @@ class _LevelSettingsTabState extends State<LevelSettingsTab> {
               ...miscModules.map(
                 (item) => MiscModuleRow(
                   info: item,
+                  removeTooltip: l10n?.removeModule ?? 'Remove module',
                   onDelete: () => setState(() => pendingDeleteRtid = item.rtid),
                 ),
               ),
@@ -223,18 +226,14 @@ class _LevelSettingsTabState extends State<LevelSettingsTab> {
                         children: [
                           Icon(
                             Icons.error,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onErrorContainer,
+                            color: Theme.of(context).colorScheme.onErrorContainer,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             pair.first.title,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onErrorContainer,
+                              color: Theme.of(context).colorScheme.onErrorContainer,
                             ),
                           ),
                         ],
@@ -254,56 +253,52 @@ class _LevelSettingsTabState extends State<LevelSettingsTab> {
 
             // Missing Essentials
             if (widget.missingModules.isNotEmpty)
-              Card(
-                color: Theme.of(context).colorScheme.tertiaryContainer,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+              Builder(
+                builder: (ctx) {
+                  final isDark = Theme.of(ctx).brightness == Brightness.dark;
+                  final warningBg = isDark
+                      ? warningBarDark.withValues(alpha: 0.2)
+                      : warningBarLight.withValues(alpha: 0.2);
+                  final warningFg = isDark ? warningBarDark : warningBarLight;
+                  return Card(
+                    color: warningBg,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.warning,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onTertiaryContainer,
+                          Row(
+                            children: [
+                              Icon(Icons.warning, color: warningFg),
+                              const SizedBox(width: 8),
+                              Text(
+                                l10n?.missingModules ?? 'Missing modules',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: warningFg,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(height: 8),
                           Text(
-                            l10n?.missingModules ?? 'Missing modules',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onTertiaryContainer,
+                            l10n?.missingModulesRecommended ?? 'The level might not function correctly. Recommended to add:',
+                            style: TextStyle(color: warningFg),
+                          ),
+                          ...widget.missingModules.map(
+                            (meta) => Text(
+                              '• ${meta.getTitle(context)}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: warningFg,
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'The level might not function correctly. Recommended to add:',
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onTertiaryContainer,
-                        ),
-                      ),
-                      ...widget.missingModules.map(
-                        (meta) => Text(
-                          '• ${meta.getTitle(context)}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onTertiaryContainer,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
           ],
         ),
@@ -388,12 +383,14 @@ class _SettingEntryCard extends StatelessWidget {
 
 class ModuleCard extends StatelessWidget {
   final ModuleUIInfo info;
+  final String removeTooltip;
   final VoidCallback onClick;
   final VoidCallback onDelete;
 
   const ModuleCard({
     super.key,
     required this.info,
+    required this.removeTooltip,
     required this.onClick,
     required this.onDelete,
   });
@@ -438,7 +435,11 @@ class ModuleCard extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(icon: const Icon(Icons.close), onPressed: onDelete),
+              IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: removeTooltip,
+                onPressed: onDelete,
+              ),
             ],
           ),
         ),
@@ -449,9 +450,15 @@ class ModuleCard extends StatelessWidget {
 
 class MiscModuleRow extends StatelessWidget {
   final ModuleUIInfo info;
+  final String removeTooltip;
   final VoidCallback onDelete;
 
-  const MiscModuleRow({super.key, required this.info, required this.onDelete});
+  const MiscModuleRow({
+    super.key,
+    required this.info,
+    required this.removeTooltip,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -469,6 +476,7 @@ class MiscModuleRow extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.close, size: 16, color: Colors.grey),
+            tooltip: removeTooltip,
             onPressed: onDelete,
           ),
         ],

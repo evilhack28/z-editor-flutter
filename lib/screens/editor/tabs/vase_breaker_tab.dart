@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
-import 'package:z_editor/data/plant_repository.dart';
-import 'package:z_editor/data/zombie_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/screens/select/plant_selection_screen.dart';
@@ -331,8 +331,8 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
             return Card(
               child: ListTile(
                 leading: _buildVaseIcon(vase),
-                title: Text(_getVaseTitle(context, vase)),
-                subtitle: Text(_getVaseSubtitle(vase)),
+                title: Text(_getVaseTitle(context, vase, l10n)),
+                subtitle: Text(_getVaseSubtitle(vase, l10n)),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -415,7 +415,7 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
     return const Icon(Icons.inventory, color: Colors.amber, size: size);
   }
 
-  String _getVaseTitle(BuildContext context, VaseDefinition vase) {
+  String _getVaseTitle(BuildContext context, VaseDefinition vase, AppLocalizations? l10n) {
     if (vase.plantTypeName != null) {
       final plants = PlantRepository().allPlants.where(
         (p) => p.id == vase.plantTypeName,
@@ -437,42 +437,41 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
         ?.name;
     return collectableName ??
         vase.collectableTypeName ??
-        (AppLocalizations.of(context)?.unknownVaseLabel ?? 'Unknown Vase');
+        (l10n?.unknownVaseLabel ?? 'Unknown Vase');
   }
 
-  String _getVaseSubtitle(VaseDefinition vase) {
+  String _getVaseSubtitle(VaseDefinition vase, AppLocalizations? l10n) {
     final parts = <String>[];
     if (vase.plantTypeName != null) {
       parts.add(
-        '${AppLocalizations.of(context)?.plantLabel ?? "Plant"}: ${vase.plantTypeName}',
+        '${l10n?.plantLabel ?? "Plant"}: ${vase.plantTypeName}',
       );
     }
     if (vase.zombieTypeName != null) {
       parts.add(
-        '${AppLocalizations.of(context)?.zombieLabel ?? "Zombie"}: ${vase.zombieTypeName}',
+        '${l10n?.zombieLabel ?? "Zombie"}: ${vase.zombieTypeName}',
       );
     }
     if (vase.collectableTypeName != null) {
       parts.add(
-        '${AppLocalizations.of(context)?.itemLabel ?? "Item"}: ${_collectableTypes.firstWhereOrNull((e) => e.id == vase.collectableTypeName)?.name ?? vase.collectableTypeName}',
+        '${l10n?.itemLabel ?? "Item"}: ${_collectableTypes.firstWhereOrNull((e) => e.id == vase.collectableTypeName)?.name ?? vase.collectableTypeName}',
       );
     }
     return parts.isEmpty ? '${vase.count} vase(s)' : parts.join(', ');
   }
 
   void _showAddVaseDialog() {
-    // TODO: Implement dialog to select Plant or Zombie and add vase
-    // For now, simple dialog
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(context)?.addVaseTitle ?? 'Add Vase'),
+        title: Text(l10n?.addVaseTitle ?? 'Add Vase'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               title: Text(
-                AppLocalizations.of(context)?.plantVaseOption ?? 'Plant Vase',
+                l10n?.plantVaseOption ?? 'Plant Vase',
               ),
               onTap: () {
                 Navigator.pop(ctx);
@@ -481,7 +480,7 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
             ),
             ListTile(
               title: Text(
-                AppLocalizations.of(context)?.zombieVaseOption ?? 'Zombie Vase',
+                l10n?.zombieVaseOption ?? 'Zombie Vase',
               ),
               onTap: () {
                 Navigator.pop(ctx);
@@ -489,7 +488,7 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
               },
             ),
             ListTile(
-              title: Text(AppLocalizations.of(context)?.itemLabel ?? 'Item'),
+              title: Text(l10n?.itemLabel ?? 'Item'),
               onTap: () {
                 Navigator.pop(ctx);
                 _showCollectablePicker();
@@ -532,10 +531,11 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
   }
 
   void _showCollectablePicker() {
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(context)?.itemLabel ?? 'Item'),
+        title: Text(l10n?.itemLabel ?? 'Item'),
         content: SizedBox(
           width: 320,
           child: ListView.separated(

@@ -5,7 +5,7 @@ import 'package:path/path.dart' as p;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:z_editor/data/level_repository.dart';
+import 'package:z_editor/data/repository/level_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 
 class LevelListScreen extends StatefulWidget {
@@ -160,6 +160,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
   Future<void> _handleRenameConfirm() async {
     final target = _itemToRename;
     if (target == null || _pathStack.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
     var finalName = _renameInput.trim();
     if (!target.isDirectory && !finalName.toLowerCase().endsWith('.json')) finalName += '.json';
     final ok = await LevelRepository.renameItem(
@@ -176,7 +177,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
               children: [
                 Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
-                Text(AppLocalizations.of(context)!.renameSuccess),
+                Text(l10n.renameSuccess),
               ],
             ),
           ),
@@ -192,7 +193,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
                 Icon(Icons.report_problem, color: isDark ? const Color(0xFFFFEB3B) : const Color(0xFF8D6E00), size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  AppLocalizations.of(context)!.renamingFailed,
+                  l10n.renamingFailed,
                   style: TextStyle(color: isDark ? Colors.white : const Color(0xFF5D4E00)),
                 ),
               ],
@@ -206,6 +207,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
 
   Future<void> _handleCopyConfirm(FileItem? target) async {
     if (target == null || _pathStack.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
     var finalName = _copyInput.trim();
     if (!finalName.toLowerCase().endsWith('.json')) finalName += '.json';
     final ok = await LevelRepository.copyLevelToTarget(
@@ -222,7 +224,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
-                Text(AppLocalizations.of(context)!.copySuccess),
+                Text(l10n.copySuccess),
               ],
             ),
           ),
@@ -238,7 +240,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
                 Icon(Icons.report_problem, color: isDark ? const Color(0xFFFFEB3B) : const Color(0xFF8D6E00), size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  AppLocalizations.of(context)!.copyFail,
+                  l10n.copyFail,
                   style: TextStyle(color: isDark ? Colors.white : const Color(0xFF5D4E00)),
                 ),
               ],
@@ -251,6 +253,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
 
   Future<void> _handleNewFolder() async {
     if (_newFolderNameInput.trim().isEmpty || _pathStack.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
     final ok = await LevelRepository.createDirectory(_pathStack.last.path, _newFolderNameInput.trim());
     if (mounted) {
       final theme = Theme.of(context);
@@ -263,7 +266,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
-                Text(AppLocalizations.of(context)!.folderCreated),
+                Text(l10n.folderCreated),
               ],
             ),
           ),
@@ -282,7 +285,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
                 Icon(Icons.report_problem, color: isDark ? const Color(0xFFFFEB3B) : const Color(0xFF8D6E00), size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  AppLocalizations.of(context)!.createFail,
+                  l10n.createFail,
                   style: TextStyle(color: isDark ? Colors.white : const Color(0xFF5D4E00)),
                 ),
               ],
@@ -294,6 +297,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
   }
 
   void _openTemplateSelector() async {
+    final l10n = AppLocalizations.of(context);
     List<String> list;
     try {
       final manifest = await rootBundle.loadString('assets/reference/template/manifest.json');
@@ -305,7 +309,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
     if (!mounted) return;
     if (list.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)?.noTemplates ?? 'No templates found')),
+        SnackBar(content: Text(l10n?.noTemplates ?? 'No templates found')),
       );
     } else {
       _templates = list;
@@ -399,6 +403,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
 
   Future<void> _handleCreateLevelConfirm() async {
     if (_pathStack.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
     var name = _newLevelNameInput.trim();
     if (!name.toLowerCase().endsWith('.json')) name += '.json';
     // Load template from assets
@@ -422,7 +427,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
-                Text(AppLocalizations.of(context)!.levelCreated),
+                Text(l10n.levelCreated),
               ],
             ),
           ),
@@ -440,7 +445,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
                 Icon(Icons.report_problem, color: isDark ? const Color(0xFFFFEB3B) : const Color(0xFF8D6E00), size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  AppLocalizations.of(context)!.levelCreateFail,
+                  l10n.levelCreateFail,
                   style: TextStyle(color: isDark ? Colors.white : const Color(0xFF5D4E00)),
                 ),
               ],
@@ -460,13 +465,18 @@ class _LevelListScreenState extends State<LevelListScreen> {
       appBar: AppBar(
         title: Text(l10n.appTitle, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadCurrentDirectory),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: l10n.refresh,
+            onPressed: _loadCurrentDirectory,
+          ),
           IconButton(
             icon: Icon(
               widget.themeMode == ThemeMode.dark
                   ? Icons.light_mode
                   : Icons.dark_mode,
             ),
+            tooltip: l10n.toggleTheme,
             onPressed: widget.onCycleTheme,
           ),
           PopupMenuButton<String>(
@@ -663,6 +673,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
                               opacity: (isMovingMode && !item.isDirectory) || isSelfMoving ? 0.5 : 1,
                               child: _FileItemRow(
                                 item: item,
+                                l10n: l10n,
                                 onTap: () async {
                                   if (isMovingMode) {
                                     if (item.isDirectory) _navigateToFolder(item);
@@ -1087,6 +1098,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
 
   Future<void> _handleDeleteConfirmFor(FileItem target) async {
     if (_pathStack.isEmpty) return;
+    final l10n = AppLocalizations.of(context)!;
     await LevelRepository.deleteItem(_pathStack.last.path, target.name, target.isDirectory);
     if (mounted) {
       final theme = Theme.of(context);
@@ -1098,7 +1110,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
             children: [
               const Icon(Icons.check_circle, color: Colors.white, size: 20),
               const SizedBox(width: 8),
-              Text(AppLocalizations.of(context)!.deleted),
+              Text(l10n.deleted),
             ],
           ),
         ),
@@ -1249,6 +1261,7 @@ class _BreadcrumbBar extends StatelessWidget {
 class _FileItemRow extends StatelessWidget {
   const _FileItemRow({
     required this.item,
+    required this.l10n,
     required this.onTap,
     required this.onRename,
     required this.onDelete,
@@ -1258,6 +1271,7 @@ class _FileItemRow extends StatelessWidget {
   });
 
   final FileItem item;
+  final AppLocalizations l10n;
   final VoidCallback onTap;
   final VoidCallback onRename;
   final VoidCallback onDelete;
@@ -1267,7 +1281,6 @@ class _FileItemRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final displayName = item.isDirectory ? item.name : item.name.replaceFirst(RegExp(r'\.json$'), '');
 
@@ -1325,6 +1338,7 @@ class _FileItemRow extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: Icon(Icons.edit, color: theme.colorScheme.onSurfaceVariant),
+                    tooltip: l10n.rename,
                     onPressed: onRename,
                     iconSize: 22,
                     style: IconButton.styleFrom(
@@ -1336,6 +1350,7 @@ class _FileItemRow extends StatelessWidget {
                   if (!item.isDirectory)
                     IconButton(
                       icon: Icon(Icons.copy, color: theme.colorScheme.onSurfaceVariant),
+                      tooltip: l10n.copy,
                       onPressed: onCopy,
                       iconSize: 22,
                       style: IconButton.styleFrom(
@@ -1347,6 +1362,7 @@ class _FileItemRow extends StatelessWidget {
                   if (showMove)
                     IconButton(
                       icon: Icon(Icons.drive_file_move, color: theme.colorScheme.onSurfaceVariant),
+                      tooltip: l10n.move,
                       onPressed: onMove,
                       iconSize: 22,
                       style: IconButton.styleFrom(
@@ -1357,6 +1373,7 @@ class _FileItemRow extends StatelessWidget {
                     ),
                   IconButton(
                     icon: Icon(Icons.delete, color: theme.colorScheme.error, size: 22),
+                    tooltip: l10n.delete,
                     onPressed: onDelete,
                     iconSize: 22,
                     style: IconButton.styleFrom(
@@ -1432,6 +1449,12 @@ class _StoragePermissionDialogState extends State<_StoragePermissionDialog>
             'This app requires external storage access to open and save level files. Please grant "All files access" permission in Settings.',
       ),
       actions: [
+        FilledButton(
+          onPressed: () async {
+            await Permission.manageExternalStorage.request();
+          },
+          child: Text(l10n?.storagePermissionGoToSettings ?? 'Go to settings'),
+        ),
         TextButton(
           onPressed: widget.onDeny,
           style: TextButton.styleFrom(
@@ -1439,12 +1462,6 @@ class _StoragePermissionDialogState extends State<_StoragePermissionDialog>
             foregroundColor: Colors.white,
           ),
           child: Text(l10n?.storagePermissionDeny ?? 'Deny'),
-        ),
-        FilledButton(
-          onPressed: () async {
-            await Permission.manageExternalStorage.request();
-          },
-          child: Text(l10n?.storagePermissionGoToSettings ?? 'Go to settings'),
         ),
       ],
     );

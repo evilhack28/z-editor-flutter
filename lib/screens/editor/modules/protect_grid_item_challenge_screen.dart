@@ -1,10 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/grid_item_repository.dart';
+import 'package:z_editor/data/repository/grid_item_repository.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
@@ -78,6 +80,7 @@ class _ProtectGridItemChallengeScreenState
       context,
       MaterialPageRoute(
         builder: (_) => GridItemSelectionScreen(
+          filterMode: GridItemFilterMode.restricted,
           onGridItemSelected: (id) {
             Navigator.pop(context);
             final list = List<ProtectGridItemData>.from(_data.gridItems)
@@ -127,6 +130,7 @@ class _ProtectGridItemChallengeScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final sorted = List<ProtectGridItemData>.from(_data.gridItems)
       ..sort((a, b) {
         final c = a.gridY.compareTo(b.gridY);
@@ -137,12 +141,14 @@ class _ProtectGridItemChallengeScreenState
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
         title: const Text('Protect items'),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
+            tooltip: l10n?.tooltipAboutModule ?? 'About this module',
             onPressed: () => showEditorHelpDialog(
               context,
               title: 'Protect items',
@@ -262,6 +268,7 @@ class _ProtectGridItemChallengeScreenState
                     _selectedX = item.gridX;
                     _selectedY = item.gridY;
                   }),
+                  deleteTooltip: l10n?.delete ?? 'Delete',
                 )),
           ],
         ),
@@ -353,33 +360,14 @@ class _GridItemIconSmall extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final path = GridItemRepository.getIconPath(typeName);
-    if (path != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: AssetImageWidget(
-          assetPath: path,
-          width: 32,
-          height: 32,
-          fit: BoxFit.cover,
-          altCandidates: imageAltCandidates(path),
-        ),
-      );
-    }
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: const Color(0xFF407A9A),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        typeName.isNotEmpty ? typeName[0].toUpperCase() : '?',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-        ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: AssetImageWidget(
+        assetPath: path,
+        width: 32,
+        height: 32,
+        fit: BoxFit.cover,
+        altCandidates: imageAltCandidates(path),
       ),
     );
   }
@@ -392,6 +380,7 @@ class _GridItemTile extends StatelessWidget {
     required this.gridCols,
     required this.onDelete,
     required this.onSelect,
+    required this.deleteTooltip,
   });
 
   final ProtectGridItemData item;
@@ -399,6 +388,7 @@ class _GridItemTile extends StatelessWidget {
   final int gridCols;
   final VoidCallback onDelete;
   final VoidCallback onSelect;
+  final String deleteTooltip;
 
   bool get _isOutOfBounds =>
       item.gridX >= gridCols || item.gridY >= gridRows;
@@ -406,7 +396,10 @@ class _GridItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final name = GridItemRepository.getName(item.gridItemType);
+    final displayName = ResourceNames.lookup(context, 'griditem_${item.gridItemType}');
+    final name = displayName != 'griditem_${item.gridItemType}'
+        ? displayName
+        : item.gridItemType;
     final path = GridItemRepository.getIconPath(item.gridItemType);
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -424,19 +417,16 @@ class _GridItemTile extends StatelessWidget {
                   size: 24,
                 ),
               ),
-            if (path != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: AssetImageWidget(
-                  assetPath: path,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                  altCandidates: imageAltCandidates(path),
-                ),
-              )
-            else
-              const Icon(Icons.grid_4x4),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: AssetImageWidget(
+                assetPath: path,
+                width: 40,
+                height: 40,
+                fit: BoxFit.cover,
+                altCandidates: imageAltCandidates(path),
+              ),
+            ),
           ],
         ),
         title: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -446,6 +436,7 @@ class _GridItemTile extends StatelessWidget {
         ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline),
+          tooltip: deleteTooltip,
           onPressed: onDelete,
         ),
       ),

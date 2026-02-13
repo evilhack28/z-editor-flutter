@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Dino event editor. Ported from Z-Editor-master DinoEventEP.kt
@@ -74,6 +75,7 @@ class _DinoEventScreenState extends State<DinoEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
 
     return Scaffold(
@@ -85,9 +87,9 @@ class _DinoEventScreenState extends State<DinoEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Dino summon',
+              l10n?.eventDino ?? 'Event: Dino summon',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -97,15 +99,15 @@ class _DinoEventScreenState extends State<DinoEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Dino event',
-              sections: const [
+              title: l10n?.eventDino ?? 'Dino event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: '恐龙危机专属事件。在指定的行召唤一只指定的恐龙进入场地，恐龙会协助僵尸进攻。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpDinoBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Duration',
-                  body: '恐龙在场上停留的时间，单位为波次。',
+                  title: l10n?.duration ?? 'Duration',
+                  body: l10n?.eventHelpDinoDuration ?? '',
                 ),
               ],
             ),
@@ -184,7 +186,7 @@ class _DinoEventScreenState extends State<DinoEventScreen> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Text('Row (DinoRow): ${_data.dinoRow + 1}'),
+                          Text(l10n?.dinoRow(_data.dinoRow + 1) ?? 'Row (DinoRow): ${_data.dinoRow + 1}'),
                           const SizedBox(width: 8),
                           IconButton(
                             icon: const Icon(Icons.remove),

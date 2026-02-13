@@ -1,11 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/grid_item_repository.dart';
+import 'package:z_editor/data/repository/grid_item_repository.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/zombie_properties_repository.dart';
-import 'package:z_editor/data/zombie_repository.dart' show ZombieRepository, ZombieTag;
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart' show ZombieRepository, ZombieTag;
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/theme/app_theme.dart';
@@ -138,10 +138,11 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
     required ZombieSpawnData zombie,
     required int index,
   }) {
+    final l10n = AppLocalizations.of(context);
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Select custom zombie'),
+        title: Text(l10n?.selectCustomZombie ?? 'Select custom zombie'),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.separated(
@@ -155,7 +156,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                 title: Text(opt.alias),
                 trailing: isCurrent
                     ? Text(
-                        'Current',
+                        l10n?.current ?? 'Current',
                         style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
                               color: Theme.of(ctx).colorScheme.primary,
                             ),
@@ -179,7 +180,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
           ),
         ],
       ),
@@ -282,6 +283,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
   }
 
   void _showZombieEditSheet(int index) {
+    final l10n = AppLocalizations.of(context);
     final zombie = _data.zombies[index];
     final isElite = _isElite(zombie);
     final baseType = _resolveBaseTypeName(zombie);
@@ -343,8 +345,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  AppLocalizations.of(context)?.customLabel ??
-                                      'Custom',
+                                  l10n?.customLabel ?? 'Custom',
                                   style: const TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.bold,
@@ -364,17 +365,17 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                       Expanded(
                         child: DropdownButtonFormField<int>(
                           initialValue: rowValue,
-                          decoration: const InputDecoration(
-                            labelText: 'Row',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: l10n?.row ?? 'Row',
+                            border: const OutlineInputBorder(),
                           ),
-                          items: const [
-                            DropdownMenuItem(value: 0, child: Text('Random')),
-                            DropdownMenuItem(value: 1, child: Text('Row 1')),
-                            DropdownMenuItem(value: 2, child: Text('Row 2')),
-                            DropdownMenuItem(value: 3, child: Text('Row 3')),
-                            DropdownMenuItem(value: 4, child: Text('Row 4')),
-                            DropdownMenuItem(value: 5, child: Text('Row 5')),
+                          items: [
+                            DropdownMenuItem(value: 0, child: Text(l10n?.random ?? 'Random')),
+                            DropdownMenuItem(value: 1, child: Text(l10n?.rowN(1) ?? 'Row 1')),
+                            DropdownMenuItem(value: 2, child: Text(l10n?.rowN(2) ?? 'Row 2')),
+                            DropdownMenuItem(value: 3, child: Text(l10n?.rowN(3) ?? 'Row 3')),
+                            DropdownMenuItem(value: 4, child: Text(l10n?.rowN(4) ?? 'Row 4')),
+                            DropdownMenuItem(value: 5, child: Text(l10n?.rowN(5) ?? 'Row 5')),
                           ],
                           onChanged: (v) {
                             if (v == null) return;
@@ -406,7 +407,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                             });
                           },
                           icon: const Icon(Icons.swap_horiz),
-                          label: const Text('Change'),
+                          label: Text(l10n?.change ?? 'Change'),
                         ),
                       ),
                     ],
@@ -414,12 +415,12 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                   const SizedBox(height: 12),
                   if (isElite)
                     Text(
-                      'Elite zombies use default level.',
+                      l10n?.eliteZombiesUseDefaultLevel ?? 'Elite zombies use default level.',
                       style: Theme.of(context).textTheme.bodySmall,
                     )
                   else ...[
                     SwitchListTile(
-                      title: const Text('Auto level'),
+                      title: Text(l10n?.autoLevel ?? 'Auto level'),
                       value: levelValue == 0,
                       onChanged: (v) {
                         setModalState(() => levelValue = v ? 0 : 1);
@@ -437,7 +438,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Level: $levelValue'),
+                          Text(l10n?.levelFormat(levelValue) ?? 'Level: $levelValue'),
                           Slider(
                             value: levelValue.toDouble(),
                             min: 1,
@@ -481,7 +482,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                             Navigator.pop(ctx);
                           },
                           icon: const Icon(Icons.copy),
-                          label: const Text('Copy'),
+                          label: Text(l10n?.copy ?? 'Copy'),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -496,7 +497,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                             Navigator.pop(ctx);
                           },
                           icon: const Icon(Icons.delete),
-                          label: const Text('Delete'),
+                          label: Text(l10n?.delete ?? 'Delete'),
                         ),
                       ),
                     ],
@@ -531,7 +532,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                                   ),
                                   icon: const Icon(Icons.swap_horiz),
                                   label: Text(
-                                    '${AppLocalizations.of(context)?.switchCustomZombie ?? 'Switch'} (${compatibleCustom.length})',
+                                    '${l10n?.switchCustomZombie ?? 'Switch'} (${compatibleCustom.length})',
                                   ),
                                 ),
                               ),
@@ -552,8 +553,8 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                                   ),
                                   icon: const Icon(Icons.edit),
                                   label: Text(
-                                    AppLocalizations.of(context)?.editCustomZombieProperties ??
-                                        'Edit properties',
+                                    l10n?.editCustomZombieProperties ??
+                                        l10n?.editProperties ?? 'Edit properties',
                                   ),
                                 ),
                               )
@@ -582,8 +583,8 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                                   ),
                                   icon: const Icon(Icons.build),
                                   label: Text(
-                                    AppLocalizations.of(context)?.makeZombieAsCustom ??
-                                        'Make custom',
+                                    l10n?.makeZombieAsCustom ??
+                                        l10n?.makeCustom ?? 'Make custom',
                                   ),
                                 ),
                               ),
@@ -603,6 +604,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
     final zombieRepo = ZombieRepository();
@@ -614,14 +616,15 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? alias),
             Text(
-              'Event: Grave spawn',
+              l10n?.eventGraveSpawnSubtitle ?? 'Spawn zombies from graves',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -629,20 +632,24 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
-            onPressed: () => showEditorHelpDialog(
-              context,
-              title: 'Grave spawn event',
-              sections: const [
-                HelpSectionData(
-                  title: 'Overview',
-                  body: '此事件可以在特定的障碍物类型上进行出怪，常用于黑暗时代的亡灵返乡。',
-                ),
-                HelpSectionData(
-                  title: 'Zombie spawn wait',
-                  body: '从波次开始到僵尸生成之间的时间间隔，若已进入下一波将不生成僵尸。',
-                ),
-              ],
-            ),
+            tooltip: l10n?.tooltipAboutEvent ?? 'About this event',
+            onPressed: () {
+              if (l10n == null) return;
+              showEditorHelpDialog(
+                context,
+                title: l10n.eventGraveSpawn,
+                sections: [
+                  HelpSectionData(
+                    title: l10n.overview,
+                    body: l10n.eventHelpGraveSpawnBody,
+                  ),
+                  HelpSectionData(
+                    title: l10n.zombieSpawnWait,
+                    body: l10n.eventHelpGraveSpawnZombieWait,
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -660,7 +667,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Basic parameters',
+                        l10n?.basicParameters ?? 'Basic parameters',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -668,8 +675,8 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         initialValue: _data.waveStartMessage ?? '',
-                        decoration: const InputDecoration(
-                          labelText: 'Wave start message',
+                        decoration: InputDecoration(
+                          labelText: l10n?.waveStartMessage ?? 'Wave start message',
                           border: OutlineInputBorder(),
                         ),
                         onChanged: (v) {
@@ -685,8 +692,8 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         initialValue: _data.zombieSpawnWaitTime.toString(),
-                        decoration: const InputDecoration(
-                          labelText: 'Zombie spawn wait (sec)',
+                        decoration: InputDecoration(
+                          labelText: l10n?.zombieSpawnWaitSec ?? 'Zombie spawn wait (seconds)',
                           border: OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
@@ -712,7 +719,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Grid types',
+                    l10n?.gridTypes ?? 'Grid types',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -720,7 +727,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                   PvzAddButton(
                     onPressed: _addGridType,
                     size: 40,
-                    label: 'Add',
+                    label: l10n?.add ?? 'Add',
                   ),
                 ],
               ),
@@ -738,22 +745,23 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                   margin: const EdgeInsets.only(bottom: 8),
                   color: isValid ? null : theme.colorScheme.errorContainer,
                   child: ListTile(
-                    leading: iconPath != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: AssetImageWidget(
-                              assetPath: iconPath,
-                              width: 40,
-                              height: 40,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Icon(Icons.widgets,
-                            color: theme.colorScheme.onSurfaceVariant),
-                    title: Text(GridItemRepository.getName(gridAlias)),
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: AssetImageWidget(
+                        assetPath: iconPath,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    title: Text(() {
+                      final d = ResourceNames.lookup(context, 'griditem_$gridAlias');
+                      return d != 'griditem_$gridAlias' ? d : gridAlias;
+                    }()),
                     subtitle: Text(gridAlias, style: theme.textTheme.bodySmall),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
+                      tooltip: l10n?.delete ?? 'Delete',
                       onPressed: () => _removeGridType(idx),
                     ),
                   ),
@@ -764,7 +772,7 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Zombies (${_data.zombies.length})',
+                    l10n?.zombiesCount(_data.zombies.length) ?? 'Zombies: ${_data.zombies.length}',
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/grid_item_repository.dart';
+import 'package:z_editor/data/repository/grid_item_repository.dart';
+import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/asset_image.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
@@ -92,6 +94,7 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
     final sortedItems = List<ZombiePotionData>.from(_data.potions)
       ..sort((a, b) {
@@ -103,14 +106,15 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Potion drop',
+              l10n?.eventPotionDrop ?? 'Event: Potion drop',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -118,17 +122,18 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
+            tooltip: l10n?.tooltipAboutEvent ?? 'About this event',
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Potion drop event',
-              sections: const [
+              title: l10n?.eventPotionDrop ?? 'Potion drop event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: '此事件可以在场地上强行生成药水，能无视植物，可以作为障碍物生成事件的替代。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpZombiePotionBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Usage',
-                  body: '选择网格位置，点击添加物品，选择药水类型。',
+                  title: l10n?.usage ?? 'Usage',
+                  body: l10n?.eventHelpZombiePotionUsage ?? '',
                 ),
               ],
             ),
@@ -154,7 +159,7 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Selected position',
+                                l10n?.selectedPosition ?? 'Selected position',
                                 style: theme.textTheme.bodySmall,
                               ),
                               Text(
@@ -169,7 +174,7 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
                           FilledButton.icon(
                             onPressed: _addPotion,
                             icon: const Icon(Icons.add),
-                            label: const Text('Add item'),
+                            label: Text(l10n?.addItem ?? 'Add item'),
                           ),
                         ],
                       ),
@@ -213,26 +218,15 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
                                   ),
                                 ),
                                 child: firstItem != null
-                                    ? () {
-                                        final iconPath = GridItemRepository
-                                            .getIconPath(firstItem.type);
-                                        return iconPath != null
-                                            ? Center(
-                                                child: AssetImageWidget(
-                                                  assetPath: iconPath,
-                                                  width: 24,
-                                                  height: 24,
-                                                  fit: BoxFit.contain,
-                                                ),
-                                              )
-                                            : Center(
-                                                child: Text(
-                                                  firstItem.type.isNotEmpty
-                                                      ? firstItem.type[0]
-                                                      : '?',
-                                                ),
-                                              );
-                                      }()
+                                    ? Center(
+                                        child: AssetImageWidget(
+                                          assetPath: GridItemRepository
+                                              .getIconPath(firstItem.type),
+                                          width: 24,
+                                          height: 24,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      )
                                     : null,
                               ),
                             );
@@ -245,7 +239,7 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Items (sorted by row)',
+                l10n?.itemsSortedByRow ?? 'Items (sorted by row)',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -268,33 +262,25 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
                         _selectedY = item.location.y;
                       });
                     },
-                    leading: () {
-                      final iconPath =
-                          GridItemRepository.getIconPath(item.type);
-                      return iconPath != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: AssetImageWidget(
-                                assetPath: iconPath,
-                                width: 36,
-                                height: 36,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : CircleAvatar(
-                            child: Text(
-                              item.type.isNotEmpty
-                                  ? item.type[0].toUpperCase()
-                                  : '?',
-                            ),
-                          );
-                    }(),
-                    title: Text(GridItemRepository.getName(item.type)),
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: AssetImageWidget(
+                        assetPath: GridItemRepository.getIconPath(item.type),
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    title: Text(() {
+                      final d = ResourceNames.lookup(context, 'griditem_${item.type}');
+                      return d != 'griditem_${item.type}' ? d : item.type;
+                    }()),
                     subtitle: Text(
                       'R${item.location.y + 1}:C${item.location.x + 1}',
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
+                      tooltip: l10n?.delete ?? 'Delete',
                       onPressed: () => _removePotion(item),
                     ),
                   ),

@@ -1,10 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/plant_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
-import 'package:z_editor/data/zombie_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/screens/select/plant_selection_screen.dart';
 import 'package:z_editor/screens/select/zombie_selection_screen.dart';
 import 'package:z_editor/widgets/asset_image.dart';
@@ -136,24 +137,24 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
     _sync();
   }
 
-  Future<void> _showAddDialog() async {
+  Future<void> _showAddDialog(AppLocalizations? l10n) async {
     final choice = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Add item'),
+        title: Text(l10n?.addItem ?? 'Add item'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              title: const Text('Plant'),
+              title: Text(l10n?.plant ?? 'Plant'),
               onTap: () => Navigator.pop(ctx, 'plant'),
             ),
             ListTile(
-              title: const Text('Zombie'),
+              title: Text(l10n?.zombie ?? 'Zombie'),
               onTap: () => Navigator.pop(ctx, 'zombie'),
             ),
             ListTile(
-              title: const Text('Collectable (Plant Food)'),
+              title: Text(l10n?.collectable ?? 'Collectable (Plant Food)'),
               onTap: () => Navigator.pop(ctx, 'collectable'),
             ),
           ],
@@ -214,7 +215,7 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
     }
   }
 
-  void _openEditDialog(SeedRainItem item) {
+  void _openEditDialog(SeedRainItem item, AppLocalizations? l10n) {
     var tempWeight = item.weight;
     var tempMaxCount = item.maxCount;
     showDialog(
@@ -223,15 +224,15 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
         return StatefulBuilder(
           builder: (ctx, setDialogState) {
             return AlertDialog(
-              title: Text('Edit: ${_getItemName(ctx, item)}'),
+              title: Text(l10n?.editAlias(_getItemName(ctx, item)) ?? 'Edit: ${_getItemName(ctx, item)}'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Weight',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n?.weight ?? 'Weight',
+                      border: const OutlineInputBorder(),
                     ),
                     initialValue: '$tempWeight',
                     onChanged: (v) {
@@ -242,9 +243,9 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
                   const SizedBox(height: 16),
                   TextFormField(
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Max count',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n?.maxCount ?? 'Max count',
+                      border: const OutlineInputBorder(),
                     ),
                     initialValue: '$tempMaxCount',
                     onChanged: (v) {
@@ -257,7 +258,7 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel'),
+                  child: Text(l10n?.cancel ?? 'Cancel'),
                 ),
                 FilledButton(
                   onPressed: () {
@@ -273,7 +274,7 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
                     );
                     Navigator.pop(ctx);
                   },
-                  child: const Text('Save'),
+                  child: Text(l10n?.save ?? 'Save'),
                 ),
               ],
             );
@@ -283,17 +284,20 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
     );
   }
 
-  void _openDeleteDialog(SeedRainItem item) {
+  void _openDeleteDialog(SeedRainItem item, AppLocalizations? l10n) {
     final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirm delete'),
-        content: Text('Remove ${_getItemName(ctx, item)}?'),
+        title: Text(l10n?.confirmDelete ?? 'Confirm delete'),
+        content: Text(
+          l10n?.removeItemConfirm(_getItemName(ctx, item)) ??
+              'Remove ${_getItemName(ctx, item)}?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(l10n?.cancel ?? 'Cancel'),
           ),
           FilledButton(
             onPressed: () {
@@ -303,7 +307,7 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
             style: FilledButton.styleFrom(
               backgroundColor: theme.colorScheme.error,
             ),
-            child: const Text('Delete'),
+            child: Text(l10n?.delete ?? 'Delete'),
           ),
         ],
       ),
@@ -313,6 +317,7 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -320,7 +325,7 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
-        title: const Text('Seed rain'),
+        title: Text(l10n?.seedRain ?? 'Seed rain'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -336,9 +341,9 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
                     TextField(
                       controller: _rainIntervalCtrl,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Rain interval (seconds)',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n?.rainIntervalSeconds ?? 'Rain interval (seconds)',
+                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (v) {
                         final n = int.tryParse(v);
@@ -355,9 +360,9 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton.icon(
-                        onPressed: _showAddDialog,
+                        onPressed: () => _showAddDialog(l10n),
                         icon: const Icon(Icons.add),
-                        label: const Text('Add drop item'),
+                        label: Text(l10n?.addDropItem ?? 'Add drop item'),
                       ),
                     ),
                   ],
@@ -369,22 +374,22 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Center(
-                    child: Text(
-                      'No items. Add plants, zombies, or collectables.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+                    child: Center(
+                      child: Text(
+                        l10n?.noItemsAddHint ?? 'No items. Add plants, zombies, or collectables.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
-                  ),
                 ),
               )
             else
               ..._data.seedRains.map(
                 (item) => _SeedRainRowCard(
                   item: item,
-                  onTap: () => _openEditDialog(item),
-                  onDelete: () => _openDeleteDialog(item),
+                  onTap: () => _openEditDialog(item, l10n),
+                  onDelete: () => _openDeleteDialog(item, l10n),
                   getItemName: _getItemName,
                 ),
               ),

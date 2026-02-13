@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pvz_models.dart';
+import '../pvz_models.dart';
 
 class EventMetadata {
   EventMetadata({

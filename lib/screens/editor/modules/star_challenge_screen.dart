@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/reference_repository.dart';
-import 'package:z_editor/data/challenge_repository.dart';
-import 'package:z_editor/screens/editor/modules/challenge_selection_screen.dart';
-import 'package:z_editor/screens/editor/modules/challenge_editors.dart';
+import 'package:z_editor/data/repository/reference_repository.dart';
+import 'package:z_editor/data/repository/challenge_repository.dart';
+import 'package:z_editor/screens/select/challenge_selection_screen.dart';
+import 'package:z_editor/theme/app_theme.dart';
+import 'package:z_editor/widgets/editor_components.dart';
+import 'package:z_editor/screens/editor/modules/challenge_editors.dart' show showChallengeEditorDialog;
 
 class StarChallengeModuleScreen extends StatefulWidget {
   const StarChallengeModuleScreen({
@@ -61,18 +63,52 @@ class _StarChallengeModuleScreenState extends State<StarChallengeModuleScreen> {
     widget.onChanged();
   }
 
+  void _confirmRemoveChallenge(int index, String challengeRtid, String title) {
+    final info = RtidParser.parse(challengeRtid);
+    final isLocal = info?.source == 'CurrentLevel';
+    final l10n = AppLocalizations.of(context);
+    final message = isLocal
+        ? (l10n?.deleteChallengeConfirmLocal(title) ??
+            'Remove "$title"? Local challenge data will be deleted permanently.')
+        : (l10n?.deleteChallengeConfirmRef(title) ??
+            'Remove "$title"? Reference will be removed. Challenge stays in LevelModules.');
+
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n?.deleteChallengeTitle ?? 'Delete challenge?'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n?.cancel ?? 'Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              l10n?.delete ?? 'Delete',
+              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    ).then((confirmed) {
+      if (confirmed == true) _removeChallenge(index, challengeRtid);
+    });
+  }
+
   void _removeChallenge(int index, String challengeRtid) {
     if (_data.challenges.isEmpty) return;
-    
+
     setState(() {
       _data.challenges[0].removeAt(index);
-      
+
       // Also remove the object if it's local
       final info = RtidParser.parse(challengeRtid);
       if (info != null && info.source == 'CurrentLevel') {
         widget.levelFile.objects.removeWhere((o) => o.aliases?.contains(info.alias) == true);
       }
-      
+
       _saveData();
     });
   }
@@ -95,18 +131,14 @@ class _StarChallengeModuleScreenState extends State<StarChallengeModuleScreen> {
       return;
     }
 
-    Navigator.push(
+    showChallengeEditorDialog(
       context,
-      MaterialPageRoute(
-        builder: (context) => ChallengeEditorScreen(
-          object: obj,
-          onChanged: () {
-             setState(() {
-                _saveData();
-             });
-          },
-        ),
-      ),
+      object: obj,
+      onChanged: () {
+        setState(() {
+          _saveData();
+        });
+      },
     );
   }
 
@@ -154,11 +186,16 @@ class _StarChallengeModuleScreenState extends State<StarChallengeModuleScreen> {
     );
 
     if (info != null) {
-      int counter = 1;
-      String alias = '${info.defaultAlias}_$counter';
-      while (widget.levelFile.objects.any((o) => o.aliases?.contains(alias) == true)) {
-        counter++;
-        alias = '${info.defaultAlias}_$counter';
+      final defaultAlias = info.defaultAlias;
+      final aliasTaken = (String a) =>
+          widget.levelFile.objects.any((o) => o.aliases?.contains(a) == true);
+      final String alias;
+      if (!aliasTaken(defaultAlias)) {
+        alias = defaultAlias;
+      } else {
+        int n = 1;
+        while (aliasTaken('${defaultAlias}_$n')) n++;
+        alias = '${defaultAlias}_$n';
       }
 
       Map<String, dynamic> objDataMap = {};
@@ -188,23 +225,55 @@ class _StarChallengeModuleScreenState extends State<StarChallengeModuleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final challenges = _data.challenges.isNotEmpty ? _data.challenges[0] : <String>[];
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final themeColor = isDark ? pvzOrangeDark : pvzOrangeLight;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Star Challenges'),
+        title: Text(l10n?.starChallenges ?? 'Star Challenges'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
+        backgroundColor: themeColor,
+        foregroundColor: theme.colorScheme.onPrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            tooltip: l10n?.tooltipAboutModule ?? 'About this module',
+            onPressed: () {
+              showEditorHelpDialog(
+                context,
+                title: l10n?.starChallengeHelpTitle ?? 'Star Challenge Module',
+                themeColor: themeColor,
+                sections: [
+                  HelpSectionData(
+                    title: l10n?.overview ?? 'Overview',
+                    body: l10n?.starChallengeHelpOverview ??
+                        'Select challenge modules used in the level here. You can set multiple challenge goals and use the same challenge type multiple times.',
+                  ),
+                  HelpSectionData(
+                    title: l10n?.starChallengeHelpSuggestionTitle ?? 'Optimization suggestion',
+                    body: l10n?.starChallengeHelpSuggestion ??
+                        'Some challenges have in-game progress stat boxes. When there are too many challenge modules, stat boxes may overlap.',
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           if (challenges.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(32),
-              child: Center(child: Text('No challenges configured')),
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(child: Text(l10n?.noChallengesConfigured ?? 'No challenges configured')),
             )
           else
             ...challenges.asMap().entries.map((entry) {
@@ -224,22 +293,47 @@ class _StarChallengeModuleScreenState extends State<StarChallengeModuleScreen> {
                 objClass = ReferenceRepository.instance.getObjClass(alias);
               }
 
+              final meta = ChallengeRepository.getInfo(objClass ?? '');
+              final title = meta?.title ?? objClass ?? 'Unknown Challenge';
+              final description = meta?.description ?? '';
+              final icon = meta?.icon ?? Icons.star_border;
+
               return Card(
                 child: ListTile(
-                  leading: const Icon(Icons.star_border),
-                  title: Text(objClass ?? 'Unknown Challenge'),
-                  subtitle: Text(alias),
+                  leading: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: themeColor.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: themeColor.withValues(alpha: 0.5)),
+                    ),
+                    child: Icon(icon, color: themeColor),
+                  ),
+                  title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (description.isNotEmpty)
+                        Text(description, style: theme.textTheme.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      Text(alias, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                    ],
+                  ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (isLocal)
                         IconButton(
                           icon: const Icon(Icons.edit),
+                          tooltip: l10n?.tooltipEdit ?? 'Edit',
                           onPressed: () => _editChallenge(rtid),
                         ),
                       IconButton(
                         icon: const Icon(Icons.delete),
-                        onPressed: () => _removeChallenge(index, rtid),
+                        tooltip: l10n?.delete ?? 'Delete',
+                        color: Colors.red,
+                        onPressed: () => _confirmRemoveChallenge(index, rtid, title),
                       ),
                     ],
                   ),
@@ -249,8 +343,12 @@ class _StarChallengeModuleScreenState extends State<StarChallengeModuleScreen> {
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: _addChallenge,
+            style: FilledButton.styleFrom(
+              backgroundColor: themeColor,
+              foregroundColor: theme.colorScheme.onPrimary,
+            ),
             icon: const Icon(Icons.add),
-            label: const Text('Add Challenge'),
+            label: Text(l10n?.addChallenge ?? 'Add Challenge'),
           ),
         ],
       ),

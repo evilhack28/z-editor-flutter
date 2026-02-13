@@ -97,21 +97,21 @@ class _RainDarkPropertiesScreenState extends State<RainDarkPropertiesScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
-        title: const Text('Weather settings'),
+        title: Text(l10n?.weatherSettings ?? 'Weather settings'),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Weather module',
-              sections: const [
+              title: l10n?.weatherModule ?? 'Weather module',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Controls global weather effects (rain, snow, darkness).',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.moduleHelpWeatherBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Reference modules',
-                  body: 'These options reference LevelModules and do not require custom parameters.',
+                  title: l10n?.referenceModules ?? 'Reference modules',
+                  body: l10n?.moduleHelpWeatherRef ?? '',
                 ),
               ],
             ),
@@ -127,7 +127,7 @@ class _RainDarkPropertiesScreenState extends State<RainDarkPropertiesScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             Text(
-              'Select weather type',
+              l10n?.selectWeatherType ?? 'Select weather type',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,

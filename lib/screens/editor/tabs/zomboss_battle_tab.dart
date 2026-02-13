@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
-import 'package:z_editor/data/zomboss_repository.dart';
+import 'package:z_editor/data/repository/zomboss_repository.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
-import 'package:z_editor/screens/editor/modules/zomboss_selection_screen.dart';
+import 'package:z_editor/screens/select/zomboss_selection_screen.dart';
 import 'package:z_editor/widgets/asset_image.dart';
 
 class ZombossBattleTab extends StatefulWidget {
@@ -123,8 +124,9 @@ class _ZombossBattleTabState extends State<ZombossBattleTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (_battleObj == null) {
-       return const Center(child: Text('Missing ZombossBattleModuleProperties'));
+       return Center(child: Text(l10n?.missingZombossModule ?? 'Missing ZombossBattleModuleProperties'));
     }
 
     final theme = Theme.of(context);
@@ -148,14 +150,14 @@ class _ZombossBattleTabState extends State<ZombossBattleTab> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Missing Intro Module', // TODO: Localize
+                          l10n?.missingIntroModule ?? 'Missing Intro Module',
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: theme.colorScheme.onErrorContainer,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          'Level is missing ZombossBattleIntroProperties. Please add it.',
+                          l10n?.missingIntroModuleHint ?? 'Level is missing ZombossBattleIntroProperties. Please add it.',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onErrorContainer,
                           ),
@@ -169,7 +171,7 @@ class _ZombossBattleTabState extends State<ZombossBattleTab> {
           ),
 
         Text(
-          'Zomboss Type', // TODO: Localize
+          l10n?.zombossType ?? 'Zomboss Type',
           style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary),
         ),
         const SizedBox(height: 8),
@@ -220,7 +222,7 @@ class _ZombossBattleTabState extends State<ZombossBattleTab> {
                         Text(
                           currentBossInfo != null
                               ? ResourceNames.lookup(context, currentBossInfo.id)
-                              : 'Unknown Zomboss',
+                              : (l10n?.unknownZomboss ?? 'Unknown Zomboss'),
                           style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Text(
@@ -238,12 +240,12 @@ class _ZombossBattleTabState extends State<ZombossBattleTab> {
         ),
         const SizedBox(height: 24),
         Text(
-          'Parameters', // TODO: Localize
+          l10n?.parameters ?? 'Parameters',
           style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary),
         ),
         const SizedBox(height: 8),
         _StepperControl(
-          label: 'Reserved Column Count', // TODO: Localize
+          label: l10n?.reservedColumnCount ?? 'Reserved Column Count',
           value: _battleData.reservedColumnCount,
           onChanged: (val) {
              setState(() => _battleData.reservedColumnCount = val);
@@ -255,7 +257,7 @@ class _ZombossBattleTabState extends State<ZombossBattleTab> {
         Padding(
           padding: const EdgeInsets.only(left: 16, top: 4),
           child: Text(
-            'Columns reserved from the right where plants cannot be planted.',
+            l10n?.reservedColumnCountHint ?? 'Columns reserved from the right where plants cannot be planted.',
             style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
         ),

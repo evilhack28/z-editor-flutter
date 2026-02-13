@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Sun bomb challenge editor. Ported from SunBombChallengePropertiesEP.kt
@@ -82,25 +83,27 @@ class _SunBombChallengeScreenState extends State<SunBombChallengeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n.back,
           onPressed: widget.onBack,
         ),
-        title: const Text('Sun bomb'),
+        title: Text(l10n.sunBomb),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
+            tooltip: l10n.tooltipAboutModule,
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Sun bomb',
-              sections: const [
+              title: l10n.sunBomb,
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body:
-                      'Turns falling sun into explosive sun bombs. Configure radius and damage.',
+                  title: l10n.sunBombHelpOverview,
+                  body: l10n.sunBombHelpBody,
                 ),
               ],
             ),
@@ -119,7 +122,7 @@ class _SunBombChallengeScreenState extends State<SunBombChallengeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Explosion radius',
+                      l10n.explosionRadius,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,
@@ -131,7 +134,7 @@ class _SunBombChallengeScreenState extends State<SunBombChallengeScreen> {
                         Expanded(
                           child: _intField(
                             controller: _plantRadiusCtrl,
-                            label: 'Plant radius',
+                            label: l10n.plantRadius,
                             onChanged: (v) {
                               final n = int.tryParse(v);
                               if (n != null) {
@@ -145,7 +148,7 @@ class _SunBombChallengeScreenState extends State<SunBombChallengeScreen> {
                         Expanded(
                           child: _intField(
                             controller: _zombieRadiusCtrl,
-                            label: 'Zombie radius',
+                            label: l10n.zombieRadius,
                             onChanged: (v) {
                               final n = int.tryParse(v);
                               if (n != null) {
@@ -159,7 +162,7 @@ class _SunBombChallengeScreenState extends State<SunBombChallengeScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Damage',
+                      l10n.damage,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,
@@ -171,7 +174,7 @@ class _SunBombChallengeScreenState extends State<SunBombChallengeScreen> {
                         Expanded(
                           child: _intField(
                             controller: _plantDamageCtrl,
-                            label: 'Plant damage',
+                            label: l10n.plantDamage,
                             onChanged: (v) {
                               final n = int.tryParse(v);
                               if (n != null) {
@@ -185,7 +188,7 @@ class _SunBombChallengeScreenState extends State<SunBombChallengeScreen> {
                         Expanded(
                           child: _intField(
                             controller: _zombieDamageCtrl,
-                            label: 'Zombie damage',
+                            label: l10n.zombieDamage,
                             onChanged: (v) {
                               final n = int.tryParse(v);
                               if (n != null) {
@@ -199,7 +202,7 @@ class _SunBombChallengeScreenState extends State<SunBombChallengeScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Radius is in pixels. One tile is about 60px.',
+                      l10n.radiusPixelsHint,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

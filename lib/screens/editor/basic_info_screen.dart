@@ -1,7 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/data/repository/stage_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/l10n/resource_names.dart';
+import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
+// Options matching LevelDefinitionEP.kt (keep codenames)
+const _musicTypeOptions = [
+  ('', 'Default'),
+  ('MiniGame_A', 'MiniGame_A'),
+  ('MiniGame_B', 'MiniGame_B'),
+  ('MiniGame_C', 'MiniGame_C'),
+  ('MiniGame_D', 'MiniGame_D'),
+  ('MiniGame_E', 'MiniGame_E'),
+];
+const _lootOptions = [
+  ('RTID(DefaultLoot@LevelModules)', 'DefaultLoot'),
+  ('RTID(NoLoot@LevelModules)', 'NoLoot'),
+];
+const _victoryOptions = [
+  ('RTID(VictoryOutro@LevelModules)', 'VictoryOutro'),
+  ('RTID(ZombossVictoryOutro@LevelModules)', 'ZombossVictoryOutro'),
+];
+
+class _BasicInfoEscapeIntent extends Intent {
+  const _BasicInfoEscapeIntent();
+}
 
 /// Full-screen level basic info editor. Ported from Z-Editor-master LevelDefinitionEP.kt
 class BasicInfoScreen extends StatefulWidget {
@@ -17,7 +42,10 @@ class BasicInfoScreen extends StatefulWidget {
   final PvzLevelFile levelFile;
   final LevelDefinitionData levelDef;
   final VoidCallback onBack;
-  final VoidCallback onStageTap;
+  final Future<void> Function(
+    LevelDefinitionData levelDef,
+    VoidCallback onStagePicked,
+  )? onStageTap;
   final VoidCallback onChanged;
 
   @override
@@ -48,6 +76,25 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
     super.dispose();
   }
 
+  Widget _rectangularTextField({
+    required TextEditingController controller,
+    required String label,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+    required VoidCallback onChanged,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+      onChanged: (_) => onChanged(),
+    );
+  }
+
   void _sync() {
     final def = widget.levelDef;
     def.name = _nameCtrl.text;
@@ -63,11 +110,23 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final def = widget.levelDef;
+    final theme = Theme.of(context);
     final stageInfo = RtidParser.parse(def.stageModule);
+    final isDesktop = theme.platform == TargetPlatform.windows ||
+        theme.platform == TargetPlatform.macOS ||
+        theme.platform == TargetPlatform.linux;
+    final sectionStyle = theme.textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.bold,
+      color: theme.colorScheme.primary,
+    );
 
-    return Scaffold(
+    Widget scaffold = Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
+          onPressed: widget.onBack,
+        ),
         title: Text(l10n?.levelBasicInfo ?? 'Level basic info'),
       ),
       body: SingleChildScrollView(
@@ -75,79 +134,271 @@ class _BasicInfoScreenState extends State<BasicInfoScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l10n?.levelBasicInfo ?? 'Basic info', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.primary)),
+            Text(l10n?.basicInfoSection ?? 'Basic info', style: sectionStyle),
             const SizedBox(height: 12),
-            TextField(
-              controller: _nameCtrl,
-              decoration: InputDecoration(labelText: l10n?.name ?? 'Name'),
-              onChanged: (_) => _sync(),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _descCtrl,
-              decoration: InputDecoration(labelText: l10n?.description ?? 'Description'),
-              maxLines: 2,
-              onChanged: (_) => _sync(),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _levelNumCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(labelText: l10n?.levelNumber ?? 'Level number'),
-                    onChanged: (_) => _sync(),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    controller: _sunCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(labelText: l10n?.startingSun ?? 'Starting sun'),
-                    onChanged: (_) => _sync(),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Text(l10n?.stageModule ?? 'Stage module', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.primary)),
-            const SizedBox(height: 8),
             Card(
-              child: ListTile(
-                leading: const Icon(Icons.map),
-                title: Text(stageInfo?.alias ?? def.stageModule),
-                subtitle: Text(l10n?.stageModule ?? 'Stage module'),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: widget.onStageTap,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _rectangularTextField(
+                      controller: _nameCtrl,
+                      label: '${l10n?.name ?? 'Name'} (Name)',
+                      onChanged: _sync,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _rectangularTextField(
+                            controller: _levelNumCtrl,
+                            label: l10n?.levelNumber ?? 'Level number',
+                            keyboardType: TextInputType.number,
+                            onChanged: _sync,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _rectangularTextField(
+                            controller: _sunCtrl,
+                            label: l10n?.startingSun ?? 'Initial sun',
+                            keyboardType: TextInputType.number,
+                            onChanged: _sync,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _rectangularTextField(
+                      controller: _descCtrl,
+                      label: '${l10n?.description ?? 'Description'} (Description)',
+                      maxLines: 2,
+                      onChanged: _sync,
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
-            SwitchListTile(
-              title: Text(l10n?.disablePeavine ?? 'Disable peavine', style: Theme.of(context).textTheme.bodyMedium),
-              value: def.disablePeavine ?? false,
-              onChanged: (v) {
-                setState(() {
-                  def.disablePeavine = v;
-                  _sync();
-                });
-              },
+            Text(l10n?.sceneSettingsSection ?? 'Scene settings', style: sectionStyle),
+            const SizedBox(height: 12),
+            Card(
+              child: InkWell(
+                onTap: () {
+                  widget.onStageTap?.call(def, () {
+                    if (mounted) setState(() {});
+                  });
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: SizedBox(
+                          width: 96,
+                          height: 96,
+                          child: () {
+                            if (stageInfo == null) {
+                              return const AssetImageWidget(
+                                assetPath: 'assets/images/others/unknown.webp',
+                                width: 96,
+                                height: 96,
+                                fit: BoxFit.cover,
+                              );
+                            }
+                            final stageItem = StageRepository.allItems
+                                .where((s) => s.alias == stageInfo.alias)
+                                .firstOrNull;
+                            final iconName = stageItem?.iconName;
+                            if (iconName != null) {
+                              return AssetImageWidget(
+                                assetPath: 'assets/images/stages/$iconName',
+                                altCandidates: imageAltCandidates('assets/images/stages/$iconName'),
+                                width: 96,
+                                height: 96,
+                                fit: BoxFit.cover,
+                              );
+                            }
+                            return const AssetImageWidget(
+                              assetPath: 'assets/images/others/unknown.webp',
+                              width: 96,
+                              height: 96,
+                              fit: BoxFit.cover,
+                            );
+                          }(),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${l10n?.stageModule ?? 'Stage module'} (StageModule)',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            Text(
+                              stageInfo != null
+                                  ? ResourceNames.lookup(
+                                      context,
+                                      StageRepository.getName(stageInfo.alias),
+                                    )
+                                  : def.stageModule,
+                              style: theme.textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.arrow_forward_ios, size: 16),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            SwitchListTile(
-              title: Text(l10n?.disableArtifact ?? 'Disable artifact', style: Theme.of(context).textTheme.bodyMedium),
-              value: def.isArtifactDisabled ?? false,
-              onChanged: (v) {
-                setState(() {
-                  def.isArtifactDisabled = v;
-                  _sync();
-                });
-              },
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: DropdownButtonFormField<String>(
+                  value: _musicTypeOptions.map((e) => e.$1).contains(def.musicType)
+                      ? def.musicType
+                      : _musicTypeOptions.first.$1,
+                  decoration: InputDecoration(
+                    labelText: '${l10n?.musicType ?? 'Music type'} (MusicType)',
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: _musicTypeOptions.map((e) => DropdownMenuItem(
+                    value: e.$1,
+                    child: Text(e.$2),
+                  )).toList(),
+                  onChanged: (v) {
+                    if (v != null) {
+                      setState(() {
+                        def.musicType = v;
+                        _sync();
+                      });
+                    }
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: DropdownButtonFormField<String>(
+                  value: _lootOptions.map((e) => e.$1).contains(def.loot)
+                      ? def.loot
+                      : _lootOptions.first.$1,
+                  decoration: InputDecoration(
+                    labelText: '${l10n?.loot ?? 'Loot'} (Loot)',
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: _lootOptions.map((e) => DropdownMenuItem(
+                    value: e.$1,
+                    child: Text(e.$2),
+                  )).toList(),
+                  onChanged: (v) {
+                    if (v != null) {
+                      setState(() {
+                        def.loot = v;
+                        _sync();
+                      });
+                    }
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: DropdownButtonFormField<String>(
+                  value: _victoryOptions.map((e) => e.$1).contains(def.victoryModule)
+                      ? def.victoryModule
+                      : _victoryOptions.first.$1,
+                  decoration: InputDecoration(
+                    labelText: '${l10n?.victoryModule ?? 'Victory module'} (VictoryModule)',
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: _victoryOptions.map((e) => DropdownMenuItem(
+                    value: e.$1,
+                    child: Text(e.$2),
+                  )).toList(),
+                  onChanged: (v) {
+                    if (v != null) {
+                      setState(() {
+                        def.victoryModule = v;
+                        _sync();
+                      });
+                    }
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n?.victoryModuleWarning ?? 'Using non-default victory modules may cause level crashes due to module conflicts. Use with caution.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(l10n?.restrictionsSection ?? 'Restrictions', style: sectionStyle),
+            const SizedBox(height: 12),
+            Card(
+              child: SwitchListTile(
+                title: Text(l10n?.disablePeavine ?? 'Disable peavine', style: theme.textTheme.bodyMedium),
+                value: def.disablePeavine ?? false,
+                onChanged: (v) {
+                  setState(() {
+                    def.disablePeavine = v;
+                    _sync();
+                  });
+                },
+              ),
+            ),
+            Card(
+              child: SwitchListTile(
+                title: Text(l10n?.disableArtifact ?? 'Disable artifact', style: theme.textTheme.bodyMedium),
+                value: def.isArtifactDisabled ?? false,
+                onChanged: (v) {
+                  setState(() {
+                    def.isArtifactDisabled = v;
+                    _sync();
+                  });
+                },
+              ),
             ),
           ],
         ),
       ),
     );
+
+    if (isDesktop) {
+      scaffold = Shortcuts(
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.escape): _BasicInfoEscapeIntent(),
+        },
+        child: Actions(
+          actions: {
+            _BasicInfoEscapeIntent: CallbackAction<_BasicInfoEscapeIntent>(
+              onInvoke: (_) {
+                widget.onBack();
+                return null;
+              },
+            ),
+          },
+          child: scaffold,
+        ),
+      );
+    }
+    return scaffold;
   }
 }
 

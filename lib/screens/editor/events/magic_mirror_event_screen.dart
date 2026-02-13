@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
@@ -111,6 +112,7 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
     final currentArray = _data.arrays.elementAtOrNull(_selectedIndex);
 
@@ -123,9 +125,9 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Magic mirror',
+              l10n?.eventMagicMirror ?? 'Magic mirror event',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -135,15 +137,15 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Magic mirror event',
-              sections: const [
+              title: l10n?.eventMagicMirror ?? 'Magic mirror event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: '魔镜事件会在场地上生成成对的传送门。每对传送门包含入口和出口，二者外观相同。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpMagicMirrorBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Type index',
-                  body: '可以更改镜子的外观样式用于区分，该事件中共有3种不同形态的魔镜。',
+                  title: l10n?.typeIndex ?? 'Type index',
+                  body: l10n?.eventHelpMagicMirrorType ?? '',
                 ),
               ],
             ),
@@ -166,7 +168,7 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: FilterChip(
-                          label: Text('Group ${idx + 1}'),
+                          label: Text(l10n?.groupN(idx + 1) ?? 'Group ${idx + 1}'),
                           selected: idx == _selectedIndex,
                           onSelected: (_) =>
                               setState(() => _selectedIndex = idx),
@@ -189,7 +191,7 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Group ${_selectedIndex + 1} config',
+                          l10n?.groupConfigN(_selectedIndex + 1) ?? 'Group ${_selectedIndex + 1} config',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -199,14 +201,14 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
                           initialValue: [1, 2, 3].contains(currentArray.typeIndex)
                               ? currentArray.typeIndex
                               : 1,
-                          decoration: const InputDecoration(
-                            labelText: 'Type index',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: l10n?.typeIndex ?? 'Type index',
+                            border: const OutlineInputBorder(),
                           ),
                           items: [1, 2, 3]
                               .map((i) => DropdownMenuItem(
                                     value: i,
-                                    child: Text('Style $i'),
+                                    child: Text(l10n?.styleN(i) ?? 'Style $i'),
                                   ))
                               .toList(),
                           onChanged: (v) {
@@ -230,9 +232,9 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
                         TextFormField(
                           initialValue:
                               currentArray.mirrorExistDuration.toString(),
-                          decoration: const InputDecoration(
-                            labelText: 'Exist duration (sec)',
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            labelText: l10n?.existDurationSec ?? 'Exist duration (sec)',
+                            border: const OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.number,
                           onChanged: (v) {
@@ -254,16 +256,16 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
                         ),
                         const SizedBox(height: 12),
                         SegmentedButton<bool>(
-                          segments: const [
+                          segments: [
                             ButtonSegment(
                               value: false,
-                              label: Text('Mirror 1'),
-                              icon: Icon(Icons.login),
+                              label: Text(l10n?.mirror1 ?? 'Mirror 1'),
+                              icon: const Icon(Icons.login),
                             ),
                             ButtonSegment(
                               value: true,
-                              label: Text('Mirror 2'),
-                              icon: Icon(Icons.logout),
+                              label: Text(l10n?.mirror2 ?? 'Mirror 2'),
+                              icon: const Icon(Icons.logout),
                             ),
                           ],
                           selected: {_isEditingMirror2},
@@ -374,10 +376,10 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
                   ),
                 ),
               ] else
-                const Center(
+                Center(
                   child: Padding(
-                    padding: EdgeInsets.all(32),
-                    child: Text('Add a mirror group above'),
+                    padding: const EdgeInsets.all(32),
+                    child: Text(l10n?.addMirrorGroup ?? 'Add a mirror group above'),
                   ),
                 ),
               const SizedBox(height: 32),

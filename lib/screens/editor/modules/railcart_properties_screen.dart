@@ -37,14 +37,27 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
   late Set<String> _cartSet;
 
   static const _cartTypeOptions = [
-    ('railcart_cowboy', 'Cowboy (railcart_cowboy)'),
-    ('railcart_future', 'Future (railcart_future)'),
-    ('railcart_egypt', 'Egypt (railcart_egypt)'),
-    ('railcart_pirate', 'Pirate (railcart_pirate)'),
-    ('railcart_worldcup', 'World Cup (railcart_worldcup)'),
+    'railcart_cowboy',
+    'railcart_future',
+    'railcart_egypt',
+    'railcart_pirate',
+    'railcart_worldcup',
   ];
   static const _railsAssetPath = 'assets/images/others/rails.webp';
   static const _cartsAssetPath = 'assets/images/others/railcarts.webp';
+
+  String _railcartDisplayName(BuildContext context, String codename) {
+    final l10n = AppLocalizations.of(context);
+    final name = switch (codename) {
+      'railcart_cowboy' => l10n?.railcartCowboy ?? 'Cowboy',
+      'railcart_future' => l10n?.railcartFuture ?? 'Future',
+      'railcart_egypt' => l10n?.railcartEgypt ?? 'Egypt',
+      'railcart_pirate' => l10n?.railcartPirate ?? 'Pirate',
+      'railcart_worldcup' => l10n?.railcartWorldcup ?? 'World Cup',
+      _ => codename,
+    };
+    return '$name ($codename)';
+  }
 
   @override
   void initState() {
@@ -160,6 +173,7 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
         title: Text(l10n?.railcartSettings ?? 'Railcart settings'),
@@ -177,18 +191,17 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
                   children: [
                     DropdownButtonFormField<String>(
                       key: ValueKey(_data.railcartType),
-                      initialValue: _cartTypeOptions
-                              .any((e) => e.$1 == _data.railcartType)
+                      value: _cartTypeOptions.contains(_data.railcartType)
                           ? _data.railcartType
-                          : _cartTypeOptions.first.$1,
+                          : _cartTypeOptions.first,
                       decoration: InputDecoration(
                         labelText: l10n?.railcartType ?? 'Railcart type',
                         border: const OutlineInputBorder(),
                       ),
                       items: _cartTypeOptions
                           .map((e) => DropdownMenuItem(
-                                value: e.$1,
-                                child: Text(e.$2),
+                                value: e,
+                                child: Text(_railcartDisplayName(context, e)),
                               ))
                           .toList(),
                       onChanged: (v) {
@@ -203,28 +216,32 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _ModeChip(
-                            icon: Icons.add_road,
-                            label: l10n?.layRails ?? 'Lay rails',
-                            selected: _editMode == _RailEditMode.rails,
-                            onTap: () =>
-                                setState(() => _editMode = _RailEditMode.rails),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _ModeChip(
-                            icon: Icons.inbox,
-                            label: l10n?.placeCarts ?? 'Place carts',
-                            selected: _editMode == _RailEditMode.carts,
-                            onTap: () =>
-                                setState(() => _editMode = _RailEditMode.carts),
-                          ),
-                        ),
-                      ],
+                    LayoutBuilder(
+                      builder: (ctx, constraints) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: _ModeChip(
+                                icon: Icons.add_road,
+                                label: l10n?.layRails ?? 'Lay rails',
+                                selected: _editMode == _RailEditMode.rails,
+                                onTap: () =>
+                                    setState(() => _editMode = _RailEditMode.rails),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _ModeChip(
+                                icon: Icons.inbox,
+                                label: l10n?.placeCarts ?? 'Place carts',
+                                selected: _editMode == _RailEditMode.carts,
+                                onTap: () =>
+                                    setState(() => _editMode = _RailEditMode.carts),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -315,6 +332,7 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           '${l10n?.railSegments ?? 'Rail segments'}: ${_data.rails.length}',
@@ -326,12 +344,17 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
                         ),
                       ],
                     ),
-                    FilledButton.icon(
-                      onPressed: _clearAll,
-                      icon: const Icon(Icons.delete, size: 18),
-                      label: Text(l10n?.clearAll ?? 'Clear all'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: theme.colorScheme.error,
+                    Flexible(
+                      child: FilledButton.icon(
+                        onPressed: _clearAll,
+                        icon: const Icon(Icons.delete, size: 18),
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(l10n?.clearAll ?? 'Clear all'),
+                        ),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: theme.colorScheme.error,
+                        ),
                       ),
                     ),
                   ],
@@ -373,6 +396,7 @@ class _ModeChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 icon,
@@ -382,13 +406,19 @@ class _ModeChip extends StatelessWidget {
                     : theme.colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 8),
-              Text(
-                label,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: selected
-                      ? theme.colorScheme.onPrimary
-                      : theme.colorScheme.onSurfaceVariant,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: selected
+                          ? theme.colorScheme.onPrimary
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
             ],

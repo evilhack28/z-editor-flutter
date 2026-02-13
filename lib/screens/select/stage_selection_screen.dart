@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/stage_repository.dart';
+import 'package:z_editor/data/repository/stage_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 
 /// Full-screen stage selection. Ported from Z-Editor-master StageSelectionScreen.kt
@@ -32,9 +33,11 @@ class _StageSelectionScreenState extends State<StageSelectionScreen> {
     final currentAlias = RtidParser.parse(widget.currentStageRtid)?.alias ?? '';
     var items = StageRepository.getByType(_selectedType);
     if (_searchQuery.isNotEmpty) {
-      items = items.where((s) =>
-          s.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          s.alias.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+      final q = _searchQuery.toLowerCase();
+      items = items.where((s) {
+        final name = ResourceNames.lookup(context, StageRepository.getName(s.alias));
+        return name.toLowerCase().contains(q) || s.alias.toLowerCase().contains(q);
+      }).toList();
     }
 
     return Scaffold(
@@ -101,7 +104,7 @@ class _StageSelectionScreenState extends State<StageSelectionScreen> {
           : GridView.builder(
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 140,
+                maxCrossAxisExtent: 180,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
                 childAspectRatio: 0.85,
@@ -112,6 +115,7 @@ class _StageSelectionScreenState extends State<StageSelectionScreen> {
                 final isSelected = stage.alias == currentAlias;
                 return _StageGridItem(
                   stage: stage,
+                  stageName: ResourceNames.lookup(context, StageRepository.getName(stage.alias)),
                   isSelected: isSelected,
                   onTap: () {
                     widget.onStageSelected(RtidParser.build(stage.alias, 'LevelModules'));
@@ -136,11 +140,13 @@ class _StageSelectionScreenState extends State<StageSelectionScreen> {
 class _StageGridItem extends StatelessWidget {
   const _StageGridItem({
     required this.stage,
+    required this.stageName,
     required this.isSelected,
     required this.onTap,
   });
 
   final StageItem stage;
+  final String stageName;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -161,27 +167,27 @@ class _StageGridItem extends StatelessWidget {
             children: [
               ClipOval(
                 child: SizedBox(
-                  width: 48,
-                  height: 48,
+                  width: 96,
+                  height: 96,
                   child: stage.iconName != null
                       ? AssetImageWidget(
                           assetPath: 'assets/images/stages/${stage.iconName!}',
                           altCandidates: imageAltCandidates('assets/images/stages/${stage.iconName!}'),
-                          width: 48,
-                          height: 48,
+                          width: 96,
+                          height: 96,
                           fit: BoxFit.cover,
                         )
                       : const AssetImageWidget(
                           assetPath: 'assets/images/others/unknown.webp',
-                          width: 48,
-                          height: 48,
+                          width: 96,
+                          height: 96,
                           fit: BoxFit.cover,
                         ),
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                stage.name,
+                stageName,
                 style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
                 maxLines: 1,

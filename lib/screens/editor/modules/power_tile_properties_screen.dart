@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
@@ -132,7 +133,7 @@ class _PowerTilePropertiesScreenState extends State<PowerTilePropertiesScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Power tile'),
+        title: Text(AppLocalizations.of(context)?.powerTile ?? 'Power tile'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
@@ -144,7 +145,7 @@ class _PowerTilePropertiesScreenState extends State<PowerTilePropertiesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Select group',
+              AppLocalizations.of(context)?.selectGroup ?? 'Select group',
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -182,7 +183,7 @@ class _PowerTilePropertiesScreenState extends State<PowerTilePropertiesScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Grid (tap to add/change, long-press to remove)',
+              AppLocalizations.of(context)?.gridTapAddRemove ?? 'Grid (tap to add/change, long-press to remove)',
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

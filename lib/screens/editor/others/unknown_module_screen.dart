@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Unknown/unregistered module placeholder. Ported from Z-Editor-master UnknownEP.kt
@@ -13,6 +14,7 @@ class UnknownModuleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -20,7 +22,7 @@ class UnknownModuleScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: onBack,
         ),
-        title: const Text('Module editor in development'),
+        title: Text(l10n?.unknownModuleTitle ?? 'Module editor in development'),
         backgroundColor: theme.colorScheme.tertiary,
         foregroundColor: theme.colorScheme.onTertiary,
         actions: [
@@ -28,15 +30,15 @@ class UnknownModuleScreen extends StatelessWidget {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Unknown module',
-              sections: const [
+              title: l10n?.unknownModuleHelpTitle ?? 'Unknown module',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Level files consist of root nodes and modules (PVZ2Object). Each object has aliases, objclass, and objdata. The root has no alias.',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.moduleHelpUnknownBody ?? 'Level files consist of root nodes and modules (PVZ2Object). Each object has aliases, objclass, and objdata. The root has no alias.',
                 ),
                 HelpSectionData(
-                  title: 'Events',
-                  body: 'The app parses modules by objclass. This module\'s objclass is not registered, so no dedicated editor exists yet. Support may be added later.',
+                  title: l10n?.events ?? 'Events',
+                  body: l10n?.moduleHelpUnknownEvents ?? 'The app parses modules by objclass. This module\'s objclass is not registered, so no dedicated editor exists yet. Support may be added later.',
                 ),
               ],
             ),
@@ -56,7 +58,7 @@ class UnknownModuleScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'No editor available for this module',
+                l10n?.noEditorForModule ?? 'No editor available for this module',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.tertiary,
@@ -65,7 +67,7 @@ class UnknownModuleScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'This module is not registered in the level parser. It may have been added manually or the objclass was changed.',
+                l10n?.noEditorForModuleBody ?? 'This module is not registered in the level parser. It may have been added manually or the objclass was changed.',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

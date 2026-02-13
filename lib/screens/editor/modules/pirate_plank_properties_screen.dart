@@ -1,8 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
-import 'package:z_editor/data/reference_repository.dart';
+import 'package:z_editor/data/repository/reference_repository.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 
 /// Pirate plank properties editor. Ported from Z-Editor-master PiratePlankPropertiesEP.kt
 class PiratePlankPropertiesScreen extends StatefulWidget {
@@ -93,13 +94,14 @@ class _PiratePlankPropertiesScreenState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
-        title: const Text('Pirate plank'),
+        title: Text(l10n?.piratePlank ?? 'Pirate plank'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -123,7 +125,7 @@ class _PiratePlankPropertiesScreenState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Stage mismatch',
+                              l10n?.stageMismatch ?? 'Stage mismatch',
                               style: theme.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: theme.colorScheme.onErrorContainer,
@@ -131,7 +133,7 @@ class _PiratePlankPropertiesScreenState
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Current stage is not Pirate. This module may not work correctly.',
+                              l10n?.currentStageNotPirate ?? 'Current stage is not Pirate. This module may not work correctly.',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onErrorContainer,
                               ),
@@ -146,7 +148,7 @@ class _PiratePlankPropertiesScreenState
               const SizedBox(height: 16),
             ],
             Text(
-              'Plank rows (0–4)',
+              l10n?.plankRows ?? 'Plank rows (0–4)',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -170,14 +172,14 @@ class _PiratePlankPropertiesScreenState
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Row ${row + 1}',
+                                    l10n?.rowN(row + 1) ?? 'Row ${row + 1}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15,
                                     ),
                                   ),
                                   Text(
-                                    'Index: $row',
+                                    l10n?.indexN(row) ?? 'Index: $row',
                                     style: theme.textTheme.bodySmall,
                                   ),
                                 ],
@@ -209,7 +211,7 @@ class _PiratePlankPropertiesScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Selected rows:',
+                        l10n?.selectedRowsLabel ?? 'Selected rows:',
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -217,7 +219,7 @@ class _PiratePlankPropertiesScreenState
                       const SizedBox(height: 8),
                       Text(
                         _data.plankRows
-                            .map((r) => 'Row ${r + 1}')
+                            .map((r) => l10n?.rowN(r + 1) ?? 'Row ${r + 1}')
                             .join(', '),
                         style: theme.textTheme.bodyMedium,
                       ),

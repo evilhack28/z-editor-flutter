@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 
 /// Death hole module editor. Ported from Z-Editor-master DeathHoleModuleEP.kt
 class DeathHoleModuleScreen extends StatefulWidget {
@@ -73,10 +74,11 @@ class _DeathHoleModuleScreenState extends State<DeathHoleModuleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack),
-        title: const Text('Death Hole'),
+        title: Text(l10n?.deathHole ?? 'Death Hole'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -87,7 +89,7 @@ class _DeathHoleModuleScreenState extends State<DeathHoleModuleScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Duration',
+                  l10n?.duration ?? 'Duration',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -96,9 +98,9 @@ class _DeathHoleModuleScreenState extends State<DeathHoleModuleScreen> {
                 TextField(
                   controller: _lifeTimeCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Hole lifetime (seconds)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n?.holeLifetimeSeconds ?? 'Hole lifetime (seconds)',
+                    border: const OutlineInputBorder(),
                   ),
                   onChanged: (v) {
                     final n = int.tryParse(v);

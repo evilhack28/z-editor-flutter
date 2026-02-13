@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/plant_repository.dart';
-import 'package:z_editor/l10n/resource_names.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/screens/select/plant_selection_screen.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
@@ -102,6 +103,7 @@ class _PennyClassroomModuleScreenState extends State<PennyClassroomModuleScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final entries = _data.plantMap.entries.toList();
 
@@ -109,24 +111,25 @@ class _PennyClassroomModuleScreenState extends State<PennyClassroomModuleScreen>
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n.back,
           onPressed: widget.onBack,
         ),
-        title: const Text('Plant levels'),
+        title: Text(l10n.plantLevels),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
+            tooltip: l10n.tooltipAboutModule,
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Global plant levels',
-              sections: const [
+              title: l10n.globalPlantLevels,
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Defines global levels for specified plants.',
+                  title: l10n.overview,
+                  body: l10n.globalPlantLevelsOverview,
                 ),
                 HelpSectionData(
-                  title: 'Scope',
-                  body:
-                      'Applies to protect plants, seed rain, and other modules.',
+                  title: l10n.scope,
+                  body: l10n.globalPlantLevelsScope,
                 ),
               ],
             ),
@@ -147,7 +150,7 @@ class _PennyClassroomModuleScreenState extends State<PennyClassroomModuleScreen>
                       const Icon(Icons.layers),
                       const SizedBox(width: 8),
                       Text(
-                        'Batch level: ${_batchLevel.round()}',
+                        l10n.batchLevelFormat(_batchLevel.round()),
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.colorScheme.primary,
@@ -156,7 +159,7 @@ class _PennyClassroomModuleScreenState extends State<PennyClassroomModuleScreen>
                       const Spacer(),
                       FilledButton(
                         onPressed: entries.isEmpty ? null : _applyBatch,
-                        child: const Text('Apply batch'),
+                        child: Text(l10n.applyBatch),
                       ),
                     ],
                   ),
@@ -172,7 +175,7 @@ class _PennyClassroomModuleScreenState extends State<PennyClassroomModuleScreen>
                   OutlinedButton.icon(
                     onPressed: _addPlants,
                     icon: const Icon(Icons.add),
-                    label: const Text('Add plants'),
+                    label: Text(l10n.addPlants),
                   ),
                 ],
               ),
@@ -182,7 +185,7 @@ class _PennyClassroomModuleScreenState extends State<PennyClassroomModuleScreen>
             child: entries.isEmpty
                 ? Center(
                     child: Text(
-                      'No plants configured',
+                      l10n.noPlantsConfigured,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -194,6 +197,7 @@ class _PennyClassroomModuleScreenState extends State<PennyClassroomModuleScreen>
                     itemBuilder: (context, index) {
                       final entry = entries[index];
                       return _PlantLevelRow(
+                        l10n: l10n,
                         plantId: entry.key,
                         level: entry.value,
                         onLevelChange: (val) {
@@ -220,12 +224,14 @@ class _PennyClassroomModuleScreenState extends State<PennyClassroomModuleScreen>
 
 class _PlantLevelRow extends StatelessWidget {
   const _PlantLevelRow({
+    required this.l10n,
     required this.plantId,
     required this.level,
     required this.onLevelChange,
     required this.onDelete,
   });
 
+  final AppLocalizations l10n;
   final String plantId;
   final int level;
   final ValueChanged<int> onLevelChange;
@@ -265,7 +271,7 @@ class _PlantLevelRow extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Text('Level: '),
+                      Text(l10n.levelLabel),
                       Expanded(
                         child: Slider(
                           value: level.toDouble(),
@@ -283,6 +289,7 @@ class _PlantLevelRow extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline),
+              tooltip: l10n.delete,
               onPressed: onDelete,
             ),
           ],

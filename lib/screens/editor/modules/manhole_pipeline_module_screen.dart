@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Manhole pipeline module. Ported from ManholePipelinePropertiesEP.kt
@@ -119,28 +121,31 @@ class _ManholePipelineModuleScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n.back,
           onPressed: widget.onBack,
         ),
-        title: const Text('Manhole pipeline'),
+        title: Text(l10n.manholePipeline),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
+            tooltip: l10n.tooltipAboutModule,
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Manhole pipelines',
-              sections: const [
+              title: l10n.manholePipelines,
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Defines underground pipeline links used in Steam Age.',
+                  title: l10n.overview,
+                  body: l10n.manholePipelineHelpOverview,
                 ),
                 HelpSectionData(
-                  title: 'Editing',
-                  body: 'Toggle start/end mode, then tap grid to place.',
+                  title: l10n.editing,
+                  body: l10n.manholePipelineHelpEditing,
                 ),
               ],
             ),
@@ -159,7 +164,7 @@ class _ManholePipelineModuleScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Global parameters',
+                      l10n.globalParameters,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,
@@ -171,7 +176,7 @@ class _ManholePipelineModuleScreenState
                         Expanded(
                           child: _intField(
                             controller: _timeCtrl,
-                            label: 'Time per grid',
+                            label: l10n.timePerGrid,
                             onChanged: (v) {
                               final n = int.tryParse(v);
                               if (n != null) {
@@ -185,7 +190,7 @@ class _ManholePipelineModuleScreenState
                         Expanded(
                           child: _intField(
                             controller: _damageCtrl,
-                            label: 'Damage per second',
+                            label: l10n.damagePerSecond,
                             onChanged: (v) {
                               final n = int.tryParse(v);
                               if (n != null) {
@@ -213,12 +218,12 @@ class _ManholePipelineModuleScreenState
                     return OutlinedButton.icon(
                       onPressed: _addPipeline,
                       icon: const Icon(Icons.add),
-                      label: const Text('Add'),
+                      label: Text(l10n.add),
                     );
                   }
                   final selected = index == _selectedIndex;
                   return FilterChip(
-                    label: Text('Pipe ${index + 1}'),
+                    label: Text(l10n.pipeN(index + 1)),
                     selected: selected,
                     onSelected: (_) => setState(() => _selectedIndex = index),
                     deleteIcon: const Icon(Icons.close),
@@ -234,13 +239,13 @@ class _ManholePipelineModuleScreenState
               children: [
                 FilterChip(
                   selected: !_editingEnd,
-                  label: const Text('Set start'),
+                  label: Text(l10n.setStart),
                   onSelected: (_) => setState(() => _editingEnd = false),
                 ),
                 const SizedBox(width: 8),
                 FilterChip(
                   selected: _editingEnd,
-                  label: const Text('Set end'),
+                  label: Text(l10n.setEnd),
                   onSelected: (_) => setState(() => _editingEnd = true),
                 ),
               ],
@@ -249,7 +254,12 @@ class _ManholePipelineModuleScreenState
             _buildGrid(theme),
             const SizedBox(height: 8),
             Text(
-              'Start: (${_current.startX}, ${_current.startY})  End: (${_current.endX}, ${_current.endY})',
+              l10n.manholePipelineStartEndFormat(
+                _current.startX,
+                _current.startY,
+                _current.endX,
+                _current.endY,
+              ),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -310,21 +320,25 @@ class _ManholePipelineModuleScreenState
                           child: Container(
                             margin: const EdgeInsets.all(0.5),
                             decoration: BoxDecoration(
-                              color: isStart
-                                  ? Colors.green.withValues(alpha: 0.6)
-                                  : isEnd
-                                      ? Colors.red.withValues(alpha: 0.6)
-                                      : Colors.transparent,
                               border: Border.all(
                                 color: theme.dividerColor,
                                 width: 0.5,
                               ),
                             ),
+                            clipBehavior: Clip.hardEdge,
                             child: isStart || isEnd
-                                ? Icon(
-                                    isStart ? Icons.login : Icons.logout,
-                                    size: 16,
-                                    color: Colors.white,
+                                ? SizedBox.expand(
+                                    child: AssetImageWidget(
+                                      assetPath: isStart
+                                          ? 'assets/images/griditems/steam_down.webp'
+                                          : 'assets/images/griditems/steam_up.webp',
+                                      fit: BoxFit.cover,
+                                      altCandidates: imageAltCandidates(
+                                        isStart
+                                            ? 'assets/images/griditems/steam_down.webp'
+                                            : 'assets/images/griditems/steam_up.webp',
+                                      ),
+                                    ),
                                   )
                                 : null,
                           ),

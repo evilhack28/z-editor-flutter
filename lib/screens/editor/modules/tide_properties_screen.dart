@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Tide properties editor. Ported from Z-Editor-master TidePropertiesEP.kt
@@ -75,6 +76,7 @@ class _TidePropertiesScreenState extends State<TidePropertiesScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final waterStart = 9 - _data.startingWaveLocation;
     return Scaffold(
       appBar: AppBar(
@@ -82,21 +84,21 @@ class _TidePropertiesScreenState extends State<TidePropertiesScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
-        title: const Text('Tide'),
+        title: Text(l10n?.moduleTitle_TideProperties ?? 'Tide'),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Tide',
-              sections: const [
+              title: l10n?.moduleTitle_TideProperties ?? 'Tide',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Enables tide system and sets initial tide position.',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.moduleHelpTideBody ?? 'Enables tide system and sets initial tide position.',
                 ),
                 HelpSectionData(
-                  title: 'Position',
-                  body: 'Right edge is 0, left edge is 9. Negative values allowed.',
+                  title: l10n?.position ?? 'Position',
+                  body: l10n?.moduleHelpTidePosition ?? 'Right edge is 0, left edge is 9. Negative values allowed.',
                 ),
               ],
             ),
@@ -115,7 +117,7 @@ class _TidePropertiesScreenState extends State<TidePropertiesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Initial tide position',
+                      l10n?.initialTidePosition ?? 'Initial tide position',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,
@@ -125,9 +127,9 @@ class _TidePropertiesScreenState extends State<TidePropertiesScreen> {
                     TextField(
                       controller: _startLocCtrl,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Starting wave location',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n?.startingWaveLocation ?? 'Starting wave location',
+                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (v) {
                         final n = int.tryParse(v);
@@ -149,7 +151,7 @@ class _TidePropertiesScreenState extends State<TidePropertiesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Preview',
+                      l10n?.preview ?? 'Preview',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: theme.colorScheme.primary,

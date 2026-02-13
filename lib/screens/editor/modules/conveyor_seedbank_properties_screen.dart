@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/plant_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/tool_repository.dart';
+import 'package:z_editor/data/repository/tool_repository.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart';
 
@@ -128,10 +129,11 @@ class _ConveyorSeedBankPropertiesScreenState
     });
   }
 
-  void _editPlant(InitialPlantListData item) {
+  void _editPlant(InitialPlantListData item, AppLocalizations? l10n) {
     showDialog<void>(
       context: context,
       builder: (ctx) => _PlantDetailDialog(
+        l10n: l10n,
         data: item,
         onDismiss: () => Navigator.pop(ctx),
         onConfirm: () {
@@ -145,17 +147,18 @@ class _ConveyorSeedBankPropertiesScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
-        title: const Text('Conveyor belt'),
+        title: Text(l10n?.conveyorBelt ?? 'Conveyor belt'),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
-            onPressed: () => _showHelp(context),
+            onPressed: () => _showHelp(l10n),
           ),
         ],
       ),
@@ -167,17 +170,18 @@ class _ConveyorSeedBankPropertiesScreenState
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _ConveyorPlantListEditor(
+                l10n: l10n,
                 items: _data.initialPlantList,
                 onAddPlant: _addPlant,
                 onAddTool: _addTool,
-                onEdit: _editPlant,
+                onEdit: (item) => _editPlant(item, l10n),
                 onRemove: _removePlant,
                 listKey: _listKey,
               ),
               const SizedBox(height: 20),
               _ConveyorConditionEditor(
-                title: 'Drop delay (DropDelayConditions)',
-                subtitle: 'Unit: seconds',
+                title: l10n?.dropDelayConditions ?? 'Drop delay (DropDelayConditions)',
+                subtitle: l10n?.unitSeconds ?? 'Unit: seconds',
                 headers: ('MaxPackets', 'Delay'),
                 items: _data.dropDelayConditions,
                 extractMaxPackets: (e) => e.maxPacketsDelay,
@@ -200,7 +204,7 @@ class _ConveyorSeedBankPropertiesScreenState
                   children: [
                     Expanded(
                       child: _NumberField(
-                        label: 'Threshold',
+                        label: l10n?.threshold ?? 'Threshold',
                         value: item.maxPacketsDelay,
                         onChanged: (v) {
                           item.maxPacketsDelay = v;
@@ -211,7 +215,7 @@ class _ConveyorSeedBankPropertiesScreenState
                     const SizedBox(width: 8),
                     Expanded(
                       child: _NumberField(
-                        label: 'Delay',
+                        label: l10n?.delay ?? 'Delay',
                         value: item.delay,
                         onChanged: (v) {
                           item.delay = v;
@@ -224,8 +228,8 @@ class _ConveyorSeedBankPropertiesScreenState
               ),
               const SizedBox(height: 20),
               _ConveyorConditionEditor(
-                title: 'Speed (SpeedConditions)',
-                subtitle: 'Standard value 100, higher = faster',
+                title: l10n?.speedConditions ?? 'Speed (SpeedConditions)',
+                subtitle: l10n?.speedConditionsSubtitle ?? 'Standard value 100, higher = faster',
                 headers: ('MaxPackets', 'Speed'),
                 items: _data.speedConditions,
                 extractMaxPackets: (e) => e.maxPacketsSpeed,
@@ -248,7 +252,7 @@ class _ConveyorSeedBankPropertiesScreenState
                   children: [
                     Expanded(
                       child: _NumberField(
-                        label: 'Threshold',
+                        label: l10n?.threshold ?? 'Threshold',
                         value: item.maxPacketsSpeed,
                         onChanged: (v) {
                           item.maxPacketsSpeed = v;
@@ -259,7 +263,7 @@ class _ConveyorSeedBankPropertiesScreenState
                     const SizedBox(width: 8),
                     Expanded(
                       child: _NumberField(
-                        label: 'Speed',
+                        label: l10n?.speed ?? 'Speed',
                         value: item.speed,
                         onChanged: (v) {
                           item.speed = v;
@@ -278,30 +282,30 @@ class _ConveyorSeedBankPropertiesScreenState
     );
   }
 
-  void _showHelp(BuildContext context) {
+  void _showHelp(AppLocalizations? l10n) {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Conveyor belt help'),
-        content: const SingleChildScrollView(
+        title: Text(l10n?.conveyorBeltHelp ?? 'Conveyor belt help'),
+        content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Conveyor mode randomly generates cards by weight. Configure plant pool and refresh delay.'),
-              SizedBox(height: 8),
-              Text('Plant pool & weight: Probability = weight / total weight. Use thresholds to adjust dynamically.'),
-              SizedBox(height: 8),
-              Text('Drop delay: Controls card spawn interval. More plants = slower.'),
-              SizedBox(height: 8),
-              Text('Speed: Physical belt speed. Standard = 100.'),
+              Text(l10n?.conveyorBeltHelpIntro ?? 'Conveyor mode randomly generates cards by weight. Configure plant pool and refresh delay.'),
+              const SizedBox(height: 8),
+              Text(l10n?.conveyorBeltHelpPool ?? 'Plant pool & weight: Probability = weight / total weight. Use thresholds to adjust dynamically.'),
+              const SizedBox(height: 8),
+              Text(l10n?.conveyorBeltHelpDropDelay ?? 'Drop delay: Controls card spawn interval. More plants = slower.'),
+              const SizedBox(height: 8),
+              Text(l10n?.conveyorBeltHelpSpeed ?? 'Speed: Physical belt speed. Standard = 100.'),
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
+            child: Text(l10n?.ok ?? 'OK'),
           ),
         ],
       ),
@@ -311,6 +315,7 @@ class _ConveyorSeedBankPropertiesScreenState
 
 class _ConveyorPlantListEditor extends StatelessWidget {
   const _ConveyorPlantListEditor({
+    required this.l10n,
     required this.items,
     required this.onAddPlant,
     required this.onAddTool,
@@ -319,6 +324,7 @@ class _ConveyorPlantListEditor extends StatelessWidget {
     required this.listKey,
   });
 
+  final AppLocalizations? l10n;
   final List<InitialPlantListData> items;
   final VoidCallback onAddPlant;
   final VoidCallback onAddTool;
@@ -341,7 +347,7 @@ class _ConveyorPlantListEditor extends StatelessWidget {
                 Icon(Icons.linear_scale, color: theme.colorScheme.primary),
                 const SizedBox(width: 12),
                 Text(
-                  'Conveyor card pool',
+                  l10n?.conveyorCardPool ?? 'Conveyor card pool',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -355,7 +361,7 @@ class _ConveyorPlantListEditor extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onAddPlant,
                     icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add plant'),
+                    label: Text(l10n?.addPlantConveyor ?? 'Add plant'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -363,7 +369,7 @@ class _ConveyorPlantListEditor extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onAddTool,
                     icon: const Icon(Icons.add, size: 16),
-                    label: const Text('Add tool'),
+                    label: Text(l10n?.addTool ?? 'Add tool'),
                   ),
                 ),
               ],
@@ -373,7 +379,7 @@ class _ConveyorPlantListEditor extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Text(
-                  'No cards yet. Add plants or tools.',
+                  l10n?.noCardsYetAddPlants ?? 'No cards yet. Add plants or tools.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -384,6 +390,7 @@ class _ConveyorPlantListEditor extends StatelessWidget {
                 final item = items[i];
                 return _PlantRow(
                   key: ValueKey('$listKey-$i-${item.plantType}'),
+                  l10n: l10n,
                   plant: item,
                   onEdit: () => onEdit(item),
                   onDelete: () => onRemove(i),
@@ -399,11 +406,13 @@ class _ConveyorPlantListEditor extends StatelessWidget {
 class _PlantRow extends StatelessWidget {
   const _PlantRow({
     super.key,
+    required this.l10n,
     required this.plant,
     required this.onEdit,
     required this.onDelete,
   });
 
+  final AppLocalizations? l10n;
   final InitialPlantListData plant;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
@@ -415,7 +424,7 @@ class _PlantRow extends StatelessWidget {
     final isTool = toolInfo != null;
     final plantInfo = PlantRepository().getPlantInfoById(plant.plantType);
     final displayName = isTool
-        ? toolInfo!.name
+        ? toolInfo.name
         : ResourceNames.lookup(context, PlantRepository().getName(plant.plantType));
     final iconPath = isTool
         ? (toolInfo.icon != null ? 'assets/images/tools/${toolInfo.icon}' : null)
@@ -482,7 +491,9 @@ class _PlantRow extends StatelessWidget {
                           if (!isTool) ...[
                             const SizedBox(width: 8),
                             Text(
-                              'Level: ${plant.iLevel ?? 'account'}',
+                              plant.iLevel != null
+                                  ? (l10n?.levelFormat(plant.iLevel!) ?? 'Level: ${plant.iLevel}')
+                                  : (l10n?.levelAccount ?? 'Level: account'),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -508,11 +519,13 @@ class _PlantRow extends StatelessWidget {
 
 class _PlantDetailDialog extends StatefulWidget {
   const _PlantDetailDialog({
+    required this.l10n,
     required this.data,
     required this.onDismiss,
     required this.onConfirm,
   });
 
+  final AppLocalizations? l10n;
   final InitialPlantListData data;
   final VoidCallback onDismiss;
   final VoidCallback onConfirm;
@@ -552,13 +565,14 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n ?? AppLocalizations.of(context);
     final toolInfo = ToolRepository.get(widget.data.plantType);
     final isTool = toolInfo != null;
     final displayName = toolInfo?.name ??
         ResourceNames.lookup(context, PlantRepository().getName(widget.data.plantType));
 
     return AlertDialog(
-      title: Text('Edit: $displayName'),
+      title: Text(l10n?.editAlias(displayName) ?? 'Edit: $displayName'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -568,7 +582,7 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
               children: [
                 Expanded(
                   child: _NumberField(
-                    label: 'Initial weight',
+                    label: l10n?.initialWeight ?? 'Initial weight',
                     value: _weight,
                     onChanged: (v) => setState(() => _weight = v),
                   ),
@@ -576,7 +590,7 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _NumberField(
-                    label: 'Plant level',
+                    label: l10n?.plantLevelLabel ?? 'Plant level',
                     value: _level,
                     onChanged: (v) =>
                         setState(() => _level = isTool ? 0 : v.clamp(0, 5)),
@@ -587,7 +601,7 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
             const SizedBox(height: 8),
             Text(
               isTool
-                  ? 'Tool cards use fixed level'
+                  ? (l10n?.toolCardsUseFixedLevel ?? 'Tool cards use fixed level')
                   : '0 = follow account level',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -595,7 +609,7 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
             ),
             const Divider(height: 24),
             Text(
-              'Max limits',
+              l10n?.maxLimits ?? 'Max limits',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -605,7 +619,7 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
               children: [
                 Expanded(
                   child: _NumberField(
-                    label: 'Max count threshold',
+                    label: l10n?.maxCountThreshold ?? 'Max count threshold',
                     value: _maxCount,
                     onChanged: (v) => setState(() => _maxCount = v),
                   ),
@@ -613,7 +627,7 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _DoubleField(
-                    label: 'Weight factor',
+                    label: l10n?.weightFactor ?? 'Weight factor',
                     value: _maxWeightFactor,
                     onChanged: (v) => setState(() => _maxWeightFactor = v),
                   ),
@@ -622,7 +636,7 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Min limits',
+              l10n?.minLimits ?? 'Min limits',
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -632,7 +646,7 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
               children: [
                 Expanded(
                   child: _NumberField(
-                    label: 'Min count threshold',
+                    label: l10n?.minCountThreshold ?? 'Min count threshold',
                     value: _minCount,
                     onChanged: (v) => setState(() => _minCount = v),
                   ),
@@ -640,7 +654,7 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _DoubleField(
-                    label: 'Weight factor',
+                    label: l10n?.weightFactor ?? 'Weight factor',
                     value: _minWeightFactor,
                     onChanged: (v) => setState(() => _minWeightFactor = v),
                   ),
@@ -653,11 +667,11 @@ class _PlantDetailDialogState extends State<_PlantDetailDialog> {
       actions: [
         TextButton(
           onPressed: widget.onDismiss,
-          child: const Text('Cancel'),
+          child: Text(l10n?.cancel ?? 'Cancel'),
         ),
         FilledButton(
           onPressed: _save,
-          child: const Text('OK'),
+          child: Text(l10n?.ok ?? 'OK'),
         ),
       ],
     );

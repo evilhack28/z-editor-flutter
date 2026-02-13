@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Raiding party event editor. Ported from Z-Editor-master RaidingPartyEventEP.kt
@@ -66,6 +67,7 @@ class _RaidingPartyEventScreenState extends State<RaidingPartyEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
 
     return Scaffold(
@@ -77,9 +79,9 @@ class _RaidingPartyEventScreenState extends State<RaidingPartyEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Raiding party',
+              l10n?.eventRaidingParty ?? 'Event: Raiding party',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -89,19 +91,19 @@ class _RaidingPartyEventScreenState extends State<RaidingPartyEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Raiding party event',
-              sections: const [
+              title: l10n?.eventRaidingParty ?? 'Raiding party event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Pirate港湾事件，分批依次生成飞索僵尸进攻。僵尸强制为海盗飞索，阶级随地图。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpRaidingPartyBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Group size',
-                  body: '每组所包含的僵尸数量。',
+                  title: l10n?.groupSize ?? 'Group size',
+                  body: l10n?.eventHelpRaidingPartyGroup ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Swashbuckler count',
-                  body: '该事件总共生成的僵尸数量。',
+                  title: l10n?.swashbucklerCount ?? 'Swashbuckler count',
+                  body: l10n?.eventHelpRaidingPartyCount ?? '',
                 ),
               ],
             ),

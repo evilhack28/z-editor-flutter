@@ -2,12 +2,13 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/event_registry.dart';
+import 'package:z_editor/data/registry/event_registry.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/data/wave_point_analysis.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/escape_override.dart';
 import 'package:z_editor/theme/app_theme.dart';
 import 'package:z_editor/widgets/editor_components.dart' show EventChipWidget, isDesktopPlatform;
 
@@ -23,6 +24,8 @@ class WaveTimelineTab extends StatefulWidget {
     required this.onEditWaveManagerSettings,
     this.onEditCustomZombie,
     this.openWaveSheetNotifier,
+    this.onCreateContainer,
+    this.onDeleteContainer,
   });
 
   final PvzLevelFile levelFile;
@@ -33,6 +36,8 @@ class WaveTimelineTab extends StatefulWidget {
   final VoidCallback onEditWaveManagerSettings;
   final void Function(String rtid)? onEditCustomZombie;
   final ValueNotifier<({int waveIndex, String? rtid})?>? openWaveSheetNotifier;
+  final VoidCallback? onCreateContainer;
+  final VoidCallback? onDeleteContainer;
 
   @override
   State<WaveTimelineTab> createState() => _WaveTimelineTabState();
@@ -327,6 +332,17 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
+            if (widget.onDeleteContainer != null) ...[
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+                onPressed: widget.onDeleteContainer,
+                icon: const Icon(Icons.delete_forever),
+                label: Text(l10n?.deleteEmptyContainer ?? 'Delete empty container'),
+              ),
+            ],
           ],
         ),
       ),
@@ -570,14 +586,15 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              info.alias,
+      builder: (ctx) => EscapeClosesModal(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                info.alias,
               style: Theme.of(ctx)
                   .textTheme
                   .titleMedium
@@ -653,6 +670,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -1122,21 +1140,22 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                if (meta != null) ...[
-                  Icon(meta.icon, color: meta.color),
-                  const SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: Text(
-                    alias,
+      builder: (ctx) => EscapeClosesModal(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (meta != null) ...[
+                    Icon(meta.icon, color: meta.color),
+                    const SizedBox(width: 8),
+                  ],
+                  Expanded(
+                    child: Text(
+                      alias,
                     style: Theme.of(ctx)
                         .textTheme
                         .titleMedium
@@ -1263,6 +1282,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -1276,14 +1296,15 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n?.waveEventsTitle(waveIndex) ??
+      builder: (ctx) => EscapeClosesModal(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n?.waveEventsTitle(waveIndex) ??
                   'Wave $waveIndex events',
               style: Theme.of(ctx)
                   .textTheme
@@ -1401,6 +1422,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -1445,6 +1467,14 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                     ),
                 textAlign: TextAlign.center,
               ),
+              if (widget.onCreateContainer != null) ...[
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: widget.onCreateContainer,
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n?.createEmptyWaveContainer ?? 'Create empty wave container'),
+                ),
+              ],
             ],
           ),
         ),
@@ -1580,6 +1610,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
   }
 
   void _showExpectationDialog(BuildContext context, int waveIndex, int points) {
+    final l10n = AppLocalizations.of(context);
     final expectation = WavePointAnalysis.calculateExpectation(
       points,
       widget.parsed,
@@ -1593,16 +1624,16 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
       builder: (ctx) {
         final scrollController = ScrollController();
         return AlertDialog(
-          title: Text('${AppLocalizations.of(ctx)?.waveLabel ?? "Wave"} $waveIndex ${AppLocalizations.of(ctx)?.expectation ?? "Expectation"}'),
+          title: Text('${l10n?.waveLabel ?? "Wave"} $waveIndex ${l10n?.expectation ?? "Expectation"}'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${AppLocalizations.of(ctx)?.pointsLabel ?? "Points"}: $points'),
+              Text('${l10n?.pointsLabel ?? "Points"}: $points'),
               const SizedBox(height: 16),
               if (items.isEmpty)
                 Text(
-                  AppLocalizations.of(ctx)?.noDynamicZombies ?? 'No dynamic zombies',
+                  l10n?.noDynamicZombies ?? 'No dynamic zombies',
                   style: Theme.of(ctx).textTheme.bodySmall,
                 )
               else
@@ -1642,7 +1673,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(ctx)?.close ?? 'Close'),
+            child: Text(l10n?.close ?? 'Close'),
           ),
         ],
       );

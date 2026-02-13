@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-// PVZ2-style colors from Z-Editor-master Color.kt
-const Color _pvzGreenPrimary = Color(0xFF4CAF50);
-const Color _pvzGreenDark = Color(0xFF2E7D32);
-
 /// Green for Initial Plant top bar: light green in light mode, dark green in dark mode
 const Color pvzGreenLight = Color(0xFF4CAF50);
 const Color pvzGreenDark = Color(0xFF2E7D32);
@@ -21,9 +17,29 @@ const Color pvzYellowDark = Color(0xFFF9A825);
 const Color pvzYellowLightMuted = Color(0xFFFFF59D);
 const Color pvzYellowDarkMuted = Color(0xFFFFB300);
 
+/// Snackbar background: save failed (dark yellow / light yellow)
+const Color snackbarFailedDark = Color(0xFFB38600);
+const Color snackbarFailedLight = Color(0xFFFFF59D);
+
+/// Warning bar: missing modules (different yellow for dark/light theme)
+const Color warningBarDark = Color(0xFFFFEB3B);
+const Color warningBarLight = Color(0xFF8D6E00);
+
 /// Purple for Custom Zombie card in Wave Timeline (matches Kotlin PvzPurpleLight/Dark)
 const Color pvzPurpleLight = Color(0xFF673AB7);
 const Color pvzPurpleDark = Color(0xFF8F76BB);
+
+/// Brown for Tunnel Defend, Zombie Rush (matches Kotlin PvzBrownLight/Dark)
+const Color pvzBrownLight = Color(0xFF795548);
+const Color pvzBrownDark = Color(0xFF6E5E57);
+
+/// Light orange for Max Sun module (matches Kotlin PvzLightOrangeLight/Dark)
+const Color pvzLightOrangeLight = Color(0xFFFF9800);
+const Color pvzLightOrangeDark = Color(0xFFFFC97A);
+
+/// Cyan for Starting Plantfood module (matches Kotlin PvzCyanLight/Dark)
+const Color pvzCyanLight = Color(0xFF009688);
+const Color pvzCyanDark = Color(0xFF479891);
 
 /// Usage guide card: dark blue in dark mode, light blue in light mode
 const Color usageGuideDarkBg = Color(0xFF1C4D7C);
@@ -44,10 +60,10 @@ ThemeData get lightTheme {
   return ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.light(
-      primary: _pvzGreenPrimary,
+      primary: pvzGreenLight,
       onPrimary: Colors.white,
       primaryContainer: _pvzGreenContainer,
-      onPrimaryContainer: _pvzGreenDark,
+      onPrimaryContainer: pvzGreenDark,
       secondary: _pvzBluePrimary,
       onSecondary: Colors.white,
       surface: _lightSurface,
@@ -72,9 +88,9 @@ ThemeData get darkTheme {
   return ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme.dark(
-      primary: _pvzGreenPrimary,
+      primary: pvzGreenLight,
       onPrimary: Colors.black87,
-      primaryContainer: _pvzGreenDark,
+      primaryContainer: pvzGreenDark,
       onPrimaryContainer: Colors.white,
       secondary: _pvzBluePrimary,
       onSecondary: Colors.black87,

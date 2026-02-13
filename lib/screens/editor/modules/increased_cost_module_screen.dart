@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 
@@ -80,7 +81,7 @@ class _IncreasedCostModuleScreenState extends State<IncreasedCostModuleScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: widget.onBack),
-        title: const Text('Increased Cost'),
+        title: Text(AppLocalizations.of(context)?.increasedCost ?? 'Increased Cost'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -91,7 +92,7 @@ class _IncreasedCostModuleScreenState extends State<IncreasedCostModuleScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Inflation params',
+                  AppLocalizations.of(context)?.inflationParams ?? 'Inflation params',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -100,9 +101,9 @@ class _IncreasedCostModuleScreenState extends State<IncreasedCostModuleScreen> {
                 TextField(
                   controller: _baseCostCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Base cost increase (BaseCostIncreased)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)?.baseCostIncreaseLabel ?? 'Base cost increase (BaseCostIncreased)',
+                    border: const OutlineInputBorder(),
                   ),
                   onChanged: (v) {
                     final n = int.tryParse(v);
@@ -116,9 +117,9 @@ class _IncreasedCostModuleScreenState extends State<IncreasedCostModuleScreen> {
                 TextField(
                   controller: _maxCountCtrl,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Max increase count (MaxIncreasedCount)',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)?.maxIncreaseCountLabel ?? 'Max increase count (MaxIncreasedCount)',
+                    border: const OutlineInputBorder(),
                   ),
                   onChanged: (v) {
                     final n = int.tryParse(v);

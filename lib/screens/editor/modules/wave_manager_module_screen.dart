@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/zombie_properties_repository.dart';
-import 'package:z_editor/data/zombie_repository.dart';
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/theme/app_theme.dart';
 import 'package:z_editor/widgets/asset_image.dart'
@@ -24,7 +25,8 @@ class WaveManagerModuleScreen extends StatefulWidget {
   final PvzLevelFile levelFile;
   final VoidCallback onChanged;
   final VoidCallback onBack;
-  final void Function(void Function(String) onSelected) onRequestZombieSelection;
+  final void Function(void Function(String) onSelected)
+  onRequestZombieSelection;
 
   @override
   State<WaveManagerModuleScreen> createState() =>
@@ -37,6 +39,7 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
   late TextEditingController _startWaveCtrl;
   late TextEditingController _startPointsCtrl;
   late TextEditingController _pointIncrementCtrl;
+  bool _pointSpawningEnabled = true;
 
   @override
   void initState() {
@@ -67,6 +70,7 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
       _data = WaveManagerModuleData();
     }
 
+    _pointSpawningEnabled = _data.dynamicZombies.isNotEmpty;
     if (_data.dynamicZombies.isEmpty) {
       _data.dynamicZombies.add(DynamicZombieGroup());
     } else {
@@ -86,12 +90,11 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
     }
 
     final first = _data.dynamicZombies.first;
-    _startWaveCtrl =
-        TextEditingController(text: '${first.startingWave}');
-    _startPointsCtrl =
-        TextEditingController(text: '${first.startingPoints}');
-    _pointIncrementCtrl =
-        TextEditingController(text: '${first.pointIncrement}');
+    _startWaveCtrl = TextEditingController(text: '${first.startingWave}');
+    _startPointsCtrl = TextEditingController(text: '${first.startingPoints}');
+    _pointIncrementCtrl = TextEditingController(
+      text: '${first.pointIncrement}',
+    );
   }
 
   void _sync() {
@@ -108,18 +111,22 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
     int? pointIncrement,
   }) {
     _firstGroup.startingWave = startingWave ?? _firstGroup.startingWave;
-    _firstGroup.startingPoints =
-        startingPoints ?? _firstGroup.startingPoints;
+    _firstGroup.startingPoints = startingPoints ?? _firstGroup.startingPoints;
     _firstGroup.pointIncrement = pointIncrement ?? _firstGroup.pointIncrement;
     _sync();
   }
 
   void _addZombie() {
+    final l10n = AppLocalizations.of(context);
     widget.onRequestZombieSelection((selectedId) {
       final isElite = ZombieRepository().isElite(selectedId);
       if (isElite) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Elite zombies are not allowed here')),
+          SnackBar(
+            content: Text(
+              l10n?.eliteZombiesNotAllowed ?? 'Elite zombies are not allowed here',
+            ),
+          ),
         );
         return;
       }
@@ -158,6 +165,7 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     // Light: light green card, purple section titles. Dark: vibrant green card, purplish-pink titles.
@@ -168,9 +176,7 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
     final propsSubtextColor = isDark
         ? Colors.white.withValues(alpha: 0.9)
         : const Color(0xFF689F38);
-    final sectionTitleColor = isDark
-        ? pvzPurpleDark
-        : pvzPurpleLight;
+    final sectionTitleColor = isDark ? pvzPurpleDark : pvzPurpleLight;
     final contentCardColor = isDark
         ? theme.colorScheme.surfaceContainerHighest
         : theme.colorScheme.surface;
@@ -180,42 +186,50 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
       orElse: () => PvzObject(objClass: '', objData: {}),
     );
     final aliases = propsObj.aliases;
-    final actualWaveMgrAlias =
-        aliases != null && aliases.isNotEmpty ? aliases.first : null;
+    final actualWaveMgrAlias = aliases != null && aliases.isNotEmpty
+        ? aliases.first
+        : null;
 
-    final currentPropsAlias =
-        RtidParser.parse(_data.waveManagerProps ?? '')?.alias;
-    final isPropsValid = actualWaveMgrAlias != null &&
-        currentPropsAlias == actualWaveMgrAlias;
+    final currentPropsAlias = RtidParser.parse(
+      _data.waveManagerProps ?? '',
+    )?.alias;
+    final isPropsValid =
+        actualWaveMgrAlias != null && currentPropsAlias == actualWaveMgrAlias;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
         backgroundColor: sectionTitleColor,
         foregroundColor: Colors.white,
-        title: const Text('Wave manager module'),
+        title: Text(l10n?.waveManagerModule ?? 'Wave manager module'),
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
-            onPressed: () => showEditorHelpDialog(
-              context,
-              title: 'Wave manager module',
-              sections: const [
-                HelpSectionData(
-                  title: 'Overview',
-                  body:
-                      'Enables wave manager. Without this module, wave editing is disabled.',
-                ),
-                HelpSectionData(
-                  title: 'Points',
-                  body:
-                      'Point-based spawning uses this pool. Avoid elite and custom zombies.',
-                ),
-              ],
-            ),
+            tooltip: l10n?.tooltipAboutModule ?? 'About this module',
+            onPressed: () {
+              showEditorHelpDialog(
+                context,
+                title: l10n?.waveManagerModule ?? 'Wave manager module',
+                sections: [
+                  HelpSectionData(
+                    title: l10n?.overview ?? 'Overview',
+                    body:
+                        l10n?.waveManagerHelpOverview ??
+                        'Enables wave manager. Without this module, wave editing is disabled.',
+                  ),
+                  HelpSectionData(
+                    title: l10n?.pointsSection ?? 'Points',
+                    body:
+                        l10n?.waveManagerHelpPoints ??
+                        'Point-based spawning uses this pool. Avoid elite and custom zombies.',
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -236,7 +250,9 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
                         Icon(
                           isPropsValid ? Icons.check_circle : Icons.warning,
                           color: isPropsValid
-                              ? (isDark ? Colors.white : const Color(0xFF2E7D32))
+                              ? (isDark
+                                    ? Colors.white
+                                    : const Color(0xFF2E7D32))
                               : theme.colorScheme.onError,
                         ),
                         const SizedBox(width: 8),
@@ -244,7 +260,9 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
                           'WaveManagerProps',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: isPropsValid ? propsTextColor : theme.colorScheme.onError,
+                            color: isPropsValid
+                                ? propsTextColor
+                                : theme.colorScheme.onError,
                           ),
                         ),
                       ],
@@ -253,14 +271,17 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
                     Text(
                       'Current: ${_data.waveManagerProps ?? "null"}',
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: isPropsValid ? propsSubtextColor : theme.colorScheme.onError,
+                        color: isPropsValid
+                            ? propsSubtextColor
+                            : theme.colorScheme.onError,
                       ),
                     ),
                     if (actualWaveMgrAlias == null)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          'No WaveManagerProperties object found.',
+                          l10n?.noWaveManagerPropsFound ??
+                              'No WaveManagerProperties object found.',
                           style: TextStyle(
                             color: theme.colorScheme.onError,
                             fontSize: 12,
@@ -276,11 +297,16 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
                             foregroundColor: theme.colorScheme.onPrimary,
                           ),
                           onPressed: () {
-                            _data.waveManagerProps =
-                                RtidParser.build(actualWaveMgrAlias, 'CurrentLevel');
+                            _data.waveManagerProps = RtidParser.build(
+                              actualWaveMgrAlias,
+                              'CurrentLevel',
+                            );
                             _sync();
                           },
-                          child: Text('Fix to $actualWaveMgrAlias'),
+                          child: Text(
+                            l10n?.fixToAlias(actualWaveMgrAlias) ??
+                                'Fix to $actualWaveMgrAlias',
+                          ),
                         ),
                       ),
                   ],
@@ -288,154 +314,229 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              'Point settings',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: sectionTitleColor,
-              ),
-            ),
-            const SizedBox(height: 8),
             Card(
               color: contentCardColor,
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Column(
+                child: Row(
                   children: [
-                    _intField(
-                      controller: _startWaveCtrl,
-                      label: 'Starting wave',
-                      onChanged: (v) {
-                        final n = int.tryParse(v);
-                        if (n != null) _updateFirstGroup(startingWave: n);
-                      },
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n?.enablePointSpawning ??
+                                'Enable point spawning',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _pointSpawningEnabled
+                                ? (l10n?.pointSpawningEnabledDesc ??
+                                      'Enabled (uses extra points for spawning)')
+                                : (l10n?.pointSpawningDisabledDesc ??
+                                      'Disabled (wave events only)'),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    _intField(
-                      controller: _startPointsCtrl,
-                      label: 'Starting points',
+                    Switch(
+                      value: _pointSpawningEnabled,
                       onChanged: (v) {
-                        final n = int.tryParse(v);
-                        if (n != null) _updateFirstGroup(startingPoints: n);
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    _intField(
-                      controller: _pointIncrementCtrl,
-                      label: 'Point increment',
-                      onChanged: (v) {
-                        final n = int.tryParse(v);
-                        if (n != null) _updateFirstGroup(pointIncrement: n);
+                        setState(() {
+                          _pointSpawningEnabled = v;
+                          if (v) {
+                            if (_data.dynamicZombies.isEmpty) {
+                              _data.dynamicZombies.add(
+                                DynamicZombieGroup(
+                                  startingWave: 3,
+                                  startingPoints: 100,
+                                  pointIncrement: 40,
+                                  zombiePool: [],
+                                  zombieLevel: [],
+                                ),
+                              );
+                            }
+                          } else {
+                            _data.dynamicZombies = [];
+                          }
+                          _sync();
+                        });
                       },
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Text(
-                  'Zombie pool',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: sectionTitleColor,
-                  ),
+            if (_pointSpawningEnabled) ...[
+              const SizedBox(height: 16),
+              Text(
+                l10n?.pointSettings ?? 'Point settings',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: sectionTitleColor,
                 ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: _addZombie,
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            ..._firstGroup.zombiePool.asMap().entries.map((entry) {
-              final idx = entry.key;
-              final rtid = entry.value;
-              final alias = RtidParser.parse(rtid)?.alias ?? rtid;
-              final typeName = ZombiePropertiesRepository.getTypeNameByAlias(alias);
-              final info = ZombieRepository().getZombieById(typeName) ??
-                  ZombieRepository().getZombieById(alias);
-              final nameKey = info?.name ?? ZombieRepository().getName(typeName);
-              final displayName = ResourceNames.lookup(context, nameKey);
-              final level = _firstGroup.zombieLevel.elementAt(idx);
-              final iconPath = info?.iconAssetPath;
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
+              ),
+              const SizedBox(height: 8),
+              Card(
                 color: contentCardColor,
                 child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Row(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: SizedBox(
-                          width: 48,
-                          height: 48,
-                          child: iconPath != null
-                              ? AssetImageWidget(
-                                  assetPath: iconPath,
-                                  altCandidates: imageAltCandidates(iconPath),
-                                  width: 48,
-                                  height: 48,
-                                  fit: BoxFit.cover,
-                                )
-                              : Container(
-                                  color: theme.colorScheme.surfaceContainerHighest,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    displayName.isNotEmpty
-                                        ? displayName[0].toUpperCase()
-                                        : '?',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                        ),
+                      _intField(
+                        controller: _startWaveCtrl,
+                        label: l10n?.startingWave ?? 'Starting wave',
+                        onChanged: (v) {
+                          final n = int.tryParse(v);
+                          if (n != null) _updateFirstGroup(startingWave: n);
+                        },
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              displayName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              'Level: $level',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: level >= 6
-                                    ? theme.colorScheme.error
-                                    : theme.colorScheme.primary,
-                              ),
-                            ),
-                          ],
-                        ),
+                      const SizedBox(height: 8),
+                      _intField(
+                        controller: _startPointsCtrl,
+                        label: l10n?.startingPoints ?? 'Starting points',
+                        onChanged: (v) {
+                          final n = int.tryParse(v);
+                          if (n != null) _updateFirstGroup(startingPoints: n);
+                        },
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: level > 1 ? () => _changeLevel(idx, -1) : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: level < 10 ? () => _changeLevel(idx, 1) : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () => _removeZombie(idx),
+                      const SizedBox(height: 8),
+                      _intField(
+                        controller: _pointIncrementCtrl,
+                        label: l10n?.pointIncrement ?? 'Point increment',
+                        onChanged: (v) {
+                          final n = int.tryParse(v);
+                          if (n != null) _updateFirstGroup(pointIncrement: n);
+                        },
                       ),
                     ],
                   ),
                 ),
-              );
-            }),
-            const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Text(
+                    l10n?.zombiePool ?? 'Zombie pool',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: sectionTitleColor,
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: _addZombie,
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n?.add ?? 'Add'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ..._firstGroup.zombiePool.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final rtid = entry.value;
+                final alias = RtidParser.parse(rtid)?.alias ?? rtid;
+                final typeName = ZombiePropertiesRepository.getTypeNameByAlias(
+                  alias,
+                );
+                final info =
+                    ZombieRepository().getZombieById(typeName) ??
+                    ZombieRepository().getZombieById(alias);
+                final nameKey =
+                    info?.name ?? ZombieRepository().getName(typeName);
+                final displayName = ResourceNames.lookup(context, nameKey);
+                final level = _firstGroup.zombieLevel.elementAt(idx);
+                final iconPath = info?.iconAssetPath;
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  color: contentCardColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: iconPath != null
+                                ? AssetImageWidget(
+                                    assetPath: iconPath,
+                                    altCandidates: imageAltCandidates(iconPath),
+                                    width: 48,
+                                    height: 48,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Container(
+                                    color: theme
+                                        .colorScheme
+                                        .surfaceContainerHighest,
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      displayName.isNotEmpty
+                                          ? displayName[0].toUpperCase()
+                                          : '?',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                displayName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                l10n?.levelFormat(level) ?? 'Level: $level',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: level >= 6
+                                      ? theme.colorScheme.error
+                                      : theme.colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          tooltip: l10n?.remove ?? 'Remove',
+                          onPressed: level > 1
+                              ? () => _changeLevel(idx, -1)
+                              : null,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          tooltip: l10n?.add ?? 'Add',
+                          onPressed: level < 10
+                              ? () => _changeLevel(idx, 1)
+                              : null,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          tooltip: l10n?.delete ?? 'Delete',
+                          onPressed: () => _removeZombie(idx),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 24),
+            ],
           ],
         ),
       ),
@@ -450,7 +551,10 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
     return TextField(
       controller: controller,
       keyboardType: TextInputType.number,
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
       onChanged: onChanged,
     );
   }

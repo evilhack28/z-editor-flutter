@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Fairy tale fog event editor. Ported from Z-Editor-master FairyTaleFogWaveActionPropsEP.kt
@@ -80,6 +81,7 @@ class _FairyTaleFogEventScreenState extends State<FairyTaleFogEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
 
     return Scaffold(
@@ -91,9 +93,9 @@ class _FairyTaleFogEventScreenState extends State<FairyTaleFogEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Fairy fog',
+              l10n?.eventFairyFog ?? 'Event: Fairy fog',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -103,15 +105,15 @@ class _FairyTaleFogEventScreenState extends State<FairyTaleFogEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Fairy fog event',
-              sections: const [
+              title: l10n?.eventFairyFog ?? 'Fairy fog event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: '本事件用于生成覆盖场地、给僵尸提供护盾的迷雾，常用于童话森林关卡，只有微风事件才能吹散。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpFairyFogBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Range',
-                  body: 'mX 和 mY 为计算中心点，mWidth 和 mHeight 分别表示含中心点向右和向下延伸的距离。',
+                  title: l10n?.range ?? 'Range',
+                  body: l10n?.eventHelpFairyFogRange ?? '',
                 ),
               ],
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 
 /// Last stand minigame. Ported from Z-Editor-master LastStandMinigamePropertiesEP.kt
@@ -74,7 +75,7 @@ class _LastStandMinigameScreenState extends State<LastStandMinigameScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Last stand settings'),
+        title: Text(AppLocalizations.of(context)?.lastStandSettings ?? 'Last stand settings'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,

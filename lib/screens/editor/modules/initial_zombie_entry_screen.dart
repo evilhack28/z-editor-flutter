@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
-import 'package:z_editor/data/zombie_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/screens/select/zombie_selection_screen.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
@@ -90,7 +91,7 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
             final isElite = repo.getZombieById(id)?.tags.contains(ZombieTag.elite) ?? false;
             if (isElite) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Cannot add elite zombies')),
+                SnackBar(content: Text(AppLocalizations.of(context)?.cannotAddEliteZombies ?? 'Cannot add elite zombies')),
               );
               return;
             }
@@ -147,7 +148,7 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Initial zombie layout'),
+        title: Text(AppLocalizations.of(context)?.initialZombieLayout ?? 'Initial zombie layout'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
@@ -172,7 +173,7 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Selected position',
+                                  AppLocalizations.of(context)?.selectedPosition ?? 'Selected position',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
@@ -190,7 +191,7 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
                             FilledButton.icon(
                               onPressed: _handleAddZombie,
                               icon: const Icon(Icons.add, size: 18),
-                              label: const Text('Place zombie'),
+                              label: Text(AppLocalizations.of(context)?.placeZombie ?? 'Place zombie'),
                             ),
                           ],
                         ),
@@ -202,7 +203,7 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Zombie list (row-first)',
+                  AppLocalizations.of(context)?.zombieList ?? 'Zombie list (row-first)',
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurfaceVariant,
@@ -525,29 +526,29 @@ class _InitialZombieEditDialogState extends State<_InitialZombieEditDialog> {
     final nameKey = ZombieRepository().getName(widget.placement.typeName);
     final name = ResourceNames.lookup(context, nameKey);
     return AlertDialog(
-      title: Text('Edit preset zombie: $name'),
+      title: Text(AppLocalizations.of(context)?.editPresetZombie(name) ?? 'Edit preset zombie: $name'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SwitchListTile(
-              title: const Text('Manual input'),
+              title: Text(AppLocalizations.of(context)?.manualInput ?? 'Manual input'),
               value: _isCustomInput,
               onChanged: (v) => setState(() => _isCustomInput = v),
             ),
             if (_isCustomInput) ...[
               TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Enter condition value',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)?.enterConditionValue ?? 'Enter condition value',
+                  border: const OutlineInputBorder(),
                 ),
                 controller: _conditionController,
                 onChanged: (v) => setState(() => _condition = v),
               ),
               const SizedBox(height: 8),
               Text(
-                'Custom input must be accurate',
+                AppLocalizations.of(context)?.customInputHint ?? 'Custom input must be accurate',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -558,9 +559,9 @@ class _InitialZombieEditDialogState extends State<_InitialZombieEditDialog> {
                         .any((e) => e.$1 == _condition)
                     ? _condition
                     : _InitialZombieEntryScreenState._zombieConditions.first.$1,
-                decoration: const InputDecoration(
-                  labelText: 'Preset conditions',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)?.presetConditions ?? 'Preset conditions',
+                  border: const OutlineInputBorder(),
                 ),
                 items: _InitialZombieEntryScreenState._zombieConditions
                     .map((e) => DropdownMenuItem(
@@ -574,7 +575,7 @@ class _InitialZombieEditDialogState extends State<_InitialZombieEditDialog> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Select from preset condition list',
+                AppLocalizations.of(context)?.selectFromPresetHint ?? 'Select from preset condition list',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -591,9 +592,9 @@ class _InitialZombieEditDialogState extends State<_InitialZombieEditDialog> {
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.error,
           ),
-          child: const Text('Delete'),
+          child: Text(AppLocalizations.of(context)?.delete ?? 'Delete'),
         ),
-        TextButton(onPressed: widget.onCancel, child: const Text('Cancel')),
+        TextButton(onPressed: widget.onCancel, child: Text(AppLocalizations.of(context)?.cancel ?? 'Cancel')),
         FilledButton(
           onPressed: () {
             final cond = _isCustomInput
@@ -606,7 +607,7 @@ class _InitialZombieEditDialogState extends State<_InitialZombieEditDialog> {
               condition: cond,
             ));
           },
-          child: const Text('Save'),
+          child: Text(AppLocalizations.of(context)?.save ?? 'Save'),
         ),
       ],
     );

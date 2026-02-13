@@ -1,8 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/plant_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart';
 import 'package:z_editor/widgets/editor_components.dart';
@@ -77,6 +78,7 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final info = RtidParser.parse(widget.rtid);
     final alias = info?.alias ?? '';
     final hasConveyor = widget.levelFile.objects
@@ -91,9 +93,9 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Conveyor modify',
+              l10n?.eventConveyorModify ?? 'Event: Conveyor modify',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -103,19 +105,19 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Conveyor modify event',
-              sections: const [
+              title: l10n?.eventConveyorModify ?? 'Conveyor modify event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Change conveyor belt configuration during a wave. Add or remove plants.',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpModifyConveyorBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Add',
-                  body: 'Add plants to the conveyor belt.',
+                  title: l10n?.add ?? 'Add',
+                  body: l10n?.eventHelpModifyConveyorAdd ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Remove',
-                  body: 'Remove plants from the conveyor belt.',
+                  title: l10n?.remove ?? 'Remove',
+                  body: l10n?.eventHelpModifyConveyorRemove ?? '',
                 ),
               ],
             ),
@@ -149,9 +151,9 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
                   ),
                 ),
               if (!hasConveyor) const SizedBox(height: 16),
-              _buildAddListCard(theme),
+              _buildAddListCard(theme, l10n),
               const SizedBox(height: 16),
-              _buildRemoveListCard(theme),
+              _buildRemoveListCard(theme, l10n),
               const SizedBox(height: 32),
             ],
           ),
@@ -160,7 +162,7 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
     );
   }
 
-  Widget _buildAddListCard(ThemeData theme) {
+  Widget _buildAddListCard(ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -171,7 +173,7 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Add plants',
+                  l10n?.addPlants ?? 'Add plants',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -199,7 +201,7 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
                     });
                   },
                   size: 40,
-                  label: 'Add',
+                  label: l10n?.add ?? 'Add',
                 ),
               ],
             ),
@@ -228,7 +230,7 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
                     context,
                     PlantRepository().getName(plantId),
                   )),
-                  subtitle: Text('Weight: ${p.weight}, Max: ${p.maxCount}'),
+                  subtitle: Text(l10n?.weightMaxFormat(p.weight, p.maxCount) ?? 'Weight: ${p.weight}, Max: ${p.maxCount}'),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete_outline),
                     onPressed: () {
@@ -245,7 +247,7 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
     );
   }
 
-  Widget _buildRemoveListCard(ThemeData theme) {
+  Widget _buildRemoveListCard(ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -256,7 +258,7 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Remove plants',
+                  l10n?.removePlants ?? 'Remove plants',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -272,7 +274,7 @@ class _ModifyConveyorEventScreenState extends State<ModifyConveyorEventScreen> {
                     });
                   },
                   size: 40,
-                  label: 'Add',
+                  label: l10n?.add ?? 'Add',
                 ),
               ],
             ),

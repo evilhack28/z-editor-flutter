@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Beach stage / low tide event editor. Ported from Z-Editor-master BeachStageEventEP.kt
@@ -69,6 +70,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final info = RtidParser.parse(widget.rtid);
     final alias = info?.alias ?? '';
 
@@ -81,9 +83,9 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Low tide spawn',
+              l10n?.eventDesc_BeachStageEventZombieSpawnerProps ?? 'Event: Low tide spawn',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -93,11 +95,11 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Low tide event',
-              sections: const [
+              title: l10n?.eventTitle_BeachStageEventZombieSpawnerProps ?? 'Low tide event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Zombies spawn at low tide. Used for Pirate Seas.',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpBeachStageBody ?? 'Zombies spawn at low tide. Used for Pirate Seas.',
                 ),
               ],
             ),
@@ -111,13 +113,13 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildZombieConfigCard(theme),
+              _buildZombieConfigCard(context, theme, l10n),
               const SizedBox(height: 16),
-              _buildCountCard(theme),
+              _buildCountCard(context, theme, l10n),
               const SizedBox(height: 16),
-              _buildRangeTimeCard(theme),
+              _buildRangeTimeCard(context, theme, l10n),
               const SizedBox(height: 16),
-              _buildMessageCard(theme),
+              _buildMessageCard(context, theme, l10n),
               const SizedBox(height: 32),
             ],
           ),
@@ -126,7 +128,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
     );
   }
 
-  Widget _buildZombieConfigCard(ThemeData theme) {
+  Widget _buildZombieConfigCard(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -134,7 +136,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Zombie type (ZombieName)',
+              l10n?.zombieTypeZombieName ?? 'Zombie type (ZombieName)',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -144,7 +146,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    _data.zombieName.isEmpty ? 'None' : _data.zombieName,
+                    _data.zombieName.isEmpty ? (l10n?.jamNone ?? 'None') : _data.zombieName,
                     style: theme.textTheme.bodyLarge,
                   ),
                 ),
@@ -164,7 +166,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
                       _sync();
                     });
                   },
-                  child: const Text('Select zombie'),
+                  child: Text(l10n?.selectZombie ?? 'Select zombie'),
                 ),
               ],
             ),
@@ -174,7 +176,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
     );
   }
 
-  Widget _buildCountCard(ThemeData theme) {
+  Widget _buildCountCard(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -182,7 +184,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Spawn count',
+              l10n?.spawnCount ?? 'Spawn count',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -193,8 +195,8 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _data.zombieCount.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Zombie count',
+                    decoration: InputDecoration(
+                      labelText: l10n?.zombieCount ?? 'Zombie count',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -220,8 +222,8 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _data.groupSize.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Group size',
+                    decoration: InputDecoration(
+                      labelText: l10n?.groupSize ?? 'Group size',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -251,7 +253,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
     );
   }
 
-  Widget _buildRangeTimeCard(ThemeData theme) {
+  Widget _buildRangeTimeCard(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -259,7 +261,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Column range & timing',
+              l10n?.columnRangeTiming ?? 'Column range & timing',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -270,8 +272,8 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _data.columnStart.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Start column',
+                    decoration: InputDecoration(
+                      labelText: l10n?.startColumn ?? 'Start column',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -297,8 +299,8 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _data.columnEnd.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'End column',
+                    decoration: InputDecoration(
+                      labelText: l10n?.endColumn ?? 'End column',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -328,8 +330,8 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _data.timeBetweenGroups.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Time between groups (s)',
+                    decoration: InputDecoration(
+                      labelText: l10n?.timeBetweenGroups ?? 'Time between groups (s)',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -355,8 +357,8 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _data.timeBeforeFullSpawn.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Time before spawn (s)',
+                    decoration: InputDecoration(
+                      labelText: l10n?.timeBeforeSpawn ?? 'Time before spawn (s)',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -386,7 +388,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
     );
   }
 
-  Widget _buildMessageCard(ThemeData theme) {
+  Widget _buildMessageCard(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -394,7 +396,7 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Wave start message',
+              l10n?.waveStartMessage ?? 'Wave start message',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -402,8 +404,8 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
             const SizedBox(height: 8),
             TextFormField(
               initialValue: _data.waveStartMessage,
-              decoration: const InputDecoration(
-                hintText: 'Optional',
+              decoration: InputDecoration(
+                hintText: l10n?.optional ?? 'Optional',
                 border: OutlineInputBorder(),
               ),
               onChanged: (v) {

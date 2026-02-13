@@ -1,5 +1,187 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
+
+/// Shows challenge editor in an alert dialog instead of a separate screen.
+Future<void> showChallengeEditorDialog(
+  BuildContext context, {
+  required PvzObject object,
+  required VoidCallback onChanged,
+}) async {
+  final l10n = AppLocalizations.of(context);
+  final title = _friendlyTitleFor(object.objClass, l10n);
+  await showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(title),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: ChallengeEditorContent(object: object, onChanged: onChanged, l10n: l10n),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(l10n?.cancel ?? 'Cancel'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(ctx),
+          child: Text(l10n?.save ?? 'Save'),
+        ),
+      ],
+    ),
+  );
+}
+
+String _friendlyTitleFor(String objClass, AppLocalizations? l10n) {
+  switch (objClass) {
+    case 'ProtectThePlantChallengeProperties':
+      return l10n?.protectPlants ?? 'Protect plants';
+    case 'ProtectTheGridItemChallengeProperties':
+      return l10n?.protectGridItems ?? 'Protect grid items';
+    case 'SunBombChallengeProperties':
+      return l10n?.sunBomb ?? 'Sun bomb';
+    case 'ZombiePotionModuleProperties':
+      return l10n?.zombiePotion ?? 'Zombie potion';
+    case 'PennyClassroomModuleProperties':
+      return l10n?.pennyClassroom ?? 'Penny classroom';
+    case 'ManholePipelineModuleProperties':
+      return l10n?.manholePipeline ?? 'Manhole pipeline';
+    case 'StarChallengeBeatTheLevelProps':
+      return l10n?.levelHintText ?? 'Level hint text';
+    default:
+      return objClass;
+  }
+}
+
+/// Shared editor content used by both full screen and dialog.
+class ChallengeEditorContent extends StatelessWidget {
+  const ChallengeEditorContent({
+    super.key,
+    required this.object,
+    required this.onChanged,
+    this.l10n,
+  });
+
+  final PvzObject object;
+  final VoidCallback onChanged;
+  final AppLocalizations? l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = this.l10n ?? AppLocalizations.of(context);
+    switch (object.objClass) {
+      case 'StarChallengeBeatTheLevelProps':
+        return _BeatTheLevelEditor(l10n: l10n, object: object, onChanged: onChanged);
+      case 'StarChallengeSaveMowersProps':
+      case 'StarChallengePlantFoodNonuseProps':
+        return Center(
+          child: Text(l10n?.challengeNoConfig ?? "This challenge doesn't support configuration."),
+        );
+      case 'StarChallengePlantsSurviveProps':
+        return _SimpleCountEditor(
+          object: object,
+          field: 'Count',
+          label: l10n?.count ?? 'Count',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeZombieDistanceProps':
+        return _SimpleDoubleEditor(
+          object: object,
+          field: 'TargetDistance',
+          label: l10n?.targetDistance ?? 'Target Distance',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeSunProducedProps':
+        return _SimpleCountEditor(
+          object: object,
+          field: 'TargetSun',
+          label: l10n?.targetSun ?? 'Target Sun',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeSunUsedProps':
+        return _SimpleCountEditor(
+          object: object,
+          field: 'MaximumSun',
+          label: l10n?.maximumSun ?? 'Maximum Sun',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeSpendSunHoldoutProps':
+        return _SimpleCountEditor(
+          object: object,
+          field: 'HoldoutSeconds',
+          label: l10n?.holdoutSeconds ?? 'Holdout Seconds',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeKillZombiesInTimeProps':
+        return _KillZombiesInTimeEditor(l10n: l10n, object: object, onChanged: onChanged);
+      case 'StarChallengeZombieSpeedProps':
+        return _SimpleDoubleEditor(
+          object: object,
+          field: 'SpeedModifier',
+          label: l10n?.speedModifier ?? 'Speed Modifier',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeSunReducedProps':
+        return _SimpleDoubleEditor(
+          object: object,
+          field: 'sunModifier',
+          label: l10n?.sunModifier ?? 'Sun Modifier',
+          onChanged: onChanged,
+        );
+      case 'StarChallengePlantsLostProps':
+        return _SimpleCountEditor(
+          object: object,
+          field: 'MaximumPlantsLost',
+          label: l10n?.maximumPlantsLost ?? 'Maximum Plants Lost',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeSimultaneousPlantsProps':
+        return _SimpleCountEditor(
+          object: object,
+          field: 'MaximumPlants',
+          label: l10n?.maximumPlants ?? 'Maximum Plants',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeUnfreezePlantsProps':
+        return _SimpleCountEditor(
+          object: object,
+          field: 'Count',
+          label: l10n?.count ?? 'Count',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeBlowZombieProps':
+        return _SimpleCountEditor(
+          object: object,
+          field: 'Count',
+          label: l10n?.count ?? 'Count',
+          onChanged: onChanged,
+        );
+      case 'StarChallengeTargetScoreProps':
+        return _SimpleCountEditor(
+          object: object,
+          field: 'TargetScore',
+          label: l10n?.targetScore ?? 'Target Score',
+          onChanged: onChanged,
+        );
+      case 'ProtectThePlantChallengeProperties':
+        return _ProtectThePlantEditor(l10n: l10n, object: object, onChanged: onChanged);
+      case 'ProtectTheGridItemChallengeProperties':
+        return _ProtectTheGridItemEditor(l10n: l10n, object: object, onChanged: onChanged);
+      case 'SunBombChallengeProperties':
+        return _SunBombEditor(l10n: l10n, object: object, onChanged: onChanged);
+      case 'ZombiePotionModuleProperties':
+        return _ZombiePotionModuleEditor(l10n: l10n, object: object, onChanged: onChanged);
+      case 'PennyClassroomModuleProperties':
+        return _PennyClassroomEditor(l10n: l10n, object: object, onChanged: onChanged);
+      case 'ManholePipelineModuleProperties':
+        return _ManholePipelineEditor(l10n: l10n, object: object, onChanged: onChanged);
+      default:
+        return Text(l10n?.unknownChallengeType ?? 'Unknown challenge type');
+    }
+  }
+}
 
 class ChallengeEditorScreen extends StatefulWidget {
   const ChallengeEditorScreen({
@@ -16,20 +198,20 @@ class ChallengeEditorScreen extends StatefulWidget {
 }
 
 class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
-  String _friendlyTitle() {
+  String _friendlyTitle(AppLocalizations? l10n) {
     switch (widget.object.objClass) {
       case 'ProtectThePlantChallengeProperties':
-        return 'Protect plants';
+        return l10n?.protectPlants ?? 'Protect plants';
       case 'ProtectTheGridItemChallengeProperties':
-        return 'Protect grid items';
+        return l10n?.protectGridItems ?? 'Protect grid items';
       case 'SunBombChallengeProperties':
-        return 'Sun bomb';
+        return l10n?.sunBomb ?? 'Sun bomb';
       case 'ZombiePotionModuleProperties':
-        return 'Zombie potion';
+        return l10n?.zombiePotion ?? 'Zombie potion';
       case 'PennyClassroomModuleProperties':
-        return 'Penny classroom';
+        return l10n?.pennyClassroom ?? 'Penny classroom';
       case 'ManholePipelineModuleProperties':
-        return 'Manhole pipeline';
+        return l10n?.manholePipeline ?? 'Manhole pipeline';
       default:
         return widget.object.objClass;
     }
@@ -37,136 +219,30 @@ class _ChallengeEditorScreenState extends State<ChallengeEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.maybePop(context),
         ),
-        title: Text(_friendlyTitle()),
+        title: Text(_friendlyTitle(l10n)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: _buildEditor(),
+        child: ChallengeEditorContent(
+          object: widget.object,
+          onChanged: widget.onChanged,
+          l10n: l10n,
+        ),
       ),
     );
-  }
-
-  Widget _buildEditor() {
-    switch (widget.object.objClass) {
-      case 'StarChallengeBeatTheLevelProps':
-        return _BeatTheLevelEditor(object: widget.object, onChanged: widget.onChanged);
-      case 'StarChallengeSaveMowersProps':
-      case 'StarChallengePlantFoodNonuseProps':
-        return const Center(
-          child: Text("This challenge doesn't support configuration."),
-        );
-      case 'StarChallengePlantsSurviveProps':
-        return _SimpleCountEditor(
-          object: widget.object,
-          field: 'Count',
-          label: 'Count',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeZombieDistanceProps':
-        return _SimpleDoubleEditor(
-          object: widget.object,
-          field: 'TargetDistance',
-          label: 'Target Distance',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeSunProducedProps':
-        return _SimpleCountEditor(
-          object: widget.object,
-          field: 'TargetSun',
-          label: 'Target Sun',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeSunUsedProps':
-        return _SimpleCountEditor(
-          object: widget.object,
-          field: 'MaximumSun',
-          label: 'Maximum Sun',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeSpendSunHoldoutProps':
-        return _SimpleCountEditor(
-          object: widget.object,
-          field: 'HoldoutSeconds',
-          label: 'Holdout Seconds',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeKillZombiesInTimeProps':
-        return _KillZombiesInTimeEditor(object: widget.object, onChanged: widget.onChanged);
-      case 'StarChallengeZombieSpeedProps':
-        return _SimpleDoubleEditor(
-          object: widget.object,
-          field: 'SpeedModifier',
-          label: 'Speed Modifier',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeSunReducedProps':
-        return _SimpleDoubleEditor(
-          object: widget.object,
-          field: 'sunModifier',
-          label: 'Sun Modifier',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengePlantsLostProps':
-        return _SimpleCountEditor(
-          object: widget.object,
-          field: 'MaximumPlantsLost',
-          label: 'Maximum Plants Lost',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeSimultaneousPlantsProps':
-        return _SimpleCountEditor(
-          object: widget.object,
-          field: 'MaximumPlants',
-          label: 'Maximum Plants',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeUnfreezePlantsProps':
-        return _SimpleCountEditor(
-          object: widget.object,
-          field: 'Count',
-          label: 'Count',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeBlowZombieProps':
-        return _SimpleCountEditor(
-          object: widget.object,
-          field: 'Count',
-          label: 'Count',
-          onChanged: widget.onChanged,
-        );
-      case 'StarChallengeTargetScoreProps':
-         return _SimpleCountEditor(
-          object: widget.object,
-          field: 'TargetScore',
-          label: 'Target Score',
-          onChanged: widget.onChanged,
-        );
-      case 'ProtectThePlantChallengeProperties':
-        return _ProtectThePlantEditor(object: widget.object, onChanged: widget.onChanged);
-      case 'ProtectTheGridItemChallengeProperties':
-        return _ProtectTheGridItemEditor(object: widget.object, onChanged: widget.onChanged);
-      case 'SunBombChallengeProperties':
-        return _SunBombEditor(object: widget.object, onChanged: widget.onChanged);
-      case 'ZombiePotionModuleProperties':
-        return _ZombiePotionModuleEditor(object: widget.object, onChanged: widget.onChanged);
-      case 'PennyClassroomModuleProperties':
-        return _PennyClassroomEditor(object: widget.object, onChanged: widget.onChanged);
-      case 'ManholePipelineModuleProperties':
-        return _ManholePipelineEditor(object: widget.object, onChanged: widget.onChanged);
-      default:
-        return const Text('Unknown challenge type');
-    }
   }
 }
 
 class _BeatTheLevelEditor extends StatefulWidget {
-  const _BeatTheLevelEditor({required this.object, required this.onChanged});
+  const _BeatTheLevelEditor({required this.l10n, required this.object, required this.onChanged});
+  final AppLocalizations? l10n;
   final PvzObject object;
   final VoidCallback onChanged;
 
@@ -194,16 +270,26 @@ class _BeatTheLevelEditorState extends State<_BeatTheLevelEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n ?? AppLocalizations.of(context);
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TextField(
           controller: _descController,
-          decoration: const InputDecoration(labelText: 'Description'),
+          decoration: InputDecoration(
+            labelText: l10n?.hintTextDisplay ?? 'Text display (Description)',
+            border: const OutlineInputBorder(),
+          ),
+          maxLines: 3,
           onChanged: (_) => _save(),
         ),
+        const SizedBox(height: 12),
         TextField(
           controller: _nameController,
-          decoration: const InputDecoration(labelText: 'Descriptive Name'),
+          decoration: InputDecoration(
+            labelText: l10n?.descriptiveName ?? 'Descriptive Name',
+            border: const OutlineInputBorder(),
+          ),
           onChanged: (_) => _save(),
         ),
       ],
@@ -229,7 +315,10 @@ class _SimpleCountEditor extends StatelessWidget {
     final data = object.objData as Map<String, dynamic>;
     return TextFormField(
       initialValue: (data[field] ?? 0).toString(),
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
       keyboardType: TextInputType.number,
       onChanged: (val) {
         data[field] = int.tryParse(val) ?? 0;
@@ -257,7 +346,10 @@ class _SimpleDoubleEditor extends StatelessWidget {
     final data = object.objData as Map<String, dynamic>;
     return TextFormField(
       initialValue: (data[field] ?? 0.0).toString(),
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       onChanged: (val) {
         data[field] = double.tryParse(val) ?? 0.0;
@@ -268,7 +360,8 @@ class _SimpleDoubleEditor extends StatelessWidget {
 }
 
 class _KillZombiesInTimeEditor extends StatelessWidget {
-  const _KillZombiesInTimeEditor({required this.object, required this.onChanged});
+  const _KillZombiesInTimeEditor({required this.l10n, required this.object, required this.onChanged});
+  final AppLocalizations? l10n;
   final PvzObject object;
   final VoidCallback onChanged;
 
@@ -279,16 +372,23 @@ class _KillZombiesInTimeEditor extends StatelessWidget {
       children: [
         TextFormField(
           initialValue: (data['ZombiesToKill'] ?? 10).toString(),
-          decoration: const InputDecoration(labelText: 'Zombies To Kill'),
+          decoration: InputDecoration(
+            labelText: l10n?.zombiesToKill ?? 'Zombies To Kill',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             data['ZombiesToKill'] = int.tryParse(val) ?? 10;
             onChanged();
           },
         ),
+        const SizedBox(height: 12),
         TextFormField(
           initialValue: (data['Time'] ?? 10).toString(),
-          decoration: const InputDecoration(labelText: 'Time (Seconds)'),
+          decoration: InputDecoration(
+            labelText: l10n?.timeSeconds ?? 'Time (Seconds)',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             data['Time'] = int.tryParse(val) ?? 10;
@@ -301,7 +401,8 @@ class _KillZombiesInTimeEditor extends StatelessWidget {
 }
 
 class _ProtectThePlantEditor extends StatefulWidget {
-  const _ProtectThePlantEditor({required this.object, required this.onChanged});
+  const _ProtectThePlantEditor({required this.l10n, required this.object, required this.onChanged});
+  final AppLocalizations? l10n;
   final PvzObject object;
   final VoidCallback onChanged;
 
@@ -341,11 +442,15 @@ class _ProtectThePlantEditorState extends State<_ProtectThePlantEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n ?? AppLocalizations.of(context);
     return Column(
       children: [
         TextFormField(
           initialValue: _data.mustProtectCount.toString(),
-          decoration: const InputDecoration(labelText: 'Must Protect Count (0 = All)'),
+          decoration: InputDecoration(
+            labelText: l10n?.mustProtectCountAll ?? 'Must Protect Count (0 = All)',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.mustProtectCount = int.tryParse(val) ?? 0;
@@ -353,7 +458,7 @@ class _ProtectThePlantEditorState extends State<_ProtectThePlantEditor> {
           },
         ),
         const SizedBox(height: 16),
-        const Text('Protected Plants', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(l10n?.protectedPlants ?? 'Protected Plants', style: const TextStyle(fontWeight: FontWeight.bold)),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -370,7 +475,10 @@ class _ProtectThePlantEditorState extends State<_ProtectThePlantEditor> {
                         Expanded(
                           child: TextFormField(
                             initialValue: item.plantType,
-                            decoration: const InputDecoration(labelText: 'Plant Type'),
+                            decoration: InputDecoration(
+                              labelText: l10n?.plantType ?? 'Plant Type',
+                              border: const OutlineInputBorder(),
+                            ),
                             onChanged: (val) {
                               item.plantType = val;
                               _save();
@@ -388,7 +496,10 @@ class _ProtectThePlantEditorState extends State<_ProtectThePlantEditor> {
                         Expanded(
                           child: TextFormField(
                             initialValue: item.gridX.toString(),
-                            decoration: const InputDecoration(labelText: 'Grid X'),
+                            decoration: InputDecoration(
+                              labelText: l10n?.gridX ?? 'Grid X',
+                              border: const OutlineInputBorder(),
+                            ),
                             keyboardType: TextInputType.number,
                             onChanged: (val) {
                               item.gridX = int.tryParse(val) ?? 0;
@@ -400,7 +511,10 @@ class _ProtectThePlantEditorState extends State<_ProtectThePlantEditor> {
                         Expanded(
                           child: TextFormField(
                             initialValue: item.gridY.toString(),
-                            decoration: const InputDecoration(labelText: 'Grid Y'),
+                            decoration: InputDecoration(
+                              labelText: l10n?.gridY ?? 'Grid Y',
+                              border: const OutlineInputBorder(),
+                            ),
                             keyboardType: TextInputType.number,
                             onChanged: (val) {
                               item.gridY = int.tryParse(val) ?? 0;
@@ -419,7 +533,7 @@ class _ProtectThePlantEditorState extends State<_ProtectThePlantEditor> {
         FilledButton.icon(
           onPressed: _addPlant,
           icon: const Icon(Icons.add),
-          label: const Text('Add Plant'),
+          label: Text(l10n?.addPlant ?? 'Add Plant'),
         ),
       ],
     );
@@ -427,7 +541,8 @@ class _ProtectThePlantEditorState extends State<_ProtectThePlantEditor> {
 }
 
 class _ProtectTheGridItemEditor extends StatefulWidget {
-  const _ProtectTheGridItemEditor({required this.object, required this.onChanged});
+  const _ProtectTheGridItemEditor({required this.l10n, required this.object, required this.onChanged});
+  final AppLocalizations? l10n;
   final PvzObject object;
   final VoidCallback onChanged;
 
@@ -467,11 +582,16 @@ class _ProtectTheGridItemEditorState extends State<_ProtectTheGridItemEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n ?? AppLocalizations.of(context);
     return Column(
       children: [
         TextFormField(
           initialValue: _data.description,
-          decoration: const InputDecoration(labelText: 'Description'),
+          decoration: InputDecoration(
+            labelText: l10n?.description ?? 'Description',
+            border: const OutlineInputBorder(),
+          ),
+          maxLines: 3,
           onChanged: (val) {
             _data.description = val;
             _save();
@@ -479,7 +599,10 @@ class _ProtectTheGridItemEditorState extends State<_ProtectTheGridItemEditor> {
         ),
         TextFormField(
           initialValue: _data.mustProtectCount.toString(),
-          decoration: const InputDecoration(labelText: 'Must Protect Count'),
+          decoration: InputDecoration(
+            labelText: l10n?.mustProtectCount ?? 'Must Protect Count',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.mustProtectCount = int.tryParse(val) ?? 0;
@@ -487,7 +610,7 @@ class _ProtectTheGridItemEditorState extends State<_ProtectTheGridItemEditor> {
           },
         ),
         const SizedBox(height: 16),
-        const Text('Protected Grid Items', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(l10n?.protectedGridItems ?? 'Protected Grid Items', style: const TextStyle(fontWeight: FontWeight.bold)),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -504,7 +627,10 @@ class _ProtectTheGridItemEditorState extends State<_ProtectTheGridItemEditor> {
                         Expanded(
                           child: TextFormField(
                             initialValue: item.gridItemType,
-                            decoration: const InputDecoration(labelText: 'Grid Item Type'),
+                            decoration: InputDecoration(
+                              labelText: l10n?.gridItemType ?? 'Grid Item Type',
+                              border: const OutlineInputBorder(),
+                            ),
                             onChanged: (val) {
                               item.gridItemType = val;
                               _save();
@@ -522,7 +648,10 @@ class _ProtectTheGridItemEditorState extends State<_ProtectTheGridItemEditor> {
                         Expanded(
                           child: TextFormField(
                             initialValue: item.gridX.toString(),
-                            decoration: const InputDecoration(labelText: 'Grid X'),
+                            decoration: InputDecoration(
+                              labelText: l10n?.gridX ?? 'Grid X',
+                              border: const OutlineInputBorder(),
+                            ),
                             keyboardType: TextInputType.number,
                             onChanged: (val) {
                               item.gridX = int.tryParse(val) ?? 0;
@@ -534,7 +663,10 @@ class _ProtectTheGridItemEditorState extends State<_ProtectTheGridItemEditor> {
                         Expanded(
                           child: TextFormField(
                             initialValue: item.gridY.toString(),
-                            decoration: const InputDecoration(labelText: 'Grid Y'),
+                            decoration: InputDecoration(
+                              labelText: l10n?.gridY ?? 'Grid Y',
+                              border: const OutlineInputBorder(),
+                            ),
                             keyboardType: TextInputType.number,
                             onChanged: (val) {
                               item.gridY = int.tryParse(val) ?? 0;
@@ -553,7 +685,7 @@ class _ProtectTheGridItemEditorState extends State<_ProtectTheGridItemEditor> {
         FilledButton.icon(
           onPressed: _addItem,
           icon: const Icon(Icons.add),
-          label: const Text('Add Grid Item'),
+          label: Text(l10n?.addGridItem ?? 'Add Grid Item'),
         ),
       ],
     );
@@ -561,7 +693,8 @@ class _ProtectTheGridItemEditorState extends State<_ProtectTheGridItemEditor> {
 }
 
 class _SunBombEditor extends StatefulWidget {
-  const _SunBombEditor({required this.object, required this.onChanged});
+  const _SunBombEditor({required this.l10n, required this.object, required this.onChanged});
+  final AppLocalizations? l10n;
   final PvzObject object;
   final VoidCallback onChanged;
 
@@ -587,38 +720,54 @@ class _SunBombEditorState extends State<_SunBombEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n ?? AppLocalizations.of(context);
     return Column(
       children: [
         TextFormField(
           initialValue: _data.plantBombExplosionRadius.toString(),
-          decoration: const InputDecoration(labelText: 'Plant Bomb Radius'),
+          decoration: InputDecoration(
+            labelText: l10n?.plantBombRadius ?? 'Plant Bomb Radius',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.plantBombExplosionRadius = int.tryParse(val) ?? 25;
             _save();
           },
         ),
+        const SizedBox(height: 12),
         TextFormField(
           initialValue: _data.zombieBombExplosionRadius.toString(),
-          decoration: const InputDecoration(labelText: 'Zombie Bomb Radius'),
+          decoration: InputDecoration(
+            labelText: l10n?.zombieBombRadius ?? 'Zombie Bomb Radius',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.zombieBombExplosionRadius = int.tryParse(val) ?? 80;
             _save();
           },
         ),
+        const SizedBox(height: 12),
         TextFormField(
           initialValue: _data.plantDamage.toString(),
-          decoration: const InputDecoration(labelText: 'Plant Damage'),
+          decoration: InputDecoration(
+            labelText: l10n?.plantDamage ?? 'Plant Damage',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.plantDamage = int.tryParse(val) ?? 1000;
             _save();
           },
         ),
+        const SizedBox(height: 12),
         TextFormField(
           initialValue: _data.zombieDamage.toString(),
-          decoration: const InputDecoration(labelText: 'Zombie Damage'),
+          decoration: InputDecoration(
+            labelText: l10n?.zombieDamage ?? 'Zombie Damage',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.zombieDamage = int.tryParse(val) ?? 500;
@@ -631,7 +780,8 @@ class _SunBombEditorState extends State<_SunBombEditor> {
 }
 
 class _ZombiePotionModuleEditor extends StatefulWidget {
-  const _ZombiePotionModuleEditor({required this.object, required this.onChanged});
+  const _ZombiePotionModuleEditor({required this.l10n, required this.object, required this.onChanged});
+  final AppLocalizations? l10n;
   final PvzObject object;
   final VoidCallback onChanged;
 
@@ -658,21 +808,29 @@ class _ZombiePotionModuleEditorState extends State<_ZombiePotionModuleEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n ?? AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextFormField(
           initialValue: _data.initialPotionCount.toString(),
-          decoration: const InputDecoration(labelText: 'Initial Potion Count'),
+          decoration: InputDecoration(
+            labelText: l10n?.initialPotionCount ?? 'Initial Potion Count',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.initialPotionCount = int.tryParse(val) ?? 10;
             _save();
           },
         ),
+        const SizedBox(height: 12),
         TextFormField(
           initialValue: _data.maxPotionCount.toString(),
-          decoration: const InputDecoration(labelText: 'Max Potion Count'),
+          decoration: InputDecoration(
+            labelText: l10n?.maxPotionCount ?? 'Max Potion Count',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.maxPotionCount = int.tryParse(val) ?? 60;
@@ -680,13 +838,16 @@ class _ZombiePotionModuleEditorState extends State<_ZombiePotionModuleEditor> {
           },
         ),
         const SizedBox(height: 8),
-        const Text('Spawn Timer (Min/Max seconds)', style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(l10n?.spawnTimer ?? 'Spawn Timer (Min/Max seconds)', style: const TextStyle(fontWeight: FontWeight.bold)),
         Row(
           children: [
             Expanded(
               child: TextFormField(
                 initialValue: _data.potionSpawnTimer.min.toString(),
-                decoration: const InputDecoration(labelText: 'Min'),
+                decoration: InputDecoration(
+                  labelText: l10n?.minSec ?? 'Min',
+                  border: const OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.number,
                 onChanged: (val) {
                   _data.potionSpawnTimer.min = int.tryParse(val) ?? 12;
@@ -698,7 +859,10 @@ class _ZombiePotionModuleEditorState extends State<_ZombiePotionModuleEditor> {
             Expanded(
               child: TextFormField(
                 initialValue: _data.potionSpawnTimer.max.toString(),
-                decoration: const InputDecoration(labelText: 'Max'),
+                decoration: InputDecoration(
+                  labelText: l10n?.maxSec ?? 'Max',
+                  border: const OutlineInputBorder(),
+                ),
                 keyboardType: TextInputType.number,
                 onChanged: (val) {
                   _data.potionSpawnTimer.max = int.tryParse(val) ?? 16;
@@ -709,14 +873,15 @@ class _ZombiePotionModuleEditorState extends State<_ZombiePotionModuleEditor> {
           ],
         ),
         const SizedBox(height: 16),
-        Text('Potion types: ${_data.potionTypes.length} configured', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        Text(l10n?.potionTypesConfigured(_data.potionTypes.length) ?? 'Potion types: ${_data.potionTypes.length} configured', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ],
     );
   }
 }
 
 class _PennyClassroomEditor extends StatefulWidget {
-  const _PennyClassroomEditor({required this.object, required this.onChanged});
+  const _PennyClassroomEditor({required this.l10n, required this.object, required this.onChanged});
+  final AppLocalizations? l10n;
   final PvzObject object;
   final VoidCallback onChanged;
 
@@ -737,11 +902,12 @@ class _PennyClassroomEditorState extends State<_PennyClassroomEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n ?? AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Plant levels: ${_data.plantMap.length}',
+          l10n?.plantLevelsCount(_data.plantMap.length) ?? 'Plant levels: ${_data.plantMap.length}',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
@@ -753,7 +919,7 @@ class _PennyClassroomEditorState extends State<_PennyClassroomEditor> {
               child: Row(
                 children: [
                   Expanded(child: Text(e.key)),
-                  Text('Lv ${e.value}'),
+                  Text(l10n?.lvN(e.value) ?? 'Lv ${e.value}'),
                 ],
               ),
             ),
@@ -765,7 +931,8 @@ class _PennyClassroomEditorState extends State<_PennyClassroomEditor> {
 }
 
 class _ManholePipelineEditor extends StatefulWidget {
-  const _ManholePipelineEditor({required this.object, required this.onChanged});
+  const _ManholePipelineEditor({required this.l10n, required this.object, required this.onChanged});
+  final AppLocalizations? l10n;
   final PvzObject object;
   final VoidCallback onChanged;
 
@@ -791,21 +958,29 @@ class _ManholePipelineEditorState extends State<_ManholePipelineEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = widget.l10n ?? AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TextFormField(
           initialValue: _data.operationTimePerGrid.toString(),
-          decoration: const InputDecoration(labelText: 'Operation Time Per Grid'),
+          decoration: InputDecoration(
+            labelText: l10n?.operationTimePerGrid ?? 'Operation Time Per Grid',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.operationTimePerGrid = int.tryParse(val) ?? 1;
             _save();
           },
         ),
+        const SizedBox(height: 12),
         TextFormField(
           initialValue: _data.damagePerSecond.toString(),
-          decoration: const InputDecoration(labelText: 'Damage Per Second'),
+          decoration: InputDecoration(
+            labelText: l10n?.damagePerSecond ?? 'Damage Per Second',
+            border: const OutlineInputBorder(),
+          ),
           keyboardType: TextInputType.number,
           onChanged: (val) {
             _data.damagePerSecond = int.tryParse(val) ?? 30;
@@ -813,7 +988,7 @@ class _ManholePipelineEditorState extends State<_ManholePipelineEditor> {
           },
         ),
         const SizedBox(height: 8),
-        Text('Pipelines: ${_data.pipelineList.length}', style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(l10n?.pipelinesCount(_data.pipelineList.length) ?? 'Pipelines: ${_data.pipelineList.length}', style: const TextStyle(fontWeight: FontWeight.bold)),
       ],
     );
   }

@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Frost wind event editor. Ported from Z-Editor-master FrostWindEventEP.kt
@@ -86,6 +87,7 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
 
     return Scaffold(
@@ -97,9 +99,9 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Frost wind',
+              l10n?.eventFrostWind ?? 'Event: Frost wind',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -109,15 +111,15 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Frost wind event',
-              sections: const [
+              title: l10n?.eventFrostWind ?? 'Frost wind event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: '冰河世界专属事件。在指定行生成寒风，寒风会携带冰冻效果，将植物冻结成冰块。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpFrostWindBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Direction',
-                  body: '可以设置寒风来袭的方向，可以选择从左或从右。',
+                  title: l10n?.direction ?? 'Direction',
+                  body: l10n?.eventHelpFrostWindDirection ?? '',
                 ),
               ],
             ),
@@ -146,7 +148,7 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
                             Icon(Icons.ac_unit, color: theme.colorScheme.secondary),
                             const SizedBox(width: 8),
                             Text(
-                              'Wind #${idx + 1}',
+                              l10n?.windN(idx + 1) ?? 'Wind #${idx + 1}',
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -161,12 +163,12 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            Text('Row: ${wind.row + 1}'),
+                            Text(l10n?.rowNShort(wind.row + 1) ?? 'Row: ${wind.row + 1}'),
                             const SizedBox(width: 16),
                             Row(
                               children: [
                                 ChoiceChip(
-                                  label: const Text('Left'),
+                                  label: Text(l10n?.left ?? 'Left'),
                                   selected: wind.direction == 'left',
                                   onSelected: (_) => _updateWind(
                                     idx,
@@ -178,7 +180,7 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 ChoiceChip(
-                                  label: const Text('Right'),
+                                  label: Text(l10n?.right ?? 'Right'),
                                   selected: wind.direction == 'right' ||
                                       wind.direction.isEmpty,
                                   onSelected: (_) => _updateWind(
@@ -208,7 +210,7 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
                                       )
                                   : null,
                             ),
-                            Text('Row ${wind.row + 1}'),
+                            Text(l10n?.rowNShort(wind.row + 1) ?? 'Row ${wind.row + 1}'),
                             IconButton(
                               icon: const Icon(Icons.add),
                               onPressed: wind.row < 4
@@ -231,7 +233,7 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
               FilledButton.icon(
                 onPressed: _addWind,
                 icon: const Icon(Icons.add),
-                label: const Text('Add wind'),
+                label: Text(l10n?.addWind ?? 'Add wind'),
               ),
               const SizedBox(height: 32),
             ],

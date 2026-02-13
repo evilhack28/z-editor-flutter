@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/plant_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart'
     show AssetImageWidget, imageAltCandidates;
+
+/// Placeholder when a plant has no icon or icon fails to load.
+const String _kUnknownIconPath = 'assets/images/others/unknown.webp';
 
 /// Plant selection. Ported from Z-Editor-master PlantSelectionScreen.kt
 class PlantSelectionScreen extends StatefulWidget {
@@ -64,10 +67,11 @@ class _PlantSelectionScreenState extends State<PlantSelectionScreen> {
   void _toggleFavorite(BuildContext context, String id) async {
     await PlantRepository().toggleFavorite(id);
     if (!context.mounted) return;
+    final l10n = AppLocalizations.of(context);
     final isFav = PlantRepository().isFavorite(id);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(isFav ? 'Added to favorites' : 'Removed from favorites'),
+        content: Text(isFav ? (l10n?.addedToFavorites ?? 'Added to favorites') : (l10n?.removedFromFavorites ?? 'Removed from favorites')),
         duration: const Duration(milliseconds: 1200),
       ),
     );
@@ -130,7 +134,7 @@ class _PlantSelectionScreenState extends State<PlantSelectionScreen> {
                           onChanged: (v) => setState(() => _searchQuery = v),
                           decoration: InputDecoration(
                             hintText: widget.isMultiSelect
-                                ? 'Selected ${_selectedIds.length}, tap to search'
+                                ? (l10n?.selectedCountTapToSearch(_selectedIds.length) ?? 'Selected ${_selectedIds.length}, tap to search')
                                 : (l10n?.searchPlant ?? 'Search plant'),
                             prefixIcon: const Icon(Icons.search),
                             suffixIcon: _searchQuery.isNotEmpty
@@ -275,7 +279,7 @@ class _PlantSelectionScreenState extends State<PlantSelectionScreen> {
                             const SizedBox(height: 16),
                             Text(
                               _selectedCategory == PlantCategory.collection
-                                  ? 'No favorites. Long-press to favorite.'
+                                  ? (l10n?.noFavoritesLongPress ?? 'No favorites. Long-press to favorite.')
                                   : (l10n?.noPlantFound ?? 'No plant found'),
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
@@ -345,6 +349,7 @@ class _PlantGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final iconPath = plant.iconAssetPath;
+    final hasIcon = iconPath != null && iconPath.isNotEmpty;
 
     final borderColor =
         isSelected ? theme.colorScheme.primary : Colors.transparent;
@@ -373,7 +378,7 @@ class _PlantGridItem extends StatelessWidget {
                     child: SizedBox(
                       width: 44,
                       height: 44,
-                      child: iconPath != null
+                      child: hasIcon
                               ? AssetImageWidget(
                                   assetPath: iconPath,
                                   altCandidates: imageAltCandidates(iconPath),
@@ -382,14 +387,18 @@ class _PlantGridItem extends StatelessWidget {
                                   fit: BoxFit.cover,
                                   cacheWidth: 88,
                                   cacheHeight: 88,
+                                  errorWidget: Image.asset(
+                                    _kUnknownIconPath,
+                                    width: 44,
+                                    height: 44,
+                                    fit: BoxFit.cover,
+                                  ),
                                 )
-                              : const AssetImageWidget(
-                                  assetPath: 'assets/images/others/unknown.webp',
+                              : Image.asset(
+                                  _kUnknownIconPath,
                                   width: 44,
                                   height: 44,
                                   fit: BoxFit.cover,
-                                  cacheWidth: 88,
-                                  cacheHeight: 88,
                                 ),
                     ),
                   ),

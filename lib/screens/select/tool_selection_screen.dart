@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/tool_repository.dart';
+import 'package:z_editor/data/repository/tool_repository.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget;
 
 /// Tool selection. Ported from Z-Editor-master ToolSelectionScreen.kt
@@ -15,6 +16,7 @@ class ToolSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final tools = ToolRepository.getAll();
     final theme = Theme.of(context);
 
@@ -24,8 +26,8 @@ class ToolSelectionScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: onBack,
         ),
-        title: const Text(
-          'Select tool card',
+        title: Text(
+          l10n?.selectToolCard ?? 'Select tool card',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),

@@ -1,10 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/grid_item_repository.dart';
+import 'package:z_editor/data/repository/grid_item_repository.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
+import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
@@ -76,6 +78,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
       context,
       MaterialPageRoute(
         builder: (_) => GridItemSelectionScreen(
+          filterMode: GridItemFilterMode.all,
           onGridItemSelected: (typeName) {
             Navigator.pop(context);
             final newList = List<InitialGridItemData>.from(_data.placements);
@@ -111,6 +114,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final sortedItems = List<InitialGridItemData>.from(_data.placements)
       ..sort((a, b) {
         final c = a.gridY.compareTo(b.gridY);
@@ -119,9 +123,10 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Grid item layout'),
+        title: Text(l10n?.gridItemLayout ?? 'Grid item layout'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: l10n?.back ?? 'Back',
           onPressed: widget.onBack,
         ),
       ),
@@ -144,7 +149,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Selected position',
+                                  l10n?.selectedPosition ?? 'Selected position',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
@@ -162,7 +167,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
                             PvzAddButton(
                               onPressed: _handleSelectItem,
                               size: 40,
-                              label: 'Add item',
+                              label: l10n?.addItem ?? 'Add item',
                             ),
                           ],
                         ),
@@ -174,7 +179,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Item list (row-first)',
+                  l10n?.itemListRowFirst ?? 'Item list (row-first)',
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurfaceVariant,
@@ -191,6 +196,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
                     _selectedY = item.gridY;
                   }),
                   onDelete: () => setState(() => _itemToDelete = item),
+                  deleteTooltip: l10n?.delete ?? 'Delete',
                 )),
               ],
             ),
@@ -281,7 +287,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
                                               ),
                                             ),
                                             child: Text(
-                                              '+$count',
+                                              '+${count - 1}',
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 8,
@@ -308,17 +314,19 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
   }
 
   Widget _buildDeleteDialog() {
+    final l10n = AppLocalizations.of(context);
     final item = _itemToDelete!;
-    final name = GridItemRepository.getName(item.typeName);
+    final displayName = ResourceNames.lookup(context, 'griditem_${item.typeName}');
+    final name = displayName != 'griditem_${item.typeName}' ? displayName : item.typeName;
     return AlertDialog(
-      title: const Text('Remove item'),
+      title: Text(l10n?.removeItem ?? 'Remove item'),
       content: Text(
-        'Remove R${item.gridY + 1}:C${item.gridX + 1} $name?',
+        l10n?.removeItemConfirm('R${item.gridY + 1}:C${item.gridX + 1} $name') ?? 'Remove R${item.gridY + 1}:C${item.gridX + 1} $name?',
       ),
       actions: [
         TextButton(
           onPressed: () => setState(() => _itemToDelete = null),
-          child: const Text('Cancel'),
+          child: Text(l10n?.cancel ?? 'Cancel'),
         ),
         TextButton(
           onPressed: () {
@@ -328,7 +336,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
           style: TextButton.styleFrom(
             foregroundColor: Theme.of(context).colorScheme.error,
           ),
-          child: const Text('Remove'),
+          child: Text(l10n?.remove ?? 'Remove'),
         ),
       ],
     );
@@ -343,33 +351,14 @@ class _GridItemIconSmall extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final path = GridItemRepository.getIconPath(typeName);
-    if (path != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: AssetImageWidget(
-          assetPath: path,
-          fit: BoxFit.cover,
-          width: 32,
-          height: 32,
-          altCandidates: imageAltCandidates(path),
-        ),
-      );
-    }
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: const Color(0xFF407A9A),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        typeName.isNotEmpty ? typeName[0].toUpperCase() : '?',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-        ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: AssetImageWidget(
+        assetPath: path,
+        fit: BoxFit.cover,
+        width: 32,
+        height: 32,
+        altCandidates: imageAltCandidates(path),
       ),
     );
   }
@@ -383,6 +372,7 @@ class _GridItemCard extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
     required this.onDelete,
+    required this.deleteTooltip,
   });
 
   final InitialGridItemData item;
@@ -391,6 +381,7 @@ class _GridItemCard extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final String deleteTooltip;
 
   bool get _isOutOfBounds =>
       item.gridX >= gridCols || item.gridY >= gridRows;
@@ -399,7 +390,10 @@ class _GridItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final path = GridItemRepository.getIconPath(item.typeName);
-    final name = GridItemRepository.getName(item.typeName);
+    final displayName = ResourceNames.lookup(context, 'griditem_${item.typeName}');
+    final name = displayName != 'griditem_${item.typeName}'
+        ? displayName
+        : item.typeName;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -435,6 +429,7 @@ class _GridItemCard extends StatelessWidget {
                   IconButton(
                     onPressed: onDelete,
                     icon: const Icon(Icons.delete_outline, size: 20),
+                    tooltip: deleteTooltip,
                     color: Colors.grey,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
@@ -455,46 +450,29 @@ class _GridItemCard extends StatelessWidget {
                     ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: path != null
-                        ? AssetImageWidget(
-                            assetPath: path,
-                            width: 36,
-                            height: 36,
-                            fit: BoxFit.cover,
-                            altCandidates: imageAltCandidates(path),
-                            errorWidget: Container(
-                              color: const Color(0xFFF5EEE8),
-                              width: 36,
-                              height: 36,
-                              alignment: Alignment.center,
-                              child: Text(
-                                item.typeName.isNotEmpty
-                                    ? item.typeName[0]
-                                    : '?',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF407A9A),
-                                ),
-                              ),
-                            ),
-                          )
-                        : Container(
-                            width: 36,
-                            height: 36,
-                            color: const Color(0xFFF5EEE8),
-                            alignment: Alignment.center,
-                            child: Text(
-                              item.typeName.isNotEmpty
-                                  ? item.typeName[0]
-                                  : '?',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF407A9A),
-                              ),
-                            ),
+                    child: AssetImageWidget(
+                      assetPath: path,
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
+                      altCandidates: imageAltCandidates(path),
+                      errorWidget: Container(
+                        color: const Color(0xFFF5EEE8),
+                        width: 36,
+                        height: 36,
+                        alignment: Alignment.center,
+                        child: Text(
+                          item.typeName.isNotEmpty
+                              ? item.typeName[0]
+                              : '?',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF407A9A),
                           ),
+                        ),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 
@@ -80,9 +81,10 @@ class _WarMistPropertiesScreenState extends State<WarMistPropertiesScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('War mist'),
+        title: Text(l10n?.warMist ?? 'War mist'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
@@ -100,7 +102,7 @@ class _WarMistPropertiesScreenState extends State<WarMistPropertiesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Mist parameters',
+                      l10n?.mistParameters ?? 'Mist parameters',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -109,9 +111,9 @@ class _WarMistPropertiesScreenState extends State<WarMistPropertiesScreen> {
                     TextField(
                       controller: _initPosController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Initial mist position X',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n?.initialMistPositionX ?? 'Initial mist position X',
+                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (v) {
                         final n = int.tryParse(v);
@@ -125,9 +127,9 @@ class _WarMistPropertiesScreenState extends State<WarMistPropertiesScreen> {
                     TextField(
                       controller: _normValController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Normal value X',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n?.normalValueX ?? 'Normal value X',
+                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (v) {
                         final n = int.tryParse(v);
@@ -141,9 +143,9 @@ class _WarMistPropertiesScreenState extends State<WarMistPropertiesScreen> {
                     TextField(
                       controller: _bloverController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Blover effect interval (seconds)',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n?.bloverEffectInterval ?? 'Blover effect interval (seconds)',
+                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (v) {
                         final n = int.tryParse(v);

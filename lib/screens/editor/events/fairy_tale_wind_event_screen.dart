@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Fairy tale wind event editor. Ported from Z-Editor-master FairyTaleWindWaveActionPropsEP.kt
@@ -67,6 +68,7 @@ class _FairyTaleWindEventScreenState extends State<FairyTaleWindEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
 
     return Scaffold(
@@ -78,9 +80,9 @@ class _FairyTaleWindEventScreenState extends State<FairyTaleWindEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Fairy wind',
+              l10n?.eventFairyWind ?? 'Event: Fairy wind',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -90,15 +92,15 @@ class _FairyTaleWindEventScreenState extends State<FairyTaleWindEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Fairy wind event',
-              sections: const [
+              title: l10n?.eventFairyWind ?? 'Fairy wind event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: '本事件会产生一阵持续的微风，用于将童话迷雾吹散，常见于童话森林。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpFairyWindBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Velocity scale',
-                  body: '该事件作用时可以改变抛射物的速度，1.0表示原速，数值越大子弹运动越快。',
+                  title: l10n?.velocityScale ?? 'Velocity scale',
+                  body: l10n?.eventHelpFairyWindVelocity ?? '',
                 ),
               ],
             ),

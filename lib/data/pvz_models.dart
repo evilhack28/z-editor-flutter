@@ -1406,6 +1406,77 @@ class ZombieMoveFastModulePropertiesData {
   };
 }
 
+// === Zombie Rush (Level Timer) ===
+
+class ZombieRushModuleData {
+  ZombieRushModuleData({
+    this.timeCountDown = 120.0,
+    this.plantBlackList = const [],
+  });
+
+  double timeCountDown;
+  List<int> plantBlackList;
+
+  factory ZombieRushModuleData.fromJson(Map<String, dynamic> json) {
+    return ZombieRushModuleData(
+      timeCountDown: (json['TimeCountDown'] as num?)?.toDouble() ?? 120.0,
+      plantBlackList:
+          (json['PlantBlackList'] as List<dynamic>?)?.cast<int>() ?? [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'TimeCountDown': timeCountDown,
+    if (plantBlackList.isNotEmpty) 'PlantBlackList': plantBlackList,
+  };
+}
+
+// === Tunnel Defend (Mausoleum) ===
+
+class TunnelDefendModuleData {
+  TunnelDefendModuleData({List<TunnelRoadData>? roads})
+      : roads = roads ?? [];
+
+  List<TunnelRoadData> roads;
+
+  factory TunnelDefendModuleData.fromJson(Map<String, dynamic> json) {
+    return TunnelDefendModuleData(
+      roads:
+          (json['Roads'] as List<dynamic>?)
+              ?.map((e) =>
+                  TunnelRoadData.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'Roads': roads.map((e) => e.toJson()).toList(),
+  };
+}
+
+class TunnelRoadData {
+  TunnelRoadData({this.gridX = 0, this.gridY = 0, this.img = ''});
+
+  int gridX;
+  int gridY;
+  String img;
+
+  factory TunnelRoadData.fromJson(Map<String, dynamic> json) {
+    return TunnelRoadData(
+      gridX: json['GridX'] as int? ?? 0,
+      gridY: json['GridY'] as int? ?? 0,
+      img: json['Img'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'GridX': gridX,
+    'GridY': gridY,
+    'Img': img,
+  };
+}
+
 // === Level Mutator Max Sun ===
 
 class LevelMutatorMaxSunPropsData {

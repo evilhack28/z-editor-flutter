@@ -1,11 +1,19 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:z_editor/data/level_repository.dart';
+import 'package:z_editor/data/repository/level_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/escape_override.dart';
+import 'package:z_editor/theme/app_theme.dart';
 
 const _fontSizeKey = 'json_viewer_font_size';
+
+class _EscapeIntent extends Intent {
+  const _EscapeIntent();
+}
 
 /// Cached font size for immediate apply on screen enter (before async load).
 double? _cachedFontSize;
@@ -54,7 +62,12 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
     final prefs = await SharedPreferences.getInstance();
     final saved = prefs.getDouble(_fontSizeKey);
     if (saved != null && mounted) {
-      final value = saved.clamp(6.0, 18.0);
+      final isDesktop = Theme.of(context).platform == TargetPlatform.windows ||
+          Theme.of(context).platform == TargetPlatform.macOS ||
+          Theme.of(context).platform == TargetPlatform.linux;
+      final min = isDesktop ? 12.0 : 6.0;
+      final max = isDesktop ? 24.0 : 18.0;
+      final value = saved.clamp(min, max);
       _cachedFontSize = value;
       setState(() => _fontSize = value);
     }
@@ -67,6 +80,7 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
 
   @override
   void dispose() {
+    EscapeOverride.tryHandle = null;
     _verticalController.dispose();
     _horizontalController.dispose();
     _editController.dispose();
@@ -81,9 +95,17 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
       _isEditing = true;
       _syntaxError = null;
     });
+    EscapeOverride.tryHandle = () {
+      if (_isEditing) {
+        _cancelEdit();
+        return true;
+      }
+      return false;
+    };
   }
 
   void _cancelEdit() {
+    EscapeOverride.tryHandle = null;
     setState(() {
       _isEditing = false;
       _syntaxError = null;
@@ -98,14 +120,18 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
       widget.levelFile.objects.addAll(newLevel.objects);
       await LevelRepository.saveAndExport(widget.filePath, widget.levelFile);
       if (mounted) {
+        EscapeOverride.tryHandle = null;
         setState(() {
           _isEditing = false;
           _syntaxError = null;
         });
         widget.onSaved?.call();
         final l10n = AppLocalizations.of(context);
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            backgroundColor: isDark ? pvzGreenDark : pvzGreenLight,
             content: Row(
               children: [
                 const Icon(Icons.check_circle, color: Colors.white, size: 20),
@@ -120,8 +146,41 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
       if (mounted) {
         setState(() => _syntaxError = 'JSON error: $e');
         final l10n = AppLocalizations.of(context);
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n?.saveFail ?? 'Save failed')),
+          SnackBar(
+            backgroundColor: isDark ? snackbarFailedDark : snackbarFailedLight,
+            content: Row(
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () =>
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                    customBorder: const CircleBorder(),
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        color: Colors.black26,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close, color: Colors.black87, size: 18),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    l10n?.saveFail ?? 'Save failed',
+                    style: const TextStyle(color: Colors.black87),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       }
     }
@@ -129,6 +188,7 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isDesktop = Theme.of(context).platform == TargetPlatform.windows ||
         Theme.of(context).platform == TargetPlatform.macOS ||
         Theme.of(context).platform == TargetPlatform.linux;
@@ -136,33 +196,44 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
         ? ''
         : const JsonEncoder.withIndent('  ').convert(widget.levelFile.toJson());
 
-    return PopScope(
-      canPop: true,
+    Widget child = PopScope(
+      canPop: !_isEditing,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        if (_isEditing) _cancelEdit();
-        widget.onBack();
+        if (_isEditing) {
+          _cancelEdit();
+        } else {
+          widget.onBack();
+        }
       },
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           leading: IconButton(
             icon: Icon(_isEditing ? Icons.close : Icons.arrow_back),
+            tooltip: _isEditing
+                ? (l10n?.tooltipClose ?? 'Close')
+                : (l10n?.back ?? 'Back'),
             onPressed: () {
-              if (_isEditing) _cancelEdit();
-              widget.onBack();
+              if (_isEditing) {
+                _cancelEdit();
+              } else {
+                widget.onBack();
+              }
             },
           ),
         title: Text(
           _isEditing
-              ? 'Edit mode'
+              ? '${widget.fileName} ${l10n?.jsonViewerModeEdit ?? '(edit mode)'}'
               : _viewMode == _JsonViewMode.structured
-                  ? 'Object mode'
-                  : widget.fileName,
+                  ? '${widget.fileName} ${l10n?.jsonViewerModeObjectReading ?? '(object reading mode)'}'
+                  : '${widget.fileName} ${l10n?.jsonViewerModeReading ?? '(reading mode)'}',
         ),
         actions: [
           if (_isEditing)
             IconButton(
               icon: const Icon(Icons.save),
+              tooltip: l10n?.tooltipSave ?? 'Save',
               onPressed: _saveEdit,
             )
           else ...[
@@ -172,6 +243,7 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
                     ? Icons.list
                     : Icons.data_object,
               ),
+              tooltip: l10n?.tooltipToggleObjectView ?? 'Toggle object/raw view',
               onPressed: () {
                 setState(() {
                   _viewMode = _viewMode == _JsonViewMode.rawText
@@ -181,7 +253,13 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
               },
             ),
             IconButton(
+              icon: const Icon(Icons.cleaning_services),
+              tooltip: l10n?.tooltipClearUnused ?? 'Clear unused objects',
+              onPressed: _showClearUnusedDialog,
+            ),
+            IconButton(
               icon: const Icon(Icons.edit),
+              tooltip: l10n?.tooltipEdit ?? 'Edit',
               onPressed: _startEdit,
             ),
           ],
@@ -203,16 +281,22 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    '${_fontSize.toInt()}',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  SizedBox(
+                    width: 28,
+                    child: Text(
+                      '${_fontSize.round()}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                      textAlign: TextAlign.right,
+                    ),
                   ),
                   Expanded(
                     child: Slider(
-                      value: _fontSize,
-                      min: 6,
-                      max: 18,
-                      divisions: 12,
+                      value: _fontSize.clamp(
+                        isDesktop ? 12.0 : 6.0,
+                        isDesktop ? 24.0 : 18.0,
+                      ),
+                      min: isDesktop ? 12 : 6,
+                      max: isDesktop ? 24 : 18,
                       onChanged: (v) {
                         _cachedFontSize = v;
                         setState(() => _fontSize = v);
@@ -241,16 +325,47 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
             child: _isEditing
                 ? _buildEditView()
                 : _viewMode == _JsonViewMode.structured
-                    ? _buildObjectMode(isDesktop)
+                    ? _buildObjectMode(isDesktop, l10n)
                     : _buildViewMode(pretty, isDesktop),
           ),
         ],
       ),
     ),
     );
+
+    if (isDesktop) {
+      child = Shortcuts(
+        shortcuts: const {
+          SingleActivator(LogicalKeyboardKey.escape): _EscapeIntent(),
+        },
+        child: Actions(
+          actions: {
+            _EscapeIntent: CallbackAction<_EscapeIntent>(
+              onInvoke: (_) {
+                if (_isEditing) {
+                  _cancelEdit();
+                  return null;
+                }
+                widget.onBack();
+                return null;
+              },
+            ),
+          },
+          child: child,
+        ),
+      );
+    }
+    return child;
   }
 
+  static const _codeFontFamily = 'monospace';
+
   Widget _buildEditView() {
+    final baseStyle = TextStyle(
+      fontFamily: _codeFontFamily,
+      fontSize: _fontSize,
+      height: 1.3,
+    );
     return Scrollbar(
       controller: _verticalController,
       thumbVisibility: true,
@@ -258,18 +373,54 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
       child: SingleChildScrollView(
         controller: _verticalController,
         padding: const EdgeInsets.all(16),
-        child: TextField(
-          controller: _editController,
-          maxLines: null,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontFamily: 'monospace',
-                fontSize: _fontSize,
-                height: 1.3,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildLineNumbersColumn(_editController.text, baseStyle),
+            const SizedBox(width: 16),
+            Expanded(
+              child: TextField(
+                controller: _editController,
+                maxLines: null,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontFamily: _codeFontFamily,
+                      fontSize: _fontSize,
+                      height: 1.3,
+                    ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                onChanged: (_) => setState(() {}),
               ),
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            isDense: true,
-            contentPadding: EdgeInsets.zero,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLineNumbersColumn(String text, TextStyle baseStyle) {
+    final lines = text.split('\n');
+    final lineCount = lines.isEmpty ? 1 : lines.length;
+    final digitCount = '$lineCount'.length;
+    final width = _fontSize * (digitCount * 0.6 + 1.5);
+    return SizedBox(
+      width: width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(
+          lineCount,
+          (i) => Text(
+            '${i + 1}',
+            style: baseStyle.copyWith(
+              fontFamily: _codeFontFamily,
+              color: Theme.of(context).colorScheme.onSurface.withValues(
+                    alpha: 0.5,
+                  ),
+            ),
           ),
         ),
       ),
@@ -282,7 +433,7 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
     );
   }
 
-  Widget _buildObjectMode(bool isDesktop) {
+  Widget _buildObjectMode(bool isDesktop, AppLocalizations? l10n) {
     final objects = widget.levelFile.objects;
     return Scrollbar(
       controller: _verticalController,
@@ -304,10 +455,117 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
               });
             },
             onDelete: () => _deleteObjectAtIndex(index),
+            deleteTooltip: l10n?.delete ?? 'Delete',
           );
         },
       ),
     );
+  }
+
+  /// Collects all aliases referenced via RTID in the level file.
+  Set<String> _collectReferencedAliases() {
+    final used = <String>{};
+    void scan(dynamic value) {
+      if (value is Map) {
+        for (final entry in value.entries) {
+          if (entry.value is String) {
+            final rtid = entry.value as String;
+            final info = RtidParser.parse(rtid);
+            if (info != null) used.add(info.alias);
+          } else {
+            scan(entry.value);
+          }
+        }
+      } else if (value is List) {
+        for (final item in value) {
+          if (item is String) {
+            final info = RtidParser.parse(item);
+            if (info != null) used.add(info.alias);
+          } else {
+            scan(item);
+          }
+        }
+      }
+    }
+    for (final obj in widget.levelFile.objects) {
+      if (obj.objData != null) scan(obj.objData);
+    }
+    return used;
+  }
+
+  void _showClearUnusedDialog() async {
+    final used = _collectReferencedAliases();
+    final toRemove = <PvzObject>[];
+    for (final obj in widget.levelFile.objects) {
+      if (obj.objClass == 'LevelDefinition') continue;
+      final aliases = obj.aliases ?? [];
+      final isUsed = aliases.any((a) => used.contains(a));
+      if (!isUsed) toRemove.add(obj);
+    }
+    if (toRemove.isEmpty) {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: isDark ? pvzGreenDark : pvzGreenLight,
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  l10n?.clearUnusedNone ?? 'No unused objects found.',
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n?.clearUnusedTitle ?? 'Clear unused objects?'),
+        content: Text(
+          l10n?.clearUnusedMessage ??
+              'This will permanently delete all unused objects from the level file, including custom zombies, their properties, and any other unreferenced data. This action cannot be undone. Continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n?.cancel ?? 'Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n?.delete ?? 'Delete'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) {
+      for (final obj in toRemove) {
+        widget.levelFile.objects.remove(obj);
+      }
+      await LevelRepository.saveAndExport(widget.filePath, widget.levelFile);
+      widget.onSaved?.call();
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n?.clearUnusedDone(toRemove.length) ??
+                  'Removed ${toRemove.length} unused object(s).',
+            ),
+          ),
+        );
+      }
+    }
   }
 
   void _deleteObjectAtIndex(int index) async {
@@ -338,10 +596,9 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
       widget.onSaved?.call();
       setState(() {});
       if (mounted) {
-        final l10nAfter = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10nAfter?.objectDeleted ?? 'Object deleted'),
+            content: Text(l10n?.objectDeleted ?? 'Object deleted'),
           ),
         );
       }
@@ -350,6 +607,13 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
 
   /// Scrollable JSON view. On desktop, vertical scrollbar stays visible on right.
   Widget _buildScrollLayout(String pretty, bool isDesktop) {
+    final baseStyle = TextStyle(
+      fontFamily: _codeFontFamily,
+      fontSize: _fontSize,
+      height: 1.3,
+    );
+    final lines = pretty.split('\n');
+    final lineCount = lines.isEmpty ? 1 : lines.length;
     return Scrollbar(
       controller: _verticalController,
       thumbVisibility: true,
@@ -368,13 +632,42 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
             scrollDirection: Axis.horizontal,
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(
-                pretty,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontFamily: 'monospace',
-                      fontSize: _fontSize,
-                      height: 1.3,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(
+                        lineCount,
+                        (i) => Text(
+                          '${i + 1}',
+                          style: baseStyle.copyWith(
+                            fontFamily: _codeFontFamily,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
                     ),
+                  ),
+                  Text.rich(
+                      TextSpan(
+                        style: baseStyle,
+                        children: [
+                          for (var i = 0; i < lines.length; i++)
+                            TextSpan(
+                              text: lines[i] +
+                                  (i < lines.length - 1 ? '\n' : ''),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -385,6 +678,8 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
 }
 
 class _ObjectCodeCard extends StatelessWidget {
+  static const codeFontFamily = 'monospace';
+
   const _ObjectCodeCard({
     required this.index,
     required this.obj,
@@ -392,6 +687,7 @@ class _ObjectCodeCard extends StatelessWidget {
     required this.expanded,
     required this.onToggle,
     required this.onDelete,
+    required this.deleteTooltip,
   });
 
   final int index;
@@ -400,6 +696,7 @@ class _ObjectCodeCard extends StatelessWidget {
   final bool expanded;
   final VoidCallback onToggle;
   final VoidCallback onDelete;
+  final String deleteTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -411,9 +708,7 @@ class _ObjectCodeCard extends StatelessWidget {
     final headerBg = isDark
         ? const Color(0xFF2E7D32)
         : const Color(0xFF4CAF50);
-    final deleteBtnBg = isDark
-        ? const Color(0xFF66BB6A)
-        : const Color(0xFF81C784);
+    final deleteBtnBg = theme.colorScheme.error;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -470,8 +765,9 @@ class _ObjectCodeCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                     child: IconButton(
                       icon: const Icon(Icons.delete_outline),
+                      tooltip: deleteTooltip,
                       onPressed: onDelete,
-                      color: Colors.white,
+                      color: theme.colorScheme.onError,
                       iconSize: 20,
                       padding: const EdgeInsets.all(6),
                       constraints: const BoxConstraints(),
@@ -493,10 +789,10 @@ class _ObjectCodeCard extends StatelessWidget {
             SelectionArea(
               child: Padding(
                 padding: const EdgeInsets.all(12),
-                child: Text(
+                  child: Text(
                   jsonContent,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    fontFamily: 'monospace',
+                    fontFamily: _ObjectCodeCard.codeFontFamily,
                     fontSize: fontSize,
                     height: 1.3,
                   ),

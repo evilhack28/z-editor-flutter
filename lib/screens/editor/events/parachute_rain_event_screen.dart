@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Parachute/Bass/Spider rain event editor. Ported from Z-Editor-master
@@ -73,6 +74,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final info = RtidParser.parse(widget.rtid);
     final alias = info?.alias ?? '';
 
@@ -85,7 +87,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
               widget.eventSubtitle,
               style: theme.textTheme.bodySmall,
@@ -97,15 +99,15 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Parachute/Bass/Spider rain event',
-              sections: const [
+              title: l10n?.eventParachuteRain ?? 'Parachute/Bass/Spider rain event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: 'Zombies drop from the sky during a wave. Used for Lost Pilot, Bass zombies, Spider zombies, etc.',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpParachuteRainBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'Logic',
-                  body: 'Zombies spawn in batches. Control total count, batch size, column range, and timing. Red subtitle appears before spawn.',
+                  title: l10n?.logic ?? 'Logic',
+                  body: l10n?.eventHelpParachuteRainLogic ?? '',
                 ),
               ],
             ),
@@ -119,13 +121,13 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildZombieConfigCard(theme),
+              _buildZombieConfigCard(context, theme, l10n),
               const SizedBox(height: 16),
-              _buildCountCard(theme),
+              _buildCountCard(context, theme, l10n),
               const SizedBox(height: 16),
-              _buildRangeTimeCard(theme),
+              _buildRangeTimeCard(context, theme, l10n),
               const SizedBox(height: 16),
-              _buildMessageCard(theme),
+              _buildMessageCard(theme, l10n),
               const SizedBox(height: 32),
             ],
           ),
@@ -134,7 +136,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
     );
   }
 
-  Widget _buildZombieConfigCard(ThemeData theme) {
+  Widget _buildZombieConfigCard(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -146,7 +148,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
                 Icon(Icons.groups, color: theme.colorScheme.primary),
                 const SizedBox(width: 12),
                 Text(
-                  'Zombie type (SpiderZombieName)',
+                  l10n?.zombieTypeSpiderZombieName ?? 'Zombie type (SpiderZombieName)',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -159,7 +161,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
                 Expanded(
                   child: Text(
                     _data.spiderZombieName.isEmpty
-                        ? 'None selected'
+                        ? (l10n?.noneSelected ?? 'None selected')
                         : _data.spiderZombieName,
                     style: theme.textTheme.bodyLarge,
                   ),
@@ -181,7 +183,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
                       _sync();
                     });
                   },
-                  child: const Text('Select zombie'),
+                  child: Text(l10n?.selectZombie ?? 'Select zombie'),
                 ),
               ],
             ),
@@ -191,7 +193,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
     );
   }
 
-  Widget _buildCountCard(ThemeData theme) {
+  Widget _buildCountCard(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -199,7 +201,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Spawn count',
+              l10n?.spawnCount ?? 'Spawn count',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -209,7 +211,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
               children: [
                 Expanded(
                   child: _NumberField(
-                    label: 'Total (SpiderCount)',
+                    label: l10n?.totalSpiderCount ?? 'Total (SpiderCount)',
                     value: _data.spiderCount,
                     onChanged: (v) {
                       _data = ParachuteRainEventData(
@@ -230,7 +232,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _NumberField(
-                    label: 'Per batch (GroupSize)',
+                    label: l10n?.perBatchGroupSize ?? 'Per batch (GroupSize)',
                     value: _data.groupSize,
                     onChanged: (v) {
                       _data = ParachuteRainEventData(
@@ -256,7 +258,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
     );
   }
 
-  Widget _buildRangeTimeCard(ThemeData theme) {
+  Widget _buildRangeTimeCard(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -264,7 +266,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Column range & timing',
+              l10n?.columnRangeTiming ?? 'Column range & timing',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -274,7 +276,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
               children: [
                 Expanded(
                   child: _NumberField(
-                    label: 'Start column',
+                    label: l10n?.startColumn ?? 'Start column',
                     value: _data.columnStart,
                     onChanged: (v) {
                       _data = ParachuteRainEventData(
@@ -295,7 +297,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _NumberField(
-                    label: 'End column',
+                    label: l10n?.endColumn ?? 'End column',
                     value: _data.columnEnd,
                     onChanged: (v) {
                       _data = ParachuteRainEventData(
@@ -320,7 +322,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
               children: [
                 Expanded(
                   child: _DoubleField(
-                    label: 'Time between batches (s)',
+                    label: l10n?.timeBetweenGroups ?? 'Time between batches (s)',
                     value: _data.timeBetweenGroups,
                     onChanged: (v) {
                       _data = ParachuteRainEventData(
@@ -341,7 +343,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _DoubleField(
-                    label: 'Fall time (s)',
+                    label: l10n?.fallTime ?? 'Fall time (s)',
                     value: _data.zombieFallTime,
                     onChanged: (v) {
                       _data = ParachuteRainEventData(
@@ -363,7 +365,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
             ),
             const SizedBox(height: 12),
             _DoubleField(
-              label: 'Time before full spawn (s)',
+              label: l10n?.timeBeforeSpawn ?? 'Time before full spawn (s)',
               value: _data.timeBeforeFullSpawn,
               onChanged: (v) {
                 _data = ParachuteRainEventData(
@@ -386,7 +388,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
     );
   }
 
-  Widget _buildMessageCard(ThemeData theme) {
+  Widget _buildMessageCard(ThemeData theme, AppLocalizations? l10n) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -394,7 +396,7 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Red subtitle (WaveStartMessage)',
+              l10n?.waveStartMessageLabel ?? 'Red subtitle (WaveStartMessage)',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -402,9 +404,9 @@ class _ParachuteRainEventScreenState extends State<ParachuteRainEventScreen> {
             const SizedBox(height: 8),
             TextFormField(
               initialValue: _data.waveStartMessage,
-              decoration: const InputDecoration(
-                hintText: 'Optional warning text before spawn',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: l10n?.optionalWarningText ?? 'Optional warning text before spawn',
+                border: const OutlineInputBorder(),
               ),
               onChanged: (v) {
                 _data = ParachuteRainEventData(

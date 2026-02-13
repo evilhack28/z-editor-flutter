@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/event_registry.dart';
+import 'package:z_editor/data/registry/event_registry.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 
 /// Event selection for wave timeline. Ported from Z-Editor-master EventSelectionScreen.kt
@@ -63,14 +63,14 @@ class EventSelectionScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _getTitle(context, meta),
+                            _getTitle(context, meta, l10n),
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _getDescription(context, meta),
+                            _getDescription(context, meta, l10n),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
@@ -88,16 +88,15 @@ class EventSelectionScreen extends StatelessWidget {
     );
   }
 
-  String _getTitle(BuildContext context, EventMetadata meta) {
-    return _resolveEventKey(context, meta.titleKey, 'eventTitle_');
+  String _getTitle(BuildContext context, EventMetadata meta, AppLocalizations? l10n) {
+    return _resolveEventKey(context, meta.titleKey, 'eventTitle_', l10n);
   }
 
-  String _getDescription(BuildContext context, EventMetadata meta) {
-    return _resolveEventKey(context, meta.descriptionKey, 'eventDesc_');
+  String _getDescription(BuildContext context, EventMetadata meta, AppLocalizations? l10n) {
+    return _resolveEventKey(context, meta.descriptionKey, 'eventDesc_', l10n);
   }
 
-  String _resolveEventKey(BuildContext context, String key, String prefix) {
-    final l10n = AppLocalizations.of(context);
+  String _resolveEventKey(BuildContext context, String key, String prefix, AppLocalizations? l10n) {
     if (l10n == null) return key.replaceAll(prefix, '');
     try {
       final name = key.replaceAll(prefix, '');

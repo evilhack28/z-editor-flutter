@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Black hole event editor. Ported from Z-Editor-master BlackHoleEventEP.kt
@@ -66,6 +67,7 @@ class _BlackHoleEventScreenState extends State<BlackHoleEventScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final alias = LevelParser.extractAlias(widget.rtid);
 
     return Scaffold(
@@ -77,9 +79,9 @@ class _BlackHoleEventScreenState extends State<BlackHoleEventScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit $alias'),
+            Text(l10n?.editAlias(alias) ?? 'Edit $alias'),
             Text(
-              'Event: Black hole',
+              l10n?.eventBlackHole ?? 'Black hole event',
               style: theme.textTheme.bodySmall,
             ),
           ],
@@ -89,15 +91,15 @@ class _BlackHoleEventScreenState extends State<BlackHoleEventScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showEditorHelpDialog(
               context,
-              title: 'Black hole event',
-              sections: const [
+              title: l10n?.eventBlackHole ?? 'Black hole event',
+              sections: [
                 HelpSectionData(
-                  title: 'Overview',
-                  body: '功夫世界特有事件。时空黑洞会随事件生成，将所有植物向右吸动。',
+                  title: l10n?.overview ?? 'Overview',
+                  body: l10n?.eventHelpBlackHoleBody ?? '',
                 ),
                 HelpSectionData(
-                  title: 'ColNumPlantIsDragged',
-                  body: '植物被吸引拖拽的列数，表示植物会受黑洞影响向右移多少格。',
+                  title: l10n?.columnsDragged ?? 'Columns dragged',
+                  body: l10n?.eventHelpBlackHoleColumns ?? '',
                 ),
               ],
             ),
@@ -118,7 +120,7 @@ class _BlackHoleEventScreenState extends State<BlackHoleEventScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Attraction config',
+                        l10n?.attractionConfig ?? 'Attraction config',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -126,9 +128,9 @@ class _BlackHoleEventScreenState extends State<BlackHoleEventScreen> {
                       const SizedBox(height: 16),
                       TextFormField(
                         initialValue: _data.colNumPlantIsDragged.toString(),
-                        decoration: const InputDecoration(
-                          labelText: 'Columns dragged (ColNumPlantIsDragged)',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n?.columnsDragged ?? 'Columns dragged',
+                          border: const OutlineInputBorder(),
                         ),
                         keyboardType: TextInputType.number,
                         onChanged: (v) {

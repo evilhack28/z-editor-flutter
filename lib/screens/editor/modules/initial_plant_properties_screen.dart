@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
-import 'package:z_editor/data/plant_repository.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/theme/app_theme.dart';
@@ -141,8 +141,7 @@ class _InitialPlantPropertiesScreenState extends State<InitialPlantPropertiesScr
   int get _gridRows => _isDeepSeaLawn ? 6 : 5;
   int get _gridCols => _isDeepSeaLawn ? 10 : 9;
 
-  void _showHelp() {
-    final l10n = AppLocalizations.of(context)!;
+  void _showHelp(AppLocalizations l10n) {
     showEditorHelpDialog(
       context,
       title: l10n.frozenPlantPlacementHelpTitle,
@@ -190,7 +189,7 @@ class _InitialPlantPropertiesScreenState extends State<InitialPlantPropertiesScr
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline),
-            onPressed: _showHelp,
+            onPressed: () => _showHelp(l10n),
           ),
         ],
       ),
