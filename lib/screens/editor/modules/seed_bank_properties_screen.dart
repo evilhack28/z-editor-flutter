@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
 import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
@@ -532,14 +533,16 @@ class _SeedBankPropertiesScreenState extends State<SeedBankPropertiesScreen> {
 }
 
 /// For plant list: use plant name if known, else zombie name if known, else id as-is (no plant_ prefix).
+/// Resolves zombie by type name (alias -> typeName via ZombiePropertiesRepository) so custom zombies show correct base type.
 String _plantOrZombieDisplayName(BuildContext context, String id) {
   final plant = PlantRepository().getPlantInfoById(id);
   if (plant != null) {
     return ResourceNames.lookup(context, plant.name);
   }
-  final zombie = ZombieRepository().getZombieById(id);
+  final zombieTypeName = ZombiePropertiesRepository.getTypeNameByAlias(id);
+  final zombie = ZombieRepository().getZombieById(zombieTypeName);
   if (zombie != null) {
-    return _zombieDisplayName(context, id);
+    return _zombieDisplayName(context, zombieTypeName);
   }
   return id;
 }
@@ -638,10 +641,11 @@ class _ResourceListEditor extends StatelessWidget {
                 runSpacing: 8,
                 children: List.generate(items.length, (i) {
                   final id = items[i];
+                  final zombieTypeName = isZombie ? ZombiePropertiesRepository.getTypeNameByAlias(id) : null;
                   final name = isZombie
-                      ? _zombieDisplayName(context, id)
+                      ? _zombieDisplayName(context, zombieTypeName!)
                       : _plantOrZombieDisplayName(context, id);
-                  final zombie = isZombie ? ZombieRepository().getZombieById(id) : null;
+                  final zombie = isZombie ? ZombieRepository().getZombieById(zombieTypeName!) : null;
                   final plant = !isZombie ? PlantRepository().getPlantInfoById(id) : null;
                   final iconPath = isZombie
                       ? (zombie?.iconAssetPath ?? 'assets/images/others/unknown.webp')

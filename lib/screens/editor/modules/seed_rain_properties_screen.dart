@@ -5,6 +5,7 @@ import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
 import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/screens/select/plant_selection_screen.dart';
 import 'package:z_editor/screens/select/zombie_selection_screen.dart';
@@ -207,7 +208,8 @@ class _SeedRainPropertiesScreenState extends State<SeedRainPropertiesScreen> {
       case 1:
         final alias = RtidParser.parse(item.zombieTypeName ?? '')?.alias ??
             item.zombieTypeName ?? '';
-        return ResourceNames.lookup(context, ZombieRepository().getName(alias));
+        final typeName = ZombiePropertiesRepository.getTypeNameByAlias(alias);
+        return ResourceNames.lookup(context, ZombieRepository().getName(typeName));
       case 2:
         return 'Plant Food';
       default:
@@ -438,7 +440,8 @@ class _SeedRainRowCard extends StatelessWidget {
       case 1:
         final alias = RtidParser.parse(item.zombieTypeName ?? '')?.alias ??
             item.zombieTypeName ?? '';
-        final info = ZombieRepository().getZombieById(alias);
+        final typeName = ZombiePropertiesRepository.getTypeNameByAlias(alias);
+        final info = ZombieRepository().getZombieById(typeName);
         if (info?.icon != null) return 'assets/images/zombies/${info!.icon}';
         return null;
       case 2:

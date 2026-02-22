@@ -24,7 +24,7 @@ class ReferenceRepository {
       for (final e in list) {
         final obj = PvzObject.fromJson(e as Map<String, dynamic>);
         final alias = obj.aliases?.isNotEmpty == true ? obj.aliases!.first : 'unknown';
-        cache[alias] = obj;
+        if (!cache.containsKey(alias)) cache[alias] = obj;
       }
       instance._moduleCache = cache;
 

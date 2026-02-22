@@ -445,9 +445,7 @@ class _WaveManagerModuleScreenState extends State<WaveManagerModuleScreen> {
                 final typeName = ZombiePropertiesRepository.getTypeNameByAlias(
                   alias,
                 );
-                final info =
-                    ZombieRepository().getZombieById(typeName) ??
-                    ZombieRepository().getZombieById(alias);
+                final info = ZombieRepository().getZombieById(typeName);
                 final nameKey =
                     info?.name ?? ZombieRepository().getName(typeName);
                 final displayName = ResourceNames.lookup(context, nameKey);

@@ -27,11 +27,13 @@ class ZombiePropertiesRepository {
           final typeData = ZombieTypeData.fromJson(obj.objData as Map<String, dynamic>);
           final typeName = typeData.typeName;
           if (typeName.isEmpty) continue;
- 
+          if (instance._aliasToTypeCache.containsKey(alias) ||
+              instance._aliasToTypeCache.containsKey(typeName)) continue;
+
           instance._aliasToTypeCache[alias] = typeName;
           instance._aliasToTypeCache[typeName] = typeName;
           instance._originalTypeJson[typeName] = obj;
- 
+
           final propsAlias = RtidParser.parse(typeData.properties)?.alias ?? '';
           final propsObj = propsFileMap[propsAlias];
           if (propsObj != null && propsObj.objData is Map<String, dynamic>) {
@@ -64,9 +66,12 @@ class ZombiePropertiesRepository {
       final objects = (root['objects'] as List<dynamic>? ?? [])
           .map((e) => PvzObject.fromJson(e as Map<String, dynamic>))
           .toList();
-      return {
-        for (final o in objects) (o.aliases?.isNotEmpty == true ? o.aliases!.first : 'unknown'): o,
-      };
+      final result = <String, PvzObject>{};
+      for (final o in objects) {
+        final alias = o.aliases?.isNotEmpty == true ? o.aliases!.first : 'unknown';
+        if (!result.containsKey(alias)) result[alias] = o;
+      }
+      return result;
     } catch (_) {
       return {};
     }

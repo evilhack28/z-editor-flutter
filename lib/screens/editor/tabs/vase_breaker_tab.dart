@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/repository/plant_repository.dart';
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
 import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
@@ -381,8 +382,9 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
       return const Icon(Icons.local_florist, color: Colors.green, size: size);
     }
     if (vase.zombieTypeName != null) {
+      final typeName = ZombiePropertiesRepository.getTypeNameByAlias(vase.zombieTypeName!);
       final zombie = ZombieRepository().allZombies.firstWhereOrNull(
-        (z) => z.id == vase.zombieTypeName,
+        (z) => z.id == typeName,
       );
       final asset = zombie?.iconAssetPath;
       if (asset != null) {
@@ -425,8 +427,9 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
           : vase.plantTypeName!;
     }
     if (vase.zombieTypeName != null) {
+      final typeName = ZombiePropertiesRepository.getTypeNameByAlias(vase.zombieTypeName!);
       final zombies = ZombieRepository().allZombies.where(
-        (z) => z.id == vase.zombieTypeName,
+        (z) => z.id == typeName,
       );
       return zombies.isNotEmpty
           ? ResourceNames.lookup(context, zombies.first.name)

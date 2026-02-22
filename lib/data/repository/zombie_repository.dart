@@ -207,8 +207,13 @@ class ZombieRepository {
       final jsonString = await loadJsonString('assets/resources/Zombies.json');
       final List<dynamic> jsonList = json.decode(jsonString);
 
-      _allZombies = jsonList.map((jsonItem) {
+      final seenIds = <String>{};
+      _allZombies = [];
+      for (final jsonItem in jsonList) {
         final id = jsonItem['id'] as String;
+        if (seenIds.contains(id)) continue;
+        seenIds.add(id);
+
         final name = jsonItem['name'] as String;
         final icon = jsonItem['icon'] as String?;
         final tagsList = (jsonItem['tags'] as List<dynamic>?)?.cast<String>();
@@ -230,13 +235,13 @@ class ZombieRepository {
                 .toList() ??
             [];
 
-        return ZombieInfo(
+        _allZombies.add(ZombieInfo(
           id: id,
           name: name,
           icon: icon,
           tags: tags.isEmpty ? [ZombieTag.all] : tags,
-        );
-      }).toList();
+        ));
+      }
 
       _isLoaded = true;
     } catch (e) {

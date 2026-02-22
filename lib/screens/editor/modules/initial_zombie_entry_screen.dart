@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
 import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
@@ -410,9 +411,10 @@ class _ZombieIconSmall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final info = ZombieRepository().getZombieById(typeName) ??
+    final typeId = ZombiePropertiesRepository.getTypeNameByAlias(typeName);
+    final info = ZombieRepository().getZombieById(typeId) ??
         ZombieRepository().getZombieById(
-          typeName.replaceAll('_elite', ''),
+          typeId.replaceAll('_elite', ''),
         );
     final path = info?.icon != null
         ? 'assets/images/zombies/${info!.icon}'
@@ -448,7 +450,7 @@ class _InitialZombieCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final typeId = item.typeName;
+    final typeId = ZombiePropertiesRepository.getTypeNameByAlias(item.typeName);
     final info = ZombieRepository().getZombieById(typeId) ??
         ZombieRepository().getZombieById(
           typeId.replaceAll('_elite', ''),
@@ -580,7 +582,8 @@ class _InitialZombieEditDialogState extends State<_InitialZombieEditDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final nameKey = ZombieRepository().getName(widget.placement.typeName);
+    final typeId = ZombiePropertiesRepository.getTypeNameByAlias(widget.placement.typeName);
+    final nameKey = ZombieRepository().getName(typeId);
     final name = ResourceNames.lookup(context, nameKey);
     return AlertDialog(
       title: Text(AppLocalizations.of(context)?.editPresetZombie(name) ?? 'Edit preset zombie: $name'),

@@ -483,14 +483,14 @@ class _InitialPlantCard extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.all(2),
                             decoration: BoxDecoration(
-                              color: Colors.lightBlue.shade100,
+                              color: Colors.green.shade700,
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.grey),
                             ),
                             child: Icon(
                               Icons.checkroom,
                               size: 12,
-                              color: theme.colorScheme.onSurface,
+                              color: Colors.white,
                             ),
                           ),
                         ),

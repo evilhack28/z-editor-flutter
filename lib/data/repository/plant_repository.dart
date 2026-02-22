@@ -206,39 +206,41 @@ class PlantRepository {
       final jsonString = await loadJsonString('assets/resources/Plants.json');
       final List<dynamic> jsonList = json.decode(jsonString);
 
-      _allPlants =
-          jsonList.map((jsonItem) {
-            final id = jsonItem['id'] as String;
-            final name = jsonItem['name'] as String;
-            final icon = jsonItem['icon'] as String?;
-            final tagsList = (jsonItem['tags'] as List<dynamic>?)?.cast<
-              String
-            >();
+      final seenIds = <String>{};
+      _allPlants = [];
+      for (final jsonItem in jsonList) {
+        final id = jsonItem['id'] as String;
+        if (seenIds.contains(id)) continue;
+        seenIds.add(id);
 
-            _uiConfiguredAliases.add(id);
+        final name = jsonItem['name'] as String;
+        final icon = jsonItem['icon'] as String?;
+        final tagsList = (jsonItem['tags'] as List<dynamic>?)?.cast<String>();
 
-            final tags =
-                tagsList
-                    ?.map((tagStr) {
-                      final normalizedTag = tagStr
-                          .replaceAll('_', '')
-                          .toLowerCase();
-                      return PlantTag.values.firstWhere(
-                        (e) => e.name.toLowerCase() == normalizedTag,
-                        orElse: () => PlantTag.all,
-                      );
-                    })
-                    .where((element) => element != PlantTag.all)
-                    .toList() ??
-                [];
+        _uiConfiguredAliases.add(id);
 
-            return PlantInfo(
-              id: id,
-              name: name,
-              icon: icon,
-              tags: tags.isEmpty ? [PlantTag.all] : tags,
-            );
-          }).toList();
+        final tags =
+            tagsList
+                ?.map((tagStr) {
+                  final normalizedTag = tagStr
+                      .replaceAll('_', '')
+                      .toLowerCase();
+                  return PlantTag.values.firstWhere(
+                    (e) => e.name.toLowerCase() == normalizedTag,
+                    orElse: () => PlantTag.all,
+                  );
+                })
+                .where((element) => element != PlantTag.all)
+                .toList() ??
+            [];
+
+        _allPlants.add(PlantInfo(
+          id: id,
+          name: name,
+          icon: icon,
+          tags: tags.isEmpty ? [PlantTag.all] : tags,
+        ));
+      }
 
       _isLoaded = true;
     } catch (e) {
