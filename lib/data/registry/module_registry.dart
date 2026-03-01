@@ -157,6 +157,8 @@ class ModuleRegistry {
         return l10n.moduleTitle_RoofProperties;
       case 'moduleTitle_TideProperties':
         return l10n.moduleTitle_TideProperties;
+      case 'moduleTitle_BombProperties':
+        return l10n.moduleTitle_BombProperties;
       case 'moduleTitle_WarMistProperties':
         return l10n.moduleTitle_WarMistProperties;
       case 'moduleTitle_RainDarkProperties':
@@ -167,6 +169,12 @@ class ModuleRegistry {
         return l10n.moduleTitle_TunnelDefendModuleProperties;
       case 'moduleTitle_ZombieRushModuleProperties':
         return l10n.moduleTitle_ZombieRushModuleProperties;
+      case 'moduleTitle_RenaiModuleProperties':
+        return l10n.moduleTitle_RenaiModuleProperties;
+      case 'moduleTitle_DropShipProperties':
+        return l10n.moduleTitle_DropShipProperties;
+      case 'moduleTitle_HeianWindModuleProperties':
+        return l10n.moduleTitle_HeianWindModuleProperties;
       default:
         return key;
     }
@@ -257,6 +265,8 @@ class ModuleRegistry {
         return l10n.moduleDesc_RoofProperties;
       case 'moduleDesc_TideProperties':
         return l10n.moduleDesc_TideProperties;
+      case 'moduleDesc_BombProperties':
+        return l10n.moduleDesc_BombProperties;
       case 'moduleDesc_WarMistProperties':
         return l10n.moduleDesc_WarMistProperties;
       case 'moduleDesc_RainDarkProperties':
@@ -267,6 +277,12 @@ class ModuleRegistry {
         return l10n.moduleDesc_TunnelDefendModuleProperties;
       case 'moduleDesc_ZombieRushModuleProperties':
         return l10n.moduleDesc_ZombieRushModuleProperties;
+      case 'moduleDesc_RenaiModuleProperties':
+        return l10n.moduleDesc_RenaiModuleProperties;
+      case 'moduleDesc_DropShipProperties':
+        return l10n.moduleDesc_DropShipProperties;
+      case 'moduleDesc_HeianWindModuleProperties':
+        return l10n.moduleDesc_HeianWindModuleProperties;
       default:
         return key;
     }
@@ -704,6 +720,17 @@ class ModuleRegistry {
       initialDataFactory: () => TidePropertiesData(),
       routeId: 'Tide',
     ),
+    'BombProperties': ModuleMetadata(
+      titleKey: 'moduleTitle_BombProperties',
+      descriptionKey: 'moduleDesc_BombProperties',
+      icon: Icons.local_fire_department,
+      isCore: true,
+      allowMultiple: false,
+      category: ModuleCategory.mode,
+      defaultAlias: 'Bombs',
+      initialDataFactory: () => BombPropertiesData(),
+      routeId: 'Bombs',
+    ),
     'WarMistProperties': ModuleMetadata(
       titleKey: 'moduleTitle_WarMistProperties',
       descriptionKey: 'moduleDesc_WarMistProperties',
@@ -753,6 +780,39 @@ class ModuleRegistry {
       defaultAlias: 'ZombieRushModule',
       initialDataFactory: () => ZombieRushModuleData(),
       routeId: 'ZombieRushModule',
+    ),
+    'RenaiModuleProperties': ModuleMetadata(
+      titleKey: 'moduleTitle_RenaiModuleProperties',
+      descriptionKey: 'moduleDesc_RenaiModuleProperties',
+      icon: Icons.architecture,
+      isCore: true,
+      allowMultiple: false,
+      category: ModuleCategory.scene,
+      defaultAlias: 'RenaiModule',
+      initialDataFactory: () => RenaiModulePropertiesData(),
+      routeId: 'RenaiModule',
+    ),
+    'DropShipProperties': ModuleMetadata(
+      titleKey: 'moduleTitle_DropShipProperties',
+      descriptionKey: 'moduleDesc_DropShipProperties',
+      icon: Icons.flight_land,
+      isCore: true,
+      allowMultiple: false,
+      category: ModuleCategory.scene,
+      defaultAlias: 'DropShip',
+      initialDataFactory: () => DropShipPropertiesData(),
+      routeId: 'DropShip',
+    ),
+    'HeianWindModuleProperties': ModuleMetadata(
+      titleKey: 'moduleTitle_HeianWindModuleProperties',
+      descriptionKey: 'moduleDesc_HeianWindModuleProperties',
+      icon: Icons.air,
+      isCore: true,
+      allowMultiple: false,
+      category: ModuleCategory.scene,
+      defaultAlias: 'HeianWindModule',
+      initialDataFactory: () => HeianWindModulePropertiesData(),
+      routeId: 'HeianWindModule',
     ),
   };
 

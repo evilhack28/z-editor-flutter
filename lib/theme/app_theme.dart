@@ -41,6 +41,10 @@ const Color pvzLightOrangeDark = Color(0xFFFFC97A);
 const Color pvzCyanLight = Color(0xFF009688);
 const Color pvzCyanDark = Color(0xFF479891);
 
+/// Light blue for Custom Fish card in Wave Timeline
+const Color pvzFishLight = Color(0xFFB3E5FC);
+const Color pvzFishDark = Color(0xFF4FC3F7);
+
 /// Usage guide card: dark blue in dark mode, light blue in light mode
 const Color usageGuideDarkBg = Color(0xFF1C4D7C);
 const Color usageGuideLightBg = Color(0xFFB3E5FC);

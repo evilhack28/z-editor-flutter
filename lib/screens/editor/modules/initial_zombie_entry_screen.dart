@@ -345,26 +345,27 @@ class _InitialZombieEntryScreenState extends State<InitialZombieEntryScreen> {
                                       ),
                                       if (count > 1)
                                         Positioned(
-                                          top: 2,
-                                          right: 2,
+                                          top: 3,
+                                          right: 3,
                                           child: Container(
                                             padding:
                                                 const EdgeInsets.symmetric(
-                                              horizontal: 2,
+                                              horizontal: 6,
+                                              vertical: 3,
                                             ),
                                             decoration: BoxDecoration(
                                               color: theme.colorScheme
                                                   .onSurfaceVariant,
                                               borderRadius:
                                                   const BorderRadius.only(
-                                                bottomLeft: Radius.circular(4),
+                                                bottomLeft: Radius.circular(6),
                                               ),
                                             ),
                                             child: Text(
                                               '+$count',
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 8,
+                                                fontSize: 12,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),

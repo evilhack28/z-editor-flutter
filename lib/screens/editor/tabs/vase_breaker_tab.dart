@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/repository/zombie_properties_repository.dart';
@@ -29,6 +30,10 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
   PvzObject? _presetObj;
   late VaseBreakerPresetData _data;
   bool _isLoading = true;
+
+  bool get _isDeepSeaLawn => LevelParser.isDeepSeaLawnFromFile(widget.levelFile);
+  int get _gridRows => _isDeepSeaLawn ? 6 : 5;
+  int get _gridCols => _isDeepSeaLawn ? 10 : 9;
 
   static const _collectableTypes = [
     _CollectableType('plantfood', 'Plant Food', 'plantfood.webp'),
@@ -94,18 +99,39 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
     final minCol = _data.minColumnIndex;
     final maxCol = _data.maxColumnIndex;
     final blacklistCount = _data.gridSquareBlacklist.where((loc) {
-      return loc.x >= minCol && loc.x <= maxCol && loc.y >= 0 && loc.y <= 4;
+      return loc.x >= minCol && loc.x <= maxCol && loc.y >= 0 && loc.y < _gridRows;
     }).length;
 
-    final totalSlots = (maxCol - minCol + 1) * 5 - blacklistCount;
+    final totalSlots = (maxCol - minCol + 1) * _gridRows - blacklistCount;
     final currentAssigned = _data.vases.fold(0, (sum, v) => sum + v.count);
     final isCapacityError = totalSlots != currentAssigned;
+
+    final outOfArea = _data.gridSquareBlacklist
+        .where((loc) => loc.x < 0 || loc.x >= _gridCols || loc.y < 0 || loc.y >= _gridRows)
+        .toList();
+    final has6RowData = !_isDeepSeaLawn &&
+        _data.gridSquareBlacklist.any((loc) => loc.y >= 5);
+    final showStageWarning = has6RowData;
+    final showOutOfAreaWarning = outOfArea.isNotEmpty;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (showStageWarning)
+            _WarningBanner(
+              message: l10n?.warningStageSwitchedTo5Rows ??
+                  'Stage uses 5 rows but some data references row 6. These objects may not display correctly in-game.',
+              icon: Icons.warning_amber,
+            ),
+          if (showOutOfAreaWarning)
+            _WarningBanner(
+              message: l10n?.warningObjectsOutsideArea(_gridRows, _gridCols) ??
+                  'Some objects are outside the playable area ($_gridRows rows × $_gridCols cols).',
+              icon: Icons.info_outline,
+            ),
+          if (showStageWarning || showOutOfAreaWarning) const SizedBox(height: 16),
           _buildRangeSection(l10n),
           const SizedBox(height: 16),
           _buildGridSection(l10n),
@@ -150,7 +176,7 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
                   _data.maxColumnIndex,
                   (val) => _updateData((d) => d.maxColumnIndex = val),
                   _data.minColumnIndex,
-                  8,
+                  _gridCols - 1,
                 ),
               ],
             ),
@@ -188,7 +214,6 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
   }
 
   Widget _buildGridSection(AppLocalizations? l10n) {
-    // 5 rows, 9 columns (0-8)
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -201,12 +226,12 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
               desktopScale: 0.5,
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final cellSize = (constraints.maxWidth / 9).floorToDouble();
+                  final cellSize = (constraints.maxWidth / _gridCols).floorToDouble();
                   return Column(
-                    children: List.generate(5, (row) {
+                    children: List.generate(_gridRows, (row) {
                       return Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: List.generate(9, (col) {
+                        children: List.generate(_gridCols, (col) {
                           final isBlacklisted = _data.gridSquareBlacklist.any(
                             (loc) => loc.x == col && loc.y == row,
                           );
@@ -582,4 +607,37 @@ class _CollectableType {
   final String id;
   final String name;
   final String iconName;
+}
+
+class _WarningBanner extends StatelessWidget {
+  const _WarningBanner({required this.message, required this.icon});
+
+  final String message;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      color: theme.colorScheme.errorContainer.withValues(alpha: 0.5),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: theme.colorScheme.error, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

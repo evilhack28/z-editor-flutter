@@ -9,8 +9,14 @@ import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/data/wave_point_analysis.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/escape_override.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
+import 'package:z_editor/data/repository/fish_type_repository.dart';
 import 'package:z_editor/theme/app_theme.dart';
-import 'package:z_editor/widgets/editor_components.dart' show EventChipWidget, isDesktopPlatform;
+import 'package:z_editor/screens/select/event_selection_screen.dart';
+import 'package:z_editor/widgets/asset_image.dart'
+    show AssetImageWidget, imageAltCandidates;
+import 'package:z_editor/widgets/editor_components.dart'
+    show EventChipWidget, isDesktopPlatform;
 
 String _waveGuideBodyForPlatform(BuildContext context, AppLocalizations? l10n) {
   if (l10n == null) {
@@ -23,7 +29,10 @@ String _waveGuideBodyForPlatform(BuildContext context, AppLocalizations? l10n) {
       : l10n.waveTimelineGuideBodyMobile;
 }
 
-String _waveEmptyRowHintForPlatform(BuildContext context, AppLocalizations? l10n) {
+String _waveEmptyRowHintForPlatform(
+  BuildContext context,
+  AppLocalizations? l10n,
+) {
   if (l10n == null) {
     return isDesktopPlatform(context)
         ? 'Empty wave (click to manage)'
@@ -45,6 +54,8 @@ class WaveTimelineTab extends StatefulWidget {
     required this.onAddEvent,
     required this.onEditWaveManagerSettings,
     this.onEditCustomZombie,
+    this.onEditCustomFish,
+    this.onOpenModule,
     this.openWaveSheetNotifier,
     this.onCreateContainer,
     this.onDeleteContainer,
@@ -57,6 +68,8 @@ class WaveTimelineTab extends StatefulWidget {
   final void Function(int waveIndex) onAddEvent;
   final VoidCallback onEditWaveManagerSettings;
   final void Function(String rtid)? onEditCustomZombie;
+  final void Function(String rtid)? onEditCustomFish;
+  final void Function(String rtid)? onOpenModule;
   final ValueNotifier<({int waveIndex, String? rtid})?>? openWaveSheetNotifier;
   final VoidCallback? onCreateContainer;
   final VoidCallback? onDeleteContainer;
@@ -103,11 +116,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     super.dispose();
   }
 
-  int _pointsAtWave(
-    WaveManagerModuleData module,
-    int waveIndex,
-    bool isFlag,
-  ) {
+  int _pointsAtWave(WaveManagerModuleData module, int waveIndex, bool isFlag) {
     if (module.dynamicZombies.isEmpty) return 0;
     final g = module.dynamicZombies.first;
     final startEffectWave = g.startingWave + 1;
@@ -138,17 +147,14 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                 children: [
                   Text(
                     l10n?.waveTimelineGuideTitle ?? 'Usage guide',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: onBg,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: onBg),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     _waveGuideBodyForPlatform(context, l10n),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: onBg.withValues(alpha: 0.9),
-                        ),
+                      color: onBg.withValues(alpha: 0.9),
+                    ),
                   ),
                 ],
               ),
@@ -171,7 +177,10 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
           children: [
             Row(
               children: [
-                Icon(Icons.gpp_bad, color: Theme.of(context).colorScheme.onError),
+                Icon(
+                  Icons.gpp_bad,
+                  color: Theme.of(context).colorScheme.onError,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -189,9 +198,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
             ...deadLinks.map(
               (rtid) => Text(
                 rtid,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onError,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.onError),
               ),
             ),
             const SizedBox(height: 8),
@@ -211,10 +218,91 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                   _syncWaves();
                   setState(() {});
                 },
-                child: Text(
-                  l10n?.waveDeadLinksClear ?? 'Clear dead links',
-                ),
+                child: Text(l10n?.waveDeadLinksClear ?? 'Clear dead links'),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomFishCard(
+    BuildContext context,
+    List<_CustomFishUsage> customFishes,
+  ) {
+    if (customFishes.isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? pvzFishDark : pvzFishLight;
+    final itemBg = isDark ? const Color(0xFFB3E5FC) : const Color(0xFFE1F5FE);
+    final onCard = isDark ? Colors.white : Colors.black87;
+    final onItem = Colors.black87;
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      color: cardBg,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.pets, color: onCard),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n?.customFishManagerTitle ?? 'Custom fish',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: onCard,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: customFishes.map((info) {
+                final icon = info.isUnused ? Icons.warning : Icons.check_circle;
+                final iconColor = info.isUnused
+                    ? Colors.amber.shade700
+                    : const Color(0xFF2E7D32);
+                return Material(
+                  color: itemBg,
+                  borderRadius: BorderRadius.circular(20),
+                  child: InkWell(
+                    onTap: () => _showCustomFishSheet(context, info),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(icon, size: 18, color: iconColor),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              info.alias,
+                              style: TextStyle(
+                                color: onItem,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ],
         ),
@@ -231,7 +319,9 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     final cardBg = isDark ? pvzOrangeDark : pvzOrangeLight;
     // Distinct item backgrounds: light cream/beige so pills don't blend with card
     final itemBg = isDark
-        ? const Color(0xFFE8D4C4) // Light beige-orange (matches reference photos)
+        ? const Color(
+            0xFFE8D4C4,
+          ) // Light beige-orange (matches reference photos)
         : const Color(0xFFFFF5D6); // Warm cream (matches reference photos)
     final onCard = isDark ? Colors.white : Colors.black87;
     final onItem = Colors.black87; // Dark text for readability on light item bg
@@ -249,7 +339,8 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    l10n?.customZombieManagerTitle ?? 'Custom zombie management',
+                    l10n?.customZombieManagerTitle ??
+                        'Custom zombie management',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: onCard,
@@ -270,7 +361,9 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                 spacing: 8,
                 runSpacing: 8,
                 children: customZombies.map((info) {
-                  final icon = info.isUnused ? Icons.warning : Icons.check_circle;
+                  final icon = info.isUnused
+                      ? Icons.warning
+                      : Icons.check_circle;
                   final iconColor = info.isUnused
                       ? Colors.amber.shade700
                       : const Color(0xFF2E7D32); // Dark green for ok
@@ -282,7 +375,9 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                       borderRadius: BorderRadius.circular(20),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -311,6 +406,139 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     );
   }
 
+  void _showRenaiInfoDialog(BuildContext context, int waveIndex) {
+    final l10n = AppLocalizations.of(context);
+    final renai = _getRenaiModuleData();
+    if (renai == null) return;
+    final isEmpty = !renai.nightEnabled &&
+        renai.statueInfos.isEmpty &&
+        renai.statueNightInfos.isEmpty;
+    final sections = <Widget>[];
+    if (isEmpty) {
+      sections.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Text(
+            'Empty (roller/tiles only)',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ),
+      );
+    } else {
+      final nightStarts = renai.nightEnabled &&
+          renai.nightStartWaveNum + 1 == waveIndex;
+      final dayStatues = renai.statueInfos
+          .where((s) => s.waveNumber + 1 == waveIndex)
+          .toList();
+      final nightStatues = renai.statueNightInfos
+          .where((s) => s.waveNumber + 1 == waveIndex)
+          .toList();
+      if (nightStarts || dayStatues.isNotEmpty || nightStatues.isNotEmpty) {
+        sections.add(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (nightStarts)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      children: [
+                        Icon(Icons.nightlight_round,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Text(l10n?.renaiModuleNightStarts ?? 'Night starts'),
+                      ],
+                    ),
+                  ),
+                for (final s in dayStatues)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Row(
+                      children: [
+                        Icon(Icons.wb_sunny,
+                            size: 14,
+                            color: Theme.of(context).colorScheme.tertiary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${l10n?.renaiModuleStatueCarve ?? "Statue carve"}: R${s.gridY + 1}:C${s.gridX + 1} (${s.typeName})',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                for (final s in nightStatues)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Row(
+                      children: [
+                        Icon(Icons.nightlight_round,
+                            size: 14,
+                            color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${l10n?.renaiModuleStatueCarve ?? "Statue carve"}: R${s.gridY + 1}:C${s.gridX + 1} (${s.typeName})',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          '${l10n?.waveLabel ?? "Wave"} $waveIndex - ${l10n?.renaiModuleExpectationLabel ?? "Renai events"}',
+        ),
+        content: SingleChildScrollView(
+          child: sections.isEmpty
+              ? Text(
+                  l10n?.noDynamicZombies ?? 'No events',
+                  style: Theme.of(ctx).textTheme.bodySmall,
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: sections,
+                ),
+        ),
+        actions: [
+          if (widget.onOpenModule != null)
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              onPressed: () {
+                final rtid = _getModuleRtid('RenaiModuleProperties');
+                if (rtid != null) {
+                  Navigator.pop(ctx);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    widget.onOpenModule!(rtid);
+                  });
+                }
+              },
+              child: Text(l10n?.openModuleSettings ?? 'Open module settings'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n?.close ?? 'Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildWaveManagerSettingsCard(
     BuildContext context,
     int interval,
@@ -322,9 +550,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         leading: const Icon(Icons.tune),
-        title: Text(
-          l10n?.waveManagerGlobalParams ?? 'Wave manager parameters',
-        ),
+        title: Text(l10n?.waveManagerGlobalParams ?? 'Wave manager parameters'),
         subtitle: Text(
           l10n?.waveManagerGlobalSummary(
                 interval,
@@ -350,17 +576,17 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
             Text(
               l10n?.waveEmptyTitle ?? 'No waves yet',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               l10n?.waveEmptySubtitle ??
                   'Add the first wave, or remove this empty container.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             if (widget.onDeleteContainer != null) ...[
               const SizedBox(height: 16),
@@ -370,7 +596,9 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                 ),
                 onPressed: widget.onDeleteContainer,
                 icon: const Icon(Icons.delete_forever),
-                label: Text(l10n?.deleteEmptyContainer ?? 'Delete empty container'),
+                label: Text(
+                  l10n?.deleteEmptyContainer ?? 'Delete empty container',
+                ),
               ),
             ],
           ],
@@ -390,8 +618,10 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
         children: [
           SizedBox(
             width: 36,
-            child: Text('#',
-                style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+            child: Text(
+              '#',
+              style: TextStyle(fontWeight: FontWeight.bold, color: color),
+            ),
           ),
           Expanded(
             child: Text(
@@ -432,11 +662,11 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     required bool isFlagWave,
     required List<String> rtidList,
     required Map<String, PvzObject> objectMap,
-    required int points,
-    required VoidCallback onInfoClick,
+    required List<({String label, VoidCallback onTap})> actionButtons,
     required VoidCallback? onRowTap,
   }) {
     final l10n = AppLocalizations.of(context);
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
     final rowContent = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -479,14 +709,9 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                   if (rtidList.isEmpty)
                     Text(
                       _waveEmptyRowHintForPlatform(context, l10n),
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
-                          ),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     )
                   else
                     ...rtidList.map(
@@ -508,39 +733,51 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
             ),
           ),
         ),
-        if (points != 0)
-          InkWell(
-            onTap: onInfoClick,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      '${points}pt',
-                      style: Theme.of(context).textTheme.bodySmall,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            for (var i = 0; i < actionButtons.length; i++) ...[
+              if (i > 0) const SizedBox(height: 4),
+              InkWell(
+                onTap: actionButtons[i].onTap,
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          actionButtons[i].label,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: color,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(
+                        Icons.info_outline,
+                        size: 14,
+                        color: color,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 2),
-                  Icon(
-                    Icons.info,
-                    size: 14,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurfaceVariant,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+            ],
+          ],
+        ),
       ],
     );
     return Column(
       children: [
         rowContent,
-        Divider(height: 1, color: Theme.of(context).colorScheme.surfaceContainerHighest),
+        Divider(
+          height: 1,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        ),
       ],
     );
   }
@@ -588,6 +825,18 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
               }
             }
           } catch (_) {}
+        } else if (obj.objClass == 'SpawnZombiesFishWaveActionProps') {
+          try {
+            final data = SpawnZombiesFishWaveActionPropsData.fromJson(
+              Map<String, dynamic>.from(obj.objData as Map),
+            );
+            for (final z in data.zombies) {
+              final info = RtidParser.parse(z.type);
+              if (info?.source == 'CurrentLevel') {
+                usedAliases.add(info!.alias);
+              }
+            }
+          } catch (_) {}
         }
         for (final a in usedAliases) {
           final set = result.putIfAbsent(a, () => <int>{});
@@ -596,6 +845,95 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
       }
     }
     return result.map((k, v) => MapEntry(k, (v.toList()..sort())));
+  }
+
+  /// Returns the base zombie type (e.g. future_gargantuar) for a custom zombie alias.
+  String? _getCustomZombieBaseType(String alias) {
+    final typeObj = widget.levelFile.objects.firstWhereOrNull(
+      (o) => o.objClass == 'ZombieType' && o.aliases?.contains(alias) == true,
+    );
+    if (typeObj?.objData is Map<String, dynamic>) {
+      final typeName =
+          (typeObj!.objData as Map<String, dynamic>)['TypeName'] as String?;
+      if (typeName != null && typeName.isNotEmpty) return typeName;
+    }
+    return null;
+  }
+
+  String? _getCustomFishBaseType(String alias) {
+    final typeObj = widget.levelFile.objects.firstWhereOrNull(
+      (o) =>
+          o.objClass == 'CreatureType' &&
+          o.aliases?.contains(alias) == true,
+    );
+    if (typeObj?.objData is Map<String, dynamic>) {
+      final typeName =
+          (typeObj!.objData as Map<String, dynamic>)['TypeName'] as String?;
+      if (typeName != null && typeName.isNotEmpty) return typeName;
+    }
+    return null;
+  }
+
+  Map<String, List<int>> _collectCustomFishWaveUsage() {
+    final result = <String, Set<int>>{};
+    final wm = widget.parsed.waveManager;
+    if (wm is! WaveManagerData) return {};
+    final aliasToObj = <String, PvzObject>{};
+    for (final obj in widget.levelFile.objects) {
+      if (obj.aliases?.isNotEmpty == true) {
+        for (final a in obj.aliases!) {
+          aliasToObj[a] = obj;
+        }
+      }
+    }
+    for (var i = 0; i < wm.waves.length; i++) {
+      final waveIndex = i + 1;
+      for (final eventRtid in wm.waves[i]) {
+        final alias = LevelParser.extractAlias(eventRtid);
+        final obj = aliasToObj[alias];
+        if (obj == null || obj.objClass != 'SpawnZombiesFishWaveActionProps') {
+          continue;
+        }
+        try {
+          final data = SpawnZombiesFishWaveActionPropsData.fromJson(
+            Map<String, dynamic>.from(obj.objData as Map),
+          );
+          for (final f in data.fishes) {
+            final info = RtidParser.parse(f.type);
+            if (info?.source == 'CurrentLevel') {
+              result.putIfAbsent(info!.alias, () => <int>{}).add(waveIndex);
+            }
+          }
+        } catch (_) {}
+      }
+    }
+    return result.map((k, v) => MapEntry(k, (v.toList()..sort())));
+  }
+
+  List<_CustomFishUsage> _collectCustomFishes() {
+    final waveUsage = _collectCustomFishWaveUsage();
+    final customFish = widget.levelFile.objects
+        .where((o) => o.objClass == 'CreatureType')
+        .where((o) => o.aliases?.isNotEmpty == true)
+        .where((o) {
+          if (o.objData is! Map<String, dynamic>) return false;
+          final cc =
+              (o.objData as Map<String, dynamic>)['CreatureClass'] as String? ??
+              '';
+          return cc.contains('Fish');
+        })
+        .toList();
+    return customFish.map((o) {
+      final alias = o.aliases!.first;
+      final rtid = RtidParser.build(alias, 'CurrentLevel');
+      final waveIndices = waveUsage[alias] ?? [];
+      return _CustomFishUsage(
+        alias: alias,
+        rtid: rtid,
+        isUnused: waveIndices.isEmpty,
+        waveIndices: waveIndices,
+      );
+    }).toList();
   }
 
   List<_CustomZombieUsage> _collectCustomZombies() {
@@ -620,6 +958,11 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
   void _showCustomZombieSheet(BuildContext context, _CustomZombieUsage info) {
     final l10n = AppLocalizations.of(context);
     final canDelete = info.isUnused;
+    final baseType = _getCustomZombieBaseType(info.alias);
+    final zombieInfo = baseType != null
+        ? ZombieRepository().getZombieById(baseType)
+        : null;
+    final iconPath = zombieInfo?.iconAssetPath;
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -630,85 +973,254 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                info.alias,
-              style: Theme.of(ctx)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n?.customZombieAppearanceLocation ?? 'Appearance location:',
-              style: Theme.of(ctx).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+              Row(
+                children: [
+                  if (iconPath != null) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: AssetImageWidget(
+                        assetPath: iconPath,
+                        altCandidates: imageAltCandidates(iconPath),
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: Text(
+                      info.alias,
+                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              info.waveIndices.isEmpty
-                  ? (l10n?.customZombieNotUsed ??
-                      'This custom zombie is not used by any wave or module.')
-                  : info.waveIndices
-                      .map((n) => l10n?.customZombieWaveItem(n) ?? 'Wave $n')
-                      .join(', '),
-              style: Theme.of(ctx).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            if (widget.onEditCustomZombie != null)
-              FilledButton.icon(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  widget.onEditCustomZombie!(info.rtid);
-                },
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(ctx).brightness == Brightness.dark ? pvzYellowDark : pvzYellowLight,
-                  foregroundColor: Colors.black87,
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n?.customZombieAppearanceLocation ?? 'Appearance location:',
+                style: Theme.of(ctx).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                 ),
-                icon: const Icon(Icons.edit),
-                label: Text(l10n?.editProperties ?? 'Edit properties'),
               ),
-            if (widget.onEditCustomZombie != null) const SizedBox(height: 8),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(ctx).colorScheme.error,
+              const SizedBox(height: 4),
+              Text(
+                info.waveIndices.isEmpty
+                    ? (l10n?.customZombieNotUsed ??
+                          'This custom zombie is not used by any wave or module.')
+                    : info.waveIndices
+                          .map(
+                            (n) => l10n?.customZombieWaveItem(n) ?? 'Wave $n',
+                          )
+                          .join(', '),
+                style: Theme.of(ctx).textTheme.bodyMedium,
               ),
-              onPressed: canDelete
-                  ? () async {
-                      Navigator.pop(ctx);
-                      final ok = await showDialog<bool>(
-                        context: context,
-                        builder: (dctx) => AlertDialog(
-                          title: Text(l10n?.deleteEntity ?? 'Delete entity'),
-                          content: Text(
-                            l10n?.customZombieDeleteConfirm ??
-                                'Remove this custom zombie and its property data.',
+              const SizedBox(height: 12),
+              if (widget.onEditCustomZombie != null)
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    widget.onEditCustomZombie!(info.rtid);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(ctx).brightness == Brightness.dark
+                        ? pvzYellowDark
+                        : pvzYellowLight,
+                    foregroundColor: Colors.black87,
+                  ),
+                  icon: const Icon(Icons.edit),
+                  label: Text(l10n?.editProperties ?? 'Edit properties'),
+                ),
+              if (widget.onEditCustomZombie != null) const SizedBox(height: 8),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(ctx).colorScheme.error,
+                ),
+                onPressed: canDelete
+                    ? () async {
+                        Navigator.pop(ctx);
+                        final ok = await showDialog<bool>(
+                          context: context,
+                          builder: (dctx) => AlertDialog(
+                            title: Text(l10n?.deleteEntity ?? 'Delete entity'),
+                            content: Text(
+                              l10n?.customZombieDeleteConfirm ??
+                                  'Remove this custom zombie and its property data.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(dctx, false),
+                                child: Text(l10n?.cancel ?? 'Cancel'),
+                              ),
+                              FilledButton(
+                                onPressed: () => Navigator.pop(dctx, true),
+                                child: Text(l10n?.confirm ?? 'Confirm'),
+                              ),
+                            ],
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(dctx, false),
-                              child: Text(l10n?.cancel ?? 'Cancel'),
-                            ),
-                            FilledButton(
-                              onPressed: () => Navigator.pop(dctx, true),
-                              child: Text(l10n?.confirm ?? 'Confirm'),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (ok == true) {
-                        _deleteCustomZombie(info);
+                        );
+                        if (ok == true) {
+                          _deleteCustomZombie(info);
+                        }
                       }
-                    }
-                  : null,
-              icon: const Icon(Icons.delete),
-              label: Text(l10n?.deleteEntity ?? 'Delete entity'),
-            ),
-          ],
+                    : null,
+                icon: const Icon(Icons.delete),
+                label: Text(l10n?.deleteEntity ?? 'Delete entity'),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
+  }
+
+  void _showCustomFishSheet(BuildContext context, _CustomFishUsage info) {
+    final l10n = AppLocalizations.of(context);
+    final canDelete = info.isUnused;
+    final baseType = _getCustomFishBaseType(info.alias);
+    final fishInfo = baseType != null
+        ? (FishTypeRepository().getFishByAlias(baseType) ??
+            FishTypeRepository().getFishByTypeName(baseType))
+        : null;
+    final iconPath = fishInfo?.iconAssetPath;
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => EscapeClosesModal(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  if (iconPath != null) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: AssetImageWidget(
+                        assetPath: iconPath,
+                        altCandidates: imageAltCandidates(iconPath),
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: Text(
+                      info.alias,
+                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n?.customFishAppearanceLocation ??
+                    'Appearance location:',
+                style: Theme.of(ctx).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                info.waveIndices.isEmpty
+                    ? (l10n?.customFishNotUsed ??
+                        'This custom fish is not used by any wave.')
+                    : info.waveIndices
+                        .map(
+                          (n) => l10n?.customFishWaveItem(n) ?? 'Wave $n',
+                        )
+                        .join(', '),
+                style: Theme.of(ctx).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+              if (widget.onEditCustomFish != null)
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    widget.onEditCustomFish!(info.rtid);
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(ctx).brightness == Brightness.dark
+                        ? pvzFishDark
+                        : pvzFishLight,
+                    foregroundColor: Theme.of(ctx).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87,
+                  ),
+                  icon: const Icon(Icons.edit),
+                  label: Text(l10n?.editCustomFishProperties ?? 'Edit properties'),
+                ),
+              if (widget.onEditCustomFish != null) const SizedBox(height: 8),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(ctx).colorScheme.error,
+                ),
+                onPressed: canDelete
+                    ? () async {
+                        Navigator.pop(ctx);
+                        final ok = await showDialog<bool>(
+                          context: context,
+                          builder: (dctx) => AlertDialog(
+                            title: Text(l10n?.deleteEntity ?? 'Delete entity'),
+                            content: Text(
+                              l10n?.customFishDeleteConfirm ??
+                                  'Remove this custom fish and its property data.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(dctx, false),
+                                child: Text(l10n?.cancel ?? 'Cancel'),
+                              ),
+                              FilledButton(
+                                onPressed: () => Navigator.pop(dctx, true),
+                                child: Text(l10n?.confirm ?? 'Confirm'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (ok == true) {
+                          _deleteCustomFish(info);
+                        }
+                      }
+                    : null,
+                icon: const Icon(Icons.delete),
+                label: Text(l10n?.deleteEntity ?? 'Delete entity'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _deleteCustomFish(_CustomFishUsage custom) {
+    final typeObj = widget.levelFile.objects.firstWhereOrNull(
+      (o) => o.aliases?.contains(custom.alias) == true,
+    );
+    if (typeObj != null) {
+      final data = typeObj.objData;
+      if (data is Map<String, dynamic>) {
+        final propsRtid = data['Properties'] as String?;
+        final propsInfo =
+            propsRtid != null ? RtidParser.parse(propsRtid) : null;
+        if (propsInfo?.source == 'CurrentLevel') {
+          widget.levelFile.objects.removeWhere(
+            (o) => o.aliases?.contains(propsInfo!.alias) == true,
+          );
+        }
+      }
+      widget.levelFile.objects.remove(typeObj);
+      widget.onChanged();
+      setState(() {});
+    }
   }
 
   void _deleteCustomZombie(_CustomZombieUsage custom) {
@@ -719,7 +1231,9 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
       final data = typeObj.objData;
       if (data is Map<String, dynamic>) {
         final propsRtid = data['Properties'] as String?;
-        final propsInfo = propsRtid != null ? RtidParser.parse(propsRtid) : null;
+        final propsInfo = propsRtid != null
+            ? RtidParser.parse(propsRtid)
+            : null;
         if (propsInfo?.source == 'CurrentLevel') {
           widget.levelFile.objects.removeWhere(
             (o) => o.aliases?.contains(propsInfo!.alias) == true,
@@ -809,7 +1323,11 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     if (wm is! WaveManagerData) return;
     final oldAlias = LevelParser.extractAlias(oldRtid);
     if (oldAlias == newAlias) return;
-    if (widget.levelFile.objects.any((o) => o.aliases?.contains(newAlias) == true)) return;
+    if (widget.levelFile.objects.any(
+      (o) => o.aliases?.contains(newAlias) == true,
+    )) {
+      return;
+    }
     final newRtid = RtidParser.build(newAlias, 'CurrentLevel');
     final objIdx = widget.levelFile.objects.indexWhere(
       (o) => o.aliases?.contains(oldAlias) == true,
@@ -849,18 +1367,23 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
       (o) => o.aliases?.contains(oldAlias) == true,
     );
     if (obj == null) return;
-    if (widget.levelFile.objects.any((o) => o.aliases?.contains(newAlias) == true)) return;
+    if (widget.levelFile.objects.any(
+      (o) => o.aliases?.contains(newAlias) == true,
+    )) {
+      return;
+    }
     final newRtid = RtidParser.build(newAlias, 'CurrentLevel');
     final dataCopy = obj.objData is Map
         ? jsonDecode(jsonEncode(obj.objData)) as Map<String, dynamic>
         : obj.objData;
-    widget.levelFile.objects.add(PvzObject(
-      aliases: [newAlias],
-      objClass: obj.objClass,
-      objData: dataCopy,
-    ));
+    widget.levelFile.objects.add(
+      PvzObject(aliases: [newAlias], objClass: obj.objClass, objData: dataCopy),
+    );
     if (targetWaveIndex >= 1 && targetWaveIndex <= wm.waves.length) {
-      wm.waves[targetWaveIndex - 1] = [...wm.waves[targetWaveIndex - 1], newRtid];
+      wm.waves[targetWaveIndex - 1] = [
+        ...wm.waves[targetWaveIndex - 1],
+        newRtid,
+      ];
     }
     _syncWaves();
     widget.onChanged();
@@ -873,7 +1396,12 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     if (sourceWaveIndex == targetWaveIndex) return;
     final srcIdx = sourceWaveIndex - 1;
     final tgtIdx = targetWaveIndex - 1;
-    if (srcIdx < 0 || srcIdx >= wm.waves.length || tgtIdx < 0 || tgtIdx >= wm.waves.length) return;
+    if (srcIdx < 0 ||
+        srcIdx >= wm.waves.length ||
+        tgtIdx < 0 ||
+        tgtIdx >= wm.waves.length) {
+      return;
+    }
     wm.waves[srcIdx] = wm.waves[srcIdx].where((r) => r != rtid).toList();
     wm.waves[tgtIdx] = [...wm.waves[tgtIdx], rtid];
     _syncWaves();
@@ -893,8 +1421,9 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     for (final wave in wm.waves) {
       wave.removeWhere((r) => r == rtid);
     }
-    widget.levelFile.objects
-        .removeWhere((o) => o.aliases?.contains(alias) == true);
+    widget.levelFile.objects.removeWhere(
+      (o) => o.aliases?.contains(alias) == true,
+    );
     _syncWaves();
     setState(() {});
   }
@@ -915,9 +1444,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
         title: Text(l10n?.rename ?? 'Rename'),
         content: TextField(
           controller: ctrl,
-          decoration: InputDecoration(
-            labelText: l10n?.newName ?? 'New name',
-          ),
+          decoration: InputDecoration(labelText: l10n?.newName ?? 'New name'),
           onChanged: (_) {},
         ),
         actions: [
@@ -933,9 +1460,15 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
               final newAlias = ctrl.text.trim();
               Navigator.pop(ctx);
               if (newAlias.isEmpty) return;
-              if (widget.levelFile.objects.any((o) => o.aliases?.contains(newAlias) == true)) {
+              if (widget.levelFile.objects.any(
+                (o) => o.aliases?.contains(newAlias) == true,
+              )) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n?.renameFail ?? 'Rename failed, alias already exists')),
+                  SnackBar(
+                    content: Text(
+                      l10n?.renameFail ?? 'Rename failed, alias already exists',
+                    ),
+                  ),
                 );
                 return;
               }
@@ -979,7 +1512,13 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _showCopyTargetWaveDialog(context, rtid, null, waveIndex, onEditFinished);
+              _showCopyTargetWaveDialog(
+                context,
+                rtid,
+                null,
+                waveIndex,
+                onEditFinished,
+              );
             },
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(ctx).colorScheme.primary,
@@ -989,7 +1528,13 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _showDeepCopyNameDialog(context, rtid, alias, waveIndex, onEditFinished);
+              _showDeepCopyNameDialog(
+                context,
+                rtid,
+                alias,
+                waveIndex,
+                onEditFinished,
+              );
             },
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(ctx).colorScheme.primary,
@@ -1017,9 +1562,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
         title: Text(l10n?.deepCopy ?? 'Deep copy'),
         content: TextField(
           controller: ctrl,
-          decoration: InputDecoration(
-            labelText: l10n?.newName ?? 'New name',
-          ),
+          decoration: InputDecoration(labelText: l10n?.newName ?? 'New name'),
         ),
         actions: [
           TextButton(
@@ -1034,13 +1577,25 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
               final newAlias = ctrl.text.trim();
               Navigator.pop(ctx);
               if (newAlias.isEmpty) return;
-              if (widget.levelFile.objects.any((o) => o.aliases?.contains(newAlias) == true)) {
+              if (widget.levelFile.objects.any(
+                (o) => o.aliases?.contains(newAlias) == true,
+              )) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n?.renameFail ?? 'Rename failed, alias already exists')),
+                  SnackBar(
+                    content: Text(
+                      l10n?.renameFail ?? 'Rename failed, alias already exists',
+                    ),
+                  ),
                 );
                 return;
               }
-              _showCopyTargetWaveDialog(context, rtid, newAlias, waveIndex, onEditFinished);
+              _showCopyTargetWaveDialog(
+                context,
+                rtid,
+                newAlias,
+                waveIndex,
+                onEditFinished,
+              );
             },
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(ctx).colorScheme.primary,
@@ -1089,7 +1644,11 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
               Navigator.pop(ctx);
               if (target == null || target < 1 || target > wm.waves.length) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n?.invalidWaveIndex ?? 'Invalid wave index')),
+                  SnackBar(
+                    content: Text(
+                      l10n?.invalidWaveIndex ?? 'Invalid wave index',
+                    ),
+                  ),
                 );
                 return;
               }
@@ -1146,7 +1705,11 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
               Navigator.pop(ctx);
               if (target == null || target < 1 || target > wm.waves.length) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n?.invalidWaveIndex ?? 'Invalid wave index')),
+                  SnackBar(
+                    content: Text(
+                      l10n?.invalidWaveIndex ?? 'Invalid wave index',
+                    ),
+                  ),
                 );
                 return;
               }
@@ -1174,6 +1737,12 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     final alias = LevelParser.extractAlias(rtid);
     final obj = widget.parsed.objectMap[alias];
     final meta = EventRegistry.getByObjClass(obj?.objClass);
+    final localizedTitle = meta != null
+        ? EventSelectionScreen.resolveEventTitle(context, meta, l10n)
+        : alias;
+    final sheetTitle = meta != null && localizedTitle != alias
+        ? '$alias ($localizedTitle)'
+        : alias;
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -1192,137 +1761,163 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                   ],
                   Expanded(
                     child: Text(
-                      alias,
-                    style: Theme.of(ctx)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                      sheetTitle,
+                      style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            if (obj?.objClass != null)
-              Text(
-                obj!.objClass,
-                style: Theme.of(ctx).textTheme.bodySmall,
+                ],
               ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () async {
-                      Navigator.pop(ctx);
-                      await widget.onEditEvent(rtid, waveIndex);
-                      // Do not re-open wave sheet when exiting event editor
-                    },
-                    icon: const Icon(Icons.edit),
-                    label: Text(l10n?.editProperties ?? 'Edit properties'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton.icon(
-                    onPressed: () => _showRenameDialog(context, rtid, alias, onEditFinished),
-                    style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(ctx).colorScheme.primaryContainer,
-                      foregroundColor: Theme.of(ctx).brightness == Brightness.dark
-                          ? Colors.black
-                          : Theme.of(ctx).colorScheme.primary,
+              if (obj?.objClass != null)
+                Text(obj!.objClass, style: Theme.of(ctx).textTheme.bodySmall),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        await widget.onEditEvent(rtid, waveIndex);
+                        // Do not re-open wave sheet when exiting event editor
+                      },
+                      icon: const Icon(Icons.edit),
+                      label: Text(l10n?.editProperties ?? 'Edit properties'),
                     ),
-                    icon: const Icon(Icons.drive_file_rename_outline),
-                    label: Text(l10n?.rename ?? 'Rename'),
                   ),
-                ),
-                Expanded(
-                  child: TextButton.icon(
-                    onPressed: () => _showCopyChoiceDialog(context, rtid, alias, waveIndex, onEditFinished),
-                    style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(ctx).colorScheme.primaryContainer,
-                      foregroundColor: Theme.of(ctx).brightness == Brightness.dark
-                          ? Colors.black
-                          : Theme.of(ctx).colorScheme.primary,
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () => _showRenameDialog(
+                        context,
+                        rtid,
+                        alias,
+                        onEditFinished,
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Theme.of(
+                          ctx,
+                        ).colorScheme.primaryContainer,
+                        foregroundColor:
+                            Theme.of(ctx).brightness == Brightness.dark
+                            ? Colors.black
+                            : Theme.of(ctx).colorScheme.primary,
+                      ),
+                      icon: const Icon(Icons.drive_file_rename_outline),
+                      label: Text(l10n?.rename ?? 'Rename'),
                     ),
-                    icon: const Icon(Icons.copy),
-                    label: Text(l10n?.copy ?? 'Copy'),
                   ),
-                ),
-                Expanded(
-                  child: TextButton.icon(
-                    onPressed: () => _showMoveDialog(context, rtid, waveIndex, onEditFinished),
-                    style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(ctx).colorScheme.primaryContainer,
-                      foregroundColor: Theme.of(ctx).brightness == Brightness.dark
-                          ? Colors.black
-                          : Theme.of(ctx).colorScheme.primary,
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () => _showCopyChoiceDialog(
+                        context,
+                        rtid,
+                        alias,
+                        waveIndex,
+                        onEditFinished,
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Theme.of(
+                          ctx,
+                        ).colorScheme.primaryContainer,
+                        foregroundColor:
+                            Theme.of(ctx).brightness == Brightness.dark
+                            ? Colors.black
+                            : Theme.of(ctx).colorScheme.primary,
+                      ),
+                      icon: const Icon(Icons.copy),
+                      label: Text(l10n?.copy ?? 'Copy'),
                     ),
-                    icon: const Icon(Icons.drive_file_move),
-                    label: Text(l10n?.move ?? 'Move'),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(ctx).colorScheme.error,
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () => _showMoveDialog(
+                        context,
+                        rtid,
+                        waveIndex,
+                        onEditFinished,
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: Theme.of(
+                          ctx,
+                        ).colorScheme.primaryContainer,
+                        foregroundColor:
+                            Theme.of(ctx).brightness == Brightness.dark
+                            ? Colors.black
+                            : Theme.of(ctx).colorScheme.primary,
+                      ),
+                      icon: const Icon(Icons.drive_file_move),
+                      label: Text(l10n?.move ?? 'Move'),
                     ),
-                    onPressed: () async {
-                      Navigator.pop(ctx);
-                      final ok = await showDialog<bool>(
-                        context: context,
-                        builder: (dctx) {
-                          return AlertDialog(
-                            title: Text(
-                              l10n?.confirmRemoveRef ??
-                                  'Remove reference',
-                            ),
-                            content: Text(
-                              l10n?.confirmRemoveRefMessage ??
-                                  'Remove this reference? The entity data will remain until all references are removed.',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(dctx, false),
-                                style: TextButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(dctx).colorScheme.primary,
-                                ),
-                                child: Text(l10n?.cancel ?? 'Cancel'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Theme.of(ctx).colorScheme.error,
+                      ),
+                      onPressed: () async {
+                        Navigator.pop(ctx);
+                        final ok = await showDialog<bool>(
+                          context: context,
+                          builder: (dctx) {
+                            return AlertDialog(
+                              title: Text(
+                                l10n?.confirmRemoveRef ?? 'Remove reference',
                               ),
-                              FilledButton(
-                                onPressed: () => Navigator.pop(dctx, true),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: Theme.of(dctx).colorScheme.error,
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: Text(l10n?.confirmRemoveRef ?? 'Remove reference'),
+                              content: Text(
+                                l10n?.confirmRemoveRefMessage ??
+                                    'Remove this reference? The entity data will remain until all references are removed.',
                               ),
-                            ],
-                          );
-                        },
-                      );
-                      if (ok == true) {
-                        _smartDeleteEvent(waveIndex, rtid);
-                      }
-                    },
-                    icon: const Icon(Icons.remove_circle_outline),
-                    label: Text(l10n?.removeFromWave ?? 'Remove from wave'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(dctx, false),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Theme.of(
+                                      dctx,
+                                    ).colorScheme.primary,
+                                  ),
+                                  child: Text(l10n?.cancel ?? 'Cancel'),
+                                ),
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(dctx, true),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: Theme.of(
+                                      dctx,
+                                    ).colorScheme.error,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: Text(
+                                    l10n?.confirmRemoveRef ??
+                                        'Remove reference',
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        if (ok == true) {
+                          _smartDeleteEvent(waveIndex, rtid);
+                        }
+                      },
+                      icon: const Icon(Icons.remove_circle_outline),
+                      label: Text(l10n?.removeFromWave ?? 'Remove from wave'),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -1372,9 +1967,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
               child: Text(l10n?.cancel ?? 'Cancel'),
             ),
             FilledButton(
-              onPressed: confirm
-                  ? () => Navigator.pop(ctx, true)
-                  : null,
+              onPressed: confirm ? () => Navigator.pop(ctx, true) : null,
               style: FilledButton.styleFrom(
                 backgroundColor: Theme.of(ctx).colorScheme.error,
               ),
@@ -1398,140 +1991,183 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
       showDragHandle: true,
       isScrollControlled: true,
       builder: (ctx) => EscapeClosesModal(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n?.waveEventsTitle(waveIndex) ??
-                  'Wave $waveIndex events',
-              style: Theme.of(ctx)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            if (rtidList.isEmpty)
-              Text(
-                l10n?.emptyWave ?? 'Empty wave',
-                style: Theme.of(ctx).textTheme.bodySmall,
-              )
-            else
-              ...rtidList.map((rtid) {
-                final alias = LevelParser.extractAlias(rtid);
-                final obj = widget.parsed.objectMap[alias];
-                final meta = EventRegistry.getByObjClass(obj?.objClass);
-                final color = meta?.color ?? Theme.of(ctx).colorScheme.primary;
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: Icon(meta?.icon ?? Icons.event, color: color),
-                    title: Text(alias),
-                    subtitle: Text(meta?.titleKey ?? 'Unknown event'),
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      _showEventActionSheet(
-                        context: context,
-                        waveIndex: waveIndex,
-                        rtid: rtid,
-                        onEditFinished: () =>
-                            _showWaveManageSheet(context, waveIndex),
-                      );
-                    },
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () async {
-                        Navigator.pop(ctx);
-                        final ok = await showDialog<bool>(
-                          context: context,
-                          builder: (dctx) => AlertDialog(
-                            title: Text(
-                              l10n?.confirmRemoveRef ?? 'Remove reference',
-                            ),
-                            content: Text(
-                              l10n?.confirmRemoveRefMessage ??
-                                  'Remove this reference? The entity data will remain until all references are removed.',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(dctx, false),
-                                style: TextButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(dctx).colorScheme.primary,
-                                ),
-                                child: Text(l10n?.cancel ?? 'Cancel'),
-                              ),
-                              FilledButton(
-                                onPressed: () => Navigator.pop(dctx, true),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor:
-                                      Theme.of(dctx).colorScheme.error,
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: Text(l10n?.confirmRemoveRef ?? 'Remove reference'),
-                              ),
-                            ],
+        child: DraggableScrollableSheet(
+          initialChildSize: 0.5,
+          minChildSize: 0.25,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (ctx2, scrollController) => Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n?.waveEventsTitle(waveIndex) ?? 'Wave $waveIndex events',
+                  style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: rtidList.isEmpty
+                      ? Center(
+                          child: Text(
+                            l10n?.emptyWave ?? 'Empty wave',
+                            style: Theme.of(ctx).textTheme.bodySmall,
                           ),
-                        );
-                        if (ok == true) {
-                          _smartDeleteEvent(waveIndex, rtid);
+                        )
+                      : ListView.builder(
+                          controller: scrollController,
+                          itemCount: rtidList.length,
+                          itemBuilder: (_, i) {
+                            final rtid = rtidList[i];
+                            final alias = LevelParser.extractAlias(rtid);
+                            final obj = widget.parsed.objectMap[alias];
+                            final meta = EventRegistry.getByObjClass(
+                              obj?.objClass,
+                            );
+                            final color =
+                                meta?.color ??
+                                Theme.of(ctx).colorScheme.primary;
+                            final displayTitle =
+                                EventSelectionScreen.resolveEventTitle(
+                                  ctx,
+                                  meta,
+                                  l10n,
+                                );
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                leading: Icon(
+                                  meta?.icon ?? Icons.event,
+                                  color: color,
+                                ),
+                                title: Text(alias),
+                                subtitle: Text(
+                                  displayTitle.isNotEmpty
+                                      ? displayTitle
+                                      : (meta?.titleKey ?? 'Unknown event'),
+                                ),
+                                onTap: () {
+                                  Navigator.pop(ctx);
+                                  _showEventActionSheet(
+                                    context: context,
+                                    waveIndex: waveIndex,
+                                    rtid: rtid,
+                                    onEditFinished: () => _showWaveManageSheet(
+                                      context,
+                                      waveIndex,
+                                    ),
+                                  );
+                                },
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete_outline),
+                                  onPressed: () async {
+                                    Navigator.pop(ctx);
+                                    final ok = await showDialog<bool>(
+                                      context: context,
+                                      builder: (dctx) => AlertDialog(
+                                        title: Text(
+                                          l10n?.confirmRemoveRef ??
+                                              'Remove reference',
+                                        ),
+                                        content: Text(
+                                          l10n?.confirmRemoveRefMessage ??
+                                              'Remove this reference? The entity data will remain until all references are removed.',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(dctx, false),
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: Theme.of(
+                                                dctx,
+                                              ).colorScheme.primary,
+                                            ),
+                                            child: Text(
+                                              l10n?.cancel ?? 'Cancel',
+                                            ),
+                                          ),
+                                          FilledButton(
+                                            onPressed: () =>
+                                                Navigator.pop(dctx, true),
+                                            style: FilledButton.styleFrom(
+                                              backgroundColor: Theme.of(
+                                                dctx,
+                                              ).colorScheme.error,
+                                              foregroundColor: Colors.white,
+                                            ),
+                                            child: Text(
+                                              l10n?.confirmRemoveRef ??
+                                                  'Remove reference',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (ok == true) {
+                                      _smartDeleteEvent(waveIndex, rtid);
+                                      setState(() {});
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          widget.onAddEvent(waveIndex);
+                        },
+                        icon: const Icon(Icons.add),
+                        label: Text(l10n?.addEvent ?? 'Add event'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(ctx).colorScheme.error,
+                      foregroundColor: Theme.of(ctx).colorScheme.onError,
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      final ok = await _showDeleteWaveConfirmDialog(
+                        context,
+                        waveIndex,
+                        rtidList.length,
+                      );
+                      if (ok == true && mounted) {
+                        final wm = widget.parsed.waveManager;
+                        if (wm is WaveManagerData &&
+                            waveIndex >= 1 &&
+                            waveIndex <= wm.waves.length) {
+                          wm.waves.removeAt(waveIndex - 1);
+                          wm.waveCount = wm.waves.length;
+                          _syncWaves();
                           setState(() {});
                         }
-                      },
-                    ),
-                  ),
-                );
-              }),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                      widget.onAddEvent(waveIndex);
+                      }
                     },
-                    icon: const Icon(Icons.add),
-                    label: Text(l10n?.addEvent ?? 'Add event'),
+                    icon: const Icon(Icons.delete),
+                    label: Text(l10n?.deleteWave ?? 'Delete wave'),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(ctx).colorScheme.error,
-                  foregroundColor: Theme.of(ctx).colorScheme.onError,
-                ),
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  final ok = await _showDeleteWaveConfirmDialog(
-                    context,
-                    waveIndex,
-                    rtidList.length,
-                  );
-                  if (ok == true && mounted) {
-                    final wm = widget.parsed.waveManager;
-                    if (wm is WaveManagerData && waveIndex >= 1 && waveIndex <= wm.waves.length) {
-                      wm.waves.removeAt(waveIndex - 1);
-                      wm.waveCount = wm.waves.length;
-                      _syncWaves();
-                      setState(() {});
-                    }
-                  }
-                },
-                icon: const Icon(Icons.delete),
-                label: Text(l10n?.deleteWave ?? 'Delete wave'),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
-    ),
     );
   }
 
@@ -1562,9 +2198,9 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
               Text(
                 l10n?.noWaveManager ?? 'No wave manager found',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -1572,8 +2208,8 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                 l10n?.noWaveManagerHint ??
                     'This level has wave management but no WaveManagerProperties object.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
+                  color: Theme.of(context).colorScheme.outline,
+                ),
                 textAlign: TextAlign.center,
               ),
               if (widget.onCreateContainer != null) ...[
@@ -1581,7 +2217,10 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                 FilledButton.icon(
                   onPressed: widget.onCreateContainer,
                   icon: const Icon(Icons.add),
-                  label: Text(l10n?.createEmptyWaveContainer ?? 'Create empty wave container'),
+                  label: Text(
+                    l10n?.createEmptyWaveContainer ??
+                        'Create empty wave container',
+                  ),
                 ),
               ],
             ],
@@ -1599,6 +2238,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
         .where((rtid) => !objectMap.containsKey(LevelParser.extractAlias(rtid)))
         .toList();
     final customZombies = _collectCustomZombies();
+    final customFishes = _collectCustomFishes();
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 80),
@@ -1606,6 +2246,7 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
         _buildHintCard(context),
         if (deadLinks.isNotEmpty) _buildDeadLinksCard(context, deadLinks),
         _buildCustomZombieCard(context, customZombies),
+        _buildCustomFishCard(context, customFishes),
         _buildWaveManagerSettingsCard(
           context,
           interval,
@@ -1625,6 +2266,33 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
             final points = module != null
                 ? _pointsAtWave(module, waveIndex, isFlagWave)
                 : 0;
+            final l10n = AppLocalizations.of(context);
+            final actionButtons = <({String label, VoidCallback onTap})>[];
+            if (points != 0) {
+              actionButtons.add((
+                label: '${points}pt',
+                onTap: () =>
+                    _showExpectationDialog(context, waveIndex, points),
+              ));
+            }
+            if (_waveHasRenaiActivity(waveIndex)) {
+              actionButtons.add((
+                label: l10n?.renaiModuleExpectationLabel ?? 'Renai',
+                onTap: () => _showRenaiInfoDialog(context, waveIndex),
+              ));
+            }
+            if (_waveHasDropShipActivity(waveIndex)) {
+              actionButtons.add((
+                label: l10n?.airDropShipModuleExpectationLabel ?? 'Imp drops',
+                onTap: () => _showDropShipInfoDialog(context, waveIndex),
+              ));
+            }
+            if (_waveHasHeianWindActivity(waveIndex)) {
+              actionButtons.add((
+                label: l10n?.heianWindModuleExpectationLabel ?? 'Heian wind',
+                onTap: () => _showHeianWindInfoDialog(context, waveIndex),
+              ));
+            }
             final isDesktop = isDesktopPlatform(context);
             final rowWidget = _buildWaveRowItem(
               context,
@@ -1632,10 +2300,10 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
               isFlagWave: isFlagWave,
               rtidList: waveEvents,
               objectMap: objectMap,
-              points: points,
-              onInfoClick: () =>
-                  _showExpectationDialog(context, waveIndex, points),
-              onRowTap: isDesktop ? () => _showWaveManageSheet(context, waveIndex) : null,
+              actionButtons: actionButtons,
+              onRowTap: isDesktop
+                  ? () => _showWaveManageSheet(context, waveIndex)
+                  : null,
             );
             if (isDesktop) {
               return rowWidget;
@@ -1695,6 +2363,241 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     );
   }
 
+  bool _waveHasRenaiActivity(int waveIndex) {
+    final renai = _getRenaiModuleData();
+    if (renai == null) return false;
+    final nightStarts = renai.nightEnabled &&
+        renai.nightStartWaveNum + 1 == waveIndex;
+    final dayCarve = renai.statueInfos
+        .any((s) => s.waveNumber + 1 == waveIndex);
+    final nightCarve = renai.statueNightInfos
+        .any((s) => s.waveNumber + 1 == waveIndex);
+    return nightStarts || dayCarve || nightCarve;
+  }
+
+  String? _getModuleRtid(String objClass) {
+    final obj = widget.levelFile.objects.firstWhereOrNull(
+      (o) => o.objClass == objClass,
+    );
+    final alias = obj?.aliases?.firstOrNull;
+    if (alias == null) return null;
+    return RtidParser.build(alias, 'CurrentLevel');
+  }
+
+  RenaiModulePropertiesData? _getRenaiModuleData() {
+    final obj = widget.levelFile.objects.firstWhereOrNull(
+      (o) => o.objClass == 'RenaiModuleProperties',
+    );
+    if (obj?.objData is Map<String, dynamic>) {
+      try {
+        return RenaiModulePropertiesData.fromJson(
+          obj!.objData as Map<String, dynamic>,
+        );
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  DropShipPropertiesData? _getDropShipModuleData() {
+    final obj = widget.levelFile.objects.firstWhereOrNull(
+      (o) => o.objClass == 'DropShipProperties',
+    );
+    if (obj?.objData is Map<String, dynamic>) {
+      try {
+        return DropShipPropertiesData.fromJson(
+          obj!.objData as Map<String, dynamic>,
+        );
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  bool _waveHasDropShipActivity(int waveIndex) {
+    final dropShip = _getDropShipModuleData();
+    if (dropShip == null) return false;
+    return dropShip.appearWaves
+        .any((w) => w.wave + 1 == waveIndex);
+  }
+
+  HeianWindModulePropertiesData? _getHeianWindModuleData() {
+    final obj = widget.levelFile.objects.firstWhereOrNull(
+      (o) => o.objClass == 'HeianWindModuleProperties',
+    );
+    if (obj?.objData is Map<String, dynamic>) {
+      try {
+        return HeianWindModulePropertiesData.fromJson(
+          obj!.objData as Map<String, dynamic>,
+        );
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  bool _waveHasHeianWindActivity(int waveIndex) {
+    final heianWind = _getHeianWindModuleData();
+    if (heianWind == null) return false;
+    return heianWind.waveWindInfos
+        .any((w) => w.waveNumber + 1 == waveIndex);
+  }
+
+  void _showHeianWindInfoDialog(BuildContext context, int waveIndex) {
+    final l10n = AppLocalizations.of(context);
+    final heianWind = _getHeianWindModuleData();
+    if (heianWind == null) return;
+    final waves = heianWind.waveWindInfos
+        .where((w) => w.waveNumber + 1 == waveIndex)
+        .toList();
+    if (waves.isEmpty) return;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          '${l10n?.waveLabel ?? "Wave"} $waveIndex - ${l10n?.heianWindModuleExpectationLabel ?? "Heian wind"}',
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final w in waves) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${l10n?.heianWindModuleWindDelay ?? "Wind delay"}: ${w.windDelay}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      for (final wind in w.windInfos)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, top: 4),
+                          child: Row(
+                            children: [
+                              Icon(Icons.air,
+                                  size: 14,
+                                  color: Theme.of(context).colorScheme.primary),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  wind.row == -1
+                                      ? (l10n?.heianWindModuleAllRows ?? 'All rows')
+                                      : '${l10n?.row ?? "Row"} ${wind.row + 1}',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Text(
+                                '×${wind.affectZombies}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${wind.distance}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          if (widget.onOpenModule != null)
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              onPressed: () {
+                final rtid = _getModuleRtid('HeianWindModuleProperties');
+                if (rtid != null) {
+                  Navigator.pop(ctx);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    widget.onOpenModule!(rtid);
+                  });
+                }
+              },
+              child: Text(l10n?.openModuleSettings ?? 'Open module settings'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n?.close ?? 'Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDropShipInfoDialog(BuildContext context, int waveIndex) {
+    final l10n = AppLocalizations.of(context);
+    final dropShip = _getDropShipModuleData();
+    if (dropShip == null) return;
+    final waves = dropShip.appearWaves
+        .where((w) => w.wave + 1 == waveIndex)
+        .toList();
+    if (waves.isEmpty) return;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          '${l10n?.waveLabel ?? "Wave"} $waveIndex - ${l10n?.airDropShipModuleExpectationLabel ?? "Imp drops"}',
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final w in waves) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Icon(Icons.flight_land,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${l10n?.airDropShipModuleExtraImpCount ?? "Extra imp count"}: ${w.imp} | ${l10n?.airDropShipModuleDropArea ?? "Drop area"}: R${w.rowRange.min + 1}-${w.rowRange.max + 1} × C${w.colRange.min + 1}-${w.colRange.max + 1}',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          if (widget.onOpenModule != null)
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              onPressed: () {
+                final rtid = _getModuleRtid('DropShipProperties');
+                if (rtid != null) {
+                  Navigator.pop(ctx);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    widget.onOpenModule!(rtid);
+                  });
+                }
+              },
+              child: Text(l10n?.openModuleSettings ?? 'Open module settings'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n?.close ?? 'Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showExpectationDialog(BuildContext context, int waveIndex, int points) {
     final l10n = AppLocalizations.of(context);
     final expectation = WavePointAnalysis.calculateExpectation(
@@ -1704,13 +2607,14 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
     final sorted = expectation.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final items = sorted.where((e) => e.value > 0).toList();
-
     showDialog<void>(
       context: context,
       builder: (ctx) {
         final scrollController = ScrollController();
         return AlertDialog(
-          title: Text('${l10n?.waveLabel ?? "Wave"} $waveIndex ${l10n?.expectation ?? "Expectation"}'),
+          title: Text(
+            '${l10n?.waveLabel ?? "Wave"} $waveIndex ${l10n?.expectation ?? "Expectation"}',
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1761,20 +2665,50 @@ class _WaveTimelineTabState extends State<WaveTimelineTab> {
                 ),
             ],
           ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n?.close ?? 'Close'),
-          ),
-        ],
-      );
-    },
+          actions: [
+            if (widget.onOpenModule != null)
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                onPressed: () {
+                  final rtid = _getModuleRtid('WaveManagerModuleProperties');
+                  if (rtid != null) {
+                    Navigator.pop(ctx);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      widget.onOpenModule!(rtid);
+                    });
+                  }
+                },
+                child: Text(l10n?.openModuleSettings ?? 'Open module settings'),
+              ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l10n?.close ?? 'Close'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
 
 class _CustomZombieUsage {
   const _CustomZombieUsage({
+    required this.alias,
+    required this.rtid,
+    required this.isUnused,
+    required this.waveIndices,
+  });
+
+  final String alias;
+  final String rtid;
+  final bool isUnused;
+  final List<int> waveIndices;
+}
+
+class _CustomFishUsage {
+  const _CustomFishUsage({
     required this.alias,
     required this.rtid,
     required this.isUnused,

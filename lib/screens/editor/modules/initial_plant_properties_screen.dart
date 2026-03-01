@@ -409,25 +409,26 @@ class _InitialPlantPropertiesScreenState extends State<InitialPlantPropertiesScr
                                       ),
                                       if (count > 1)
                                         Positioned(
-                                          top: 2,
-                                          right: 2,
+                                          top: 3,
+                                          right: 3,
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 4,
-                                              vertical: 2,
+                                              horizontal: 6,
+                                              vertical: 3,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.6,
-                                              ),
+                                              color: theme.colorScheme
+                                                  .onSurfaceVariant,
                                               borderRadius:
-                                                  BorderRadius.circular(4),
+                                                  const BorderRadius.only(
+                                                bottomLeft: Radius.circular(6),
+                                              ),
                                             ),
                                             child: Text(
                                               '+${count - 1}',
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 10,
+                                                fontSize: 12,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),

@@ -6,7 +6,6 @@ import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/resource_names.dart';
-import 'package:z_editor/widgets/asset_image.dart';
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Spawn gravestones event editor. Ported from Z-Editor-master SpawnGraveStonesEventEP.kt
@@ -394,7 +393,6 @@ class _SpawnGraveStonesEventScreenState
     final isValid = source == 'CurrentLevel'
         ? internalAliases.contains(alias)
         : GridItemRepository.isValid(alias);
-    final iconPath = GridItemRepository.getIconPath(alias);
     final displayName = ResourceNames.lookup(context, 'griditem_$alias');
     final name = displayName != 'griditem_$alias' ? displayName : alias;
 
@@ -411,18 +409,14 @@ class _SpawnGraveStonesEventScreenState
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: SizedBox(
-                width: 48,
-                height: 48,
-                child: AssetImageWidget(
-                  assetPath: iconPath,
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.cover,
-                ),
-              ),
+            GridItemIcon(
+              typeName: alias,
+              size: 48,
+              fit: BoxFit.contain,
+              iconScaleFactor: GridItemRepository.isRenaiStatueNonHalf(alias)
+                  ? 3.0
+                  : 1.5,
+              badgeScaleFactor: 1.0,
             ),
             const SizedBox(width: 12),
             Expanded(

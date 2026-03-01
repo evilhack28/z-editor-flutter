@@ -7,7 +7,6 @@ import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/l10n/resource_names.dart';
-import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Protect-the-grid-item challenge. Ported from ProtectTheGridItemChallengePropertiesEP.kt
@@ -329,8 +328,12 @@ class _ProtectGridItemChallengeScreenState
                                           padding: const EdgeInsets.all(2),
                                           child: FittedBox(
                                             fit: BoxFit.contain,
-                                            child: _GridItemIconSmall(
-                                                item.gridItemType),
+                                            child: GridItemIcon(
+                                                typeName: item.gridItemType,
+                                                size: 32,
+                                                fit: BoxFit.contain,
+                                                borderRadius: 4,
+                                                badgeScaleFactor: 1.0),
                                           ),
                                         ),
                                       ),
@@ -347,27 +350,6 @@ class _ProtectGridItemChallengeScreenState
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _GridItemIconSmall extends StatelessWidget {
-  const _GridItemIconSmall(this.typeName);
-
-  final String typeName;
-
-  @override
-  Widget build(BuildContext context) {
-    final path = GridItemRepository.getIconPath(typeName);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: AssetImageWidget(
-        assetPath: path,
-        width: 32,
-        height: 32,
-        fit: BoxFit.cover,
-        altCandidates: imageAltCandidates(path),
       ),
     );
   }
@@ -400,7 +382,6 @@ class _GridItemTile extends StatelessWidget {
     final name = displayName != 'griditem_${item.gridItemType}'
         ? displayName
         : item.gridItemType;
-    final path = GridItemRepository.getIconPath(item.gridItemType);
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -417,15 +398,15 @@ class _GridItemTile extends StatelessWidget {
                   size: 24,
                 ),
               ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: AssetImageWidget(
-                assetPath: path,
-                width: 40,
-                height: 40,
-                fit: BoxFit.cover,
-                altCandidates: imageAltCandidates(path),
-              ),
+            GridItemIcon(
+              typeName: item.gridItemType,
+              size: 40,
+              fit: BoxFit.contain,
+              iconScaleFactor: GridItemRepository.isRenaiStatueNonHalf(
+                      item.gridItemType)
+                  ? 3.0
+                  : 1.5,
+              badgeScaleFactor: 1.0,
             ),
           ],
         ),

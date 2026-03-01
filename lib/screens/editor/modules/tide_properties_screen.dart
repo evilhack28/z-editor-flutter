@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
@@ -28,6 +29,10 @@ class _TidePropertiesScreenState extends State<TidePropertiesScreen> {
   late PvzObject _moduleObj;
   late TidePropertiesData _data;
   late TextEditingController _startLocCtrl;
+
+  bool get _isDeepSeaLawn => LevelParser.isDeepSeaLawnFromFile(widget.levelFile);
+  int get _gridRows => _isDeepSeaLawn ? 6 : 5;
+  int get _gridCols => _isDeepSeaLawn ? 10 : 9;
 
   @override
   void initState() {
@@ -77,7 +82,7 @@ class _TidePropertiesScreenState extends State<TidePropertiesScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final waterStart = 9 - _data.startingWaveLocation;
+    final waterStart = _gridCols - _data.startingWaveLocation;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -163,7 +168,7 @@ class _TidePropertiesScreenState extends State<TidePropertiesScreen> {
                       child: Container(
                         constraints: const BoxConstraints(maxWidth: 480),
                         child: AspectRatio(
-                          aspectRatio: 1.8,
+                          aspectRatio: _gridCols / _gridRows,
                           child: Container(
                             decoration: BoxDecoration(
                               color: theme.brightness == Brightness.dark
@@ -173,10 +178,10 @@ class _TidePropertiesScreenState extends State<TidePropertiesScreen> {
                               border: Border.all(color: theme.dividerColor),
                             ),
                             child: Column(
-                              children: List.generate(5, (row) {
+                              children: List.generate(_gridRows, (row) {
                                 return Expanded(
                                   child: Row(
-                                    children: List.generate(9, (col) {
+                                    children: List.generate(_gridCols, (col) {
                                       final isWater = col >= waterStart;
                                       return Expanded(
                                         child: Container(

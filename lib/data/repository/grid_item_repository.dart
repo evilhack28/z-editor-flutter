@@ -2,7 +2,7 @@ import 'package:z_editor/data/repository/reference_repository.dart';
 
 /// Grid item info. Ported from Z-Editor-master GridItemRepository.kt
 /// For display use ResourceNames.lookup(context, 'griditem_$typeName').
-enum GridItemFilterMode { all, restricted }
+enum GridItemFilterMode { all, restricted, renaiStatues }
 
 enum GridItemTag { normal, special }
 
@@ -75,6 +75,7 @@ class GridItemRepository {
     const GridItemInfo(typeName: 'dumpling', category: GridItemCategory.trap),
     const GridItemInfo(typeName: 'turkey', category: GridItemCategory.trap),
     const GridItemInfo(typeName: 'tangyuan', category: GridItemCategory.trap),
+    const GridItemInfo(typeName: 'atlantis_shell', category: GridItemCategory.spawnableObjects),
     const GridItemInfo(typeName: 'lilypad', category: GridItemCategory.spawnableObjects),
     const GridItemInfo(typeName: 'flowerpot', category: GridItemCategory.spawnableObjects),
     const GridItemInfo(typeName: 'FrozenIcebloom', category: GridItemCategory.spawnableObjects, tag: GridItemTag.special),
@@ -91,6 +92,20 @@ class GridItemRepository {
     const GridItemInfo(typeName: 'lollipops', category: GridItemCategory.spawnableObjects),
     const GridItemInfo(typeName: 'gliding', category: GridItemCategory.spawnableObjects),
     const GridItemInfo(typeName: 'heavy_shield', category: GridItemCategory.spawnableObjects),
+    // Renai (Renaissance)
+    const GridItemInfo(typeName: 'renai_roller', category: GridItemCategory.scene),
+    const GridItemInfo(typeName: 'renai_tile_left', category: GridItemCategory.scene),
+    const GridItemInfo(typeName: 'renai_tile_right', category: GridItemCategory.scene),
+    const GridItemInfo(typeName: 'renai_statue_zombie1', category: GridItemCategory.scene, icon: 'renai_statue_zombie1.png'),
+    const GridItemInfo(typeName: 'renai_statue_zombie_armor1', category: GridItemCategory.scene, icon: 'renai_statue_zombie_armor1.png'),
+    const GridItemInfo(typeName: 'renai_statue_zombie_armor2', category: GridItemCategory.scene, icon: 'renai_statue_zombie_armor2.png'),
+    const GridItemInfo(typeName: 'renai_statue_zombie_carver', category: GridItemCategory.scene, icon: 'renai_statue_zombie_carver.png'),
+    const GridItemInfo(typeName: 'renai_statue_zombie_perfumer', category: GridItemCategory.scene, icon: 'renai_statue_zombie_perfumer.png'),
+    const GridItemInfo(typeName: 'renai_statue_zombie1_half', category: GridItemCategory.scene, icon: 'renai_statue_zombie1_half.png'),
+    const GridItemInfo(typeName: 'renai_zomboss_statue_zombie1_half', category: GridItemCategory.scene, icon: 'renai_statue_zombie1_half.png'),
+    const GridItemInfo(typeName: 'renai_statue_zombie_armor2_half', category: GridItemCategory.scene, icon: 'renai_statue_zombie_armor2_half.png'),
+    const GridItemInfo(typeName: 'renai_statue_zombie_armor1_half', category: GridItemCategory.scene, icon: 'renai_statue_zombie_armor1_half.png'),
+    const GridItemInfo(typeName: 'renai_statue_zombie_perfumer_half', category: GridItemCategory.scene, icon: 'renai_statue_zombie_perfumer_half.png'),
   ];
 
   static List<GridItemInfo> get allItems => staticItems;
@@ -103,6 +118,8 @@ class GridItemRepository {
   static List<GridItemInfo> getAll() => allItems;
 
   /// Returns asset path for icon, or unknown placeholder if no icon.
+  /// For renai_zomboss_statue_zombie1_half, returns base statue icon path;
+  /// caller should overlay purple "Z" badge when [needsZombossBadge] is true.
   static String getIconPath(String aliases) {
     final typeName = aliases == 'gravestone' ? 'gravestone_egypt' : aliases;
     try {
@@ -115,6 +132,36 @@ class GridItemRepository {
       return 'assets/images/others/unknown.webp';
     }
   }
+
+  /// True for renai_zomboss_statue_zombie1_half; caller should overlay purple "Z" badge.
+  static bool needsZombossBadge(String typeName) =>
+      typeName == 'renai_zomboss_statue_zombie1_half';
+
+  /// True for Renai statue types that use full-body (non-half) icons.
+  /// These are scaled down in [GridItemIcon] for better fit in grids and lists.
+  static bool isRenaiStatueNonHalf(String typeName) =>
+      _renaiStatueTypeNames.contains(typeName) && !typeName.endsWith('_half');
+
+  /// True for any Renai statue type (half or non-half).
+  static bool isRenaiStatue(String typeName) =>
+      _renaiStatueTypeNames.contains(typeName);
+
+  static const List<String> _renaiStatueTypeNames = [
+    'renai_statue_zombie1',
+    'renai_statue_zombie_armor1',
+    'renai_statue_zombie_armor2',
+    'renai_statue_zombie_carver',
+    'renai_statue_zombie_perfumer',
+    'renai_statue_zombie1_half',
+    'renai_zomboss_statue_zombie1_half',
+    'renai_statue_zombie_armor2_half',
+    'renai_statue_zombie_armor1_half',
+    'renai_statue_zombie_perfumer_half',
+  ];
+
+  /// Renai statue types only (for statue picker in Renai module).
+  static List<GridItemInfo> getRenaiStatueItems() =>
+      allItems.where((i) => _renaiStatueTypeNames.contains(i.typeName)).toList();
 
   static bool isValid(String typeName) {
     if (allItems.any((i) => i.typeName == typeName)) return true;

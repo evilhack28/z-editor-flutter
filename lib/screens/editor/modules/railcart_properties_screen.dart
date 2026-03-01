@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
@@ -35,6 +36,11 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
   _RailEditMode _editMode = _RailEditMode.rails;
   late List<List<bool>> _railsGrid;
   late Set<String> _cartSet;
+
+  late (int rows, int cols) _gridDims;
+
+  int get _gridRows => _gridDims.$1;
+  int get _gridCols => _gridDims.$2;
 
   static const _cartTypeOptions = [
     'railcart_cowboy',
@@ -88,10 +94,11 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
     } catch (_) {
       _data = RailcartPropertiesData();
     }
-    _railsGrid = List.generate(9, (_) => List.filled(5, false));
+    _gridDims = LevelParser.getGridDimensionsFromFile(widget.levelFile);
+    _railsGrid = List.generate(_gridCols, (_) => List.filled(_gridRows, false));
     for (final rail in _data.rails) {
       for (var r = rail.rowStart; r <= rail.rowEnd; r++) {
-        if (rail.column >= 0 && rail.column < 9 && r >= 0 && r < 5) {
+        if (rail.column >= 0 && rail.column < _gridCols && r >= 0 && r < _gridRows) {
           _railsGrid[rail.column][r] = true;
         }
       }
@@ -103,9 +110,9 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
 
   void _sync() {
     final newRails = <RailData>[];
-    for (var c = 0; c < 9; c++) {
+    for (var c = 0; c < _gridCols; c++) {
       int? start;
-      for (var r = 0; r < 5; r++) {
+      for (var r = 0; r < _gridRows; r++) {
         final hasRail = _railsGrid[c][r];
         if (hasRail) {
           start ??= r;
@@ -117,7 +124,7 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
         }
       }
       if (start != null) {
-        newRails.add(RailData(column: c, rowStart: start, rowEnd: 4));
+        newRails.add(RailData(column: c, rowStart: start, rowEnd: _gridRows - 1));
       }
     }
     final newCarts = _cartSet.map((s) {
@@ -151,9 +158,32 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
     _sync();
   }
 
+  bool _hasOutOfAreaWarning() {
+    for (final r in _data.rails) {
+      if (r.column < 0 || r.column >= _gridCols ||
+          r.rowStart < 0 || r.rowEnd >= _gridRows) return true;
+    }
+    for (final c in _data.railcarts) {
+      if (c.column < 0 || c.column >= _gridCols ||
+          c.row < 0 || c.row >= _gridRows) return true;
+    }
+    return false;
+  }
+
+  bool _hasStageSwitchWarning() {
+    if (_gridRows == 6) return false;
+    for (final r in _data.rails) {
+      if (r.rowEnd >= 5) return true;
+    }
+    for (final c in _data.railcarts) {
+      if (c.row >= 5) return true;
+    }
+    return false;
+  }
+
   void _clearAll() {
-    for (var c = 0; c < 9; c++) {
-      for (var r = 0; r < 5; r++) {
+    for (var c = 0; c < _gridCols; c++) {
+      for (var r = 0; r < _gridRows; r++) {
         _railsGrid[c][r] = false;
       }
     }
@@ -183,6 +213,18 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (_hasOutOfAreaWarning())
+              _RailcartWarningBanner(
+                message: l10n?.warningObjectsOutsideArea(_gridRows, _gridCols) ??
+                    'Some objects are outside the playable area ($_gridRows rows × $_gridCols cols).',
+              ),
+            if (_hasStageSwitchWarning())
+              _RailcartWarningBanner(
+                message: l10n?.warningStageSwitchedTo5Rows ??
+                    'Stage uses 5 rows but some data references row 6.',
+              ),
+            if (_hasOutOfAreaWarning() || _hasStageSwitchWarning())
+              const SizedBox(height: 16),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -258,12 +300,12 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
                   border: Border.all(color: borderColor),
                 ),
                 child: AspectRatio(
-                  aspectRatio: 1.8,
+                  aspectRatio: _gridCols / _gridRows,
                   child: Column(
-                    children: List.generate(5, (r) {
+                    children: List.generate(_gridRows, (r) {
                       return Expanded(
                         child: Row(
-                          children: List.generate(9, (c) {
+                          children: List.generate(_gridCols, (c) {
                             final hasRail = _railsGrid[c][r];
                             final hasCart = _cartSet.contains('$c,$r');
                             return Expanded(
@@ -358,6 +400,38 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RailcartWarningBanner extends StatelessWidget {
+  const _RailcartWarningBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      color: theme.colorScheme.errorContainer.withValues(alpha: 0.5),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.warning_amber, color: theme.colorScheme.error, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
                 ),
               ),
             ),

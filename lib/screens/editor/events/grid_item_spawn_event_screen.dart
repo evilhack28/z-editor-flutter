@@ -45,6 +45,9 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
   late PvzObject _moduleObj;
   late SpawnZombiesFromGridItemData _data;
 
+  bool get _isDeepSeaLawn => LevelParser.isDeepSeaLawnFromFile(widget.levelFile);
+  int get _maxRow => _isDeepSeaLawn ? 6 : 5;
+
   @override
   void initState() {
     super.initState();
@@ -371,11 +374,12 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                           ),
                           items: [
                             DropdownMenuItem(value: 0, child: Text(l10n?.random ?? 'Random')),
-                            DropdownMenuItem(value: 1, child: Text(l10n?.rowN(1) ?? 'Row 1')),
-                            DropdownMenuItem(value: 2, child: Text(l10n?.rowN(2) ?? 'Row 2')),
-                            DropdownMenuItem(value: 3, child: Text(l10n?.rowN(3) ?? 'Row 3')),
-                            DropdownMenuItem(value: 4, child: Text(l10n?.rowN(4) ?? 'Row 4')),
-                            DropdownMenuItem(value: 5, child: Text(l10n?.rowN(5) ?? 'Row 5')),
+                            ...List.generate(_maxRow, (i) => i + 1).map(
+                              (v) => DropdownMenuItem(
+                                value: v,
+                                child: Text(l10n?.rowN(v) ?? 'Row $v'),
+                              ),
+                            ),
                           ],
                           onChanged: (v) {
                             if (v == null) return;
@@ -740,19 +744,19 @@ class _GridItemSpawnEventScreenState extends State<GridItemSpawnEventScreen> {
                 final isValid = parsed?.source == 'CurrentLevel'
                     ? objectAliases.contains(gridAlias)
                     : GridItemRepository.isValid(gridAlias);
-                final iconPath = GridItemRepository.getIconPath(gridAlias);
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   color: isValid ? null : theme.colorScheme.errorContainer,
                   child: ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: AssetImageWidget(
-                        assetPath: iconPath,
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                      ),
+                    leading: GridItemIcon(
+                      typeName: gridAlias,
+                      size: 40,
+                      fit: BoxFit.contain,
+                      iconScaleFactor: GridItemRepository.isRenaiStatueNonHalf(
+                              gridAlias)
+                          ? 3.0
+                          : 1.5,
+                      badgeScaleFactor: 1.0,
                     ),
                     title: Text(() {
                       final d = ResourceNames.lookup(context, 'griditem_$gridAlias');

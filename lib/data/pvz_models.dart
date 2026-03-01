@@ -1104,6 +1104,31 @@ class PiratePlankPropertiesData {
   Map<String, dynamic> toJson() => {'PlankRows': plankRows};
 }
 
+// === Bomb ===
+
+class BombPropertiesData {
+  BombPropertiesData({
+    this.flameSpeed = 0.25,
+    this.fuseLengths = const ['8', '8', '8', '8', '8'],
+  });
+
+  double flameSpeed;
+  List<String> fuseLengths;
+
+  factory BombPropertiesData.fromJson(Map<String, dynamic> json) {
+    final raw = json['FuseLengths'] as List<dynamic>? ?? [];
+    return BombPropertiesData(
+      flameSpeed: (json['FlameSpeed'] as num?)?.toDouble() ?? 0.25,
+      fuseLengths: raw.map((e) => e?.toString() ?? '8').toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'FlameSpeed': flameSpeed,
+    'FuseLengths': fuseLengths,
+  };
+}
+
 // === Tide ===
 
 class TidePropertiesData {
@@ -1403,6 +1428,258 @@ class ZombieMoveFastModulePropertiesData {
   Map<String, dynamic> toJson() => {
     'StopColumn': stopColumn,
     'SpeedUp': speedUp,
+  };
+}
+
+// === Renai (Renaissance) ===
+
+class RenaiStatueInfoData {
+  RenaiStatueInfoData({
+    this.gridX = 0,
+    this.gridY = 0,
+    this.waveNumber = 0,
+    this.typeName = '',
+  });
+
+  int gridX;
+  int gridY;
+  int waveNumber;
+  String typeName;
+
+  factory RenaiStatueInfoData.fromJson(Map<String, dynamic> json) {
+    return RenaiStatueInfoData(
+      gridX: (json['GridX'] as num?)?.toInt() ?? 0,
+      gridY: (json['GridY'] as num?)?.toInt() ?? 0,
+      waveNumber: (json['WaveNumber'] as num?)?.toInt() ?? 0,
+      typeName: json['TypeName'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'GridX': gridX,
+    'GridY': gridY,
+    'WaveNumber': waveNumber,
+    'TypeName': typeName,
+  };
+}
+
+class RenaiModulePropertiesData {
+  RenaiModulePropertiesData({
+    this.nightEnabled = false,
+    this.nightStartWaveNum = 0,
+    List<RenaiStatueInfoData>? statueInfos,
+    List<RenaiStatueInfoData>? statueNightInfos,
+  })  : statueInfos = statueInfos ?? [],
+        statueNightInfos = statueNightInfos ?? [];
+
+  /// When false, night wave and night statues are not serialized.
+  /// Invalid state: statueNightInfos non-empty but nightEnabled false (UI prevents this).
+  bool nightEnabled;
+  int nightStartWaveNum;
+  List<RenaiStatueInfoData> statueInfos;
+  List<RenaiStatueInfoData> statueNightInfos;
+
+  factory RenaiModulePropertiesData.fromJson(Map<String, dynamic> json) {
+    final nightWave = (json['NightStartWaveNum'] as num?)?.toInt();
+    final nightStatues = (json['StatueNightInfos'] as List<dynamic>?)
+        ?.map((e) => RenaiStatueInfoData.fromJson(e as Map<String, dynamic>))
+        .toList();
+    final hasNightData = nightWave != null || (nightStatues?.isNotEmpty == true);
+    return RenaiModulePropertiesData(
+      nightEnabled: hasNightData,
+      nightStartWaveNum: nightWave ?? 0,
+      statueInfos: (json['StatueInfos'] as List<dynamic>?)
+              ?.map((e) =>
+                  RenaiStatueInfoData.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      statueNightInfos: nightStatues ?? [],
+    );
+  }
+
+  /// Returns empty map when config is default (no night, no statues),
+  /// matching game format e.g. RENAI1.json.
+  Map<String, dynamic> toJson() {
+    if (!nightEnabled && statueInfos.isEmpty) return {};
+    final result = <String, dynamic>{};
+    if (statueInfos.isNotEmpty) {
+      result['StatueInfos'] = statueInfos.map((e) => e.toJson()).toList();
+    }
+    if (nightEnabled) {
+      result['NightStartWaveNum'] = nightStartWaveNum;
+      result['StatueNightInfos'] =
+          statueNightInfos.map((e) => e.toJson()).toList();
+    }
+    return result;
+  }
+}
+
+// === Air Drop Ship (DropShip) ===
+
+class DropShipPropertiesData {
+  DropShipPropertiesData({List<DropShipAppearWaveData>? appearWaves})
+      : appearWaves = appearWaves ?? [];
+
+  List<DropShipAppearWaveData> appearWaves;
+
+  factory DropShipPropertiesData.fromJson(Map<String, dynamic> json) {
+    final list = json['AppearWaves'] as List<dynamic>?;
+    return DropShipPropertiesData(
+      appearWaves: list
+              ?.map((e) =>
+                  DropShipAppearWaveData.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'AppearWaves': appearWaves.map((e) => e.toJson()).toList(),
+  };
+}
+
+class DropShipAppearWaveData {
+  DropShipAppearWaveData({
+    this.wave = 0,
+    this.imp = 0,
+    this.impLv = 1,
+    MinMaxRange? rowRange,
+    MinMaxRange? colRange,
+  })  : rowRange = rowRange ?? MinMaxRange(),
+        colRange = colRange ?? MinMaxRange();
+
+  /// 0-based wave index.
+  int wave;
+  /// Extra imp count (at least one imp is always dropped).
+  int imp;
+  int impLv;
+  MinMaxRange rowRange;
+  MinMaxRange colRange;
+
+  factory DropShipAppearWaveData.fromJson(Map<String, dynamic> json) {
+    final row = json['RowRange'] as Map<String, dynamic>?;
+    final col = json['ColRange'] as Map<String, dynamic>?;
+    final gameWave = (json['Wave'] as num?)?.toInt() ?? 1;
+    return DropShipAppearWaveData(
+      wave: gameWave < 1 ? 0 : gameWave - 1,
+      imp: (json['Imp'] as num?)?.toInt() ?? 0,
+      impLv: (json['ImpLv'] as num?)?.toInt() ?? 1,
+      rowRange: row != null ? MinMaxRange.fromJson(row) : MinMaxRange(),
+      colRange: col != null ? MinMaxRange.fromJson(col) : MinMaxRange(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'Wave': wave + 1,
+    'Imp': imp,
+    'ImpLv': impLv,
+    'RowRange': rowRange.toJson(),
+    'ColRange': colRange.toJson(),
+  };
+}
+
+class MinMaxRange {
+  MinMaxRange({this.min = 0, this.max = 0});
+
+  int min;
+  int max;
+
+  factory MinMaxRange.fromJson(Map<String, dynamic> json) {
+    return MinMaxRange(
+      min: (json['Min'] as num?)?.toInt() ?? 0,
+      max: (json['Max'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'Min': min, 'Max': max};
+}
+
+// === Heian Wind Module ===
+
+class HeianWindModulePropertiesData {
+  HeianWindModulePropertiesData({
+    List<HeianWindWaveWindInfoData>? waveWindInfos,
+  }) : waveWindInfos = waveWindInfos ?? [];
+
+  List<HeianWindWaveWindInfoData> waveWindInfos;
+
+  factory HeianWindModulePropertiesData.fromJson(Map<String, dynamic> json) {
+    final list = json['WaveWindInfos'] as List<dynamic>?;
+    return HeianWindModulePropertiesData(
+      waveWindInfos: list
+              ?.map((e) =>
+                  HeianWindWaveWindInfoData.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'WaveWindInfos': waveWindInfos.map((e) => e.toJson()).toList(),
+  };
+}
+
+class HeianWindWaveWindInfoData {
+  HeianWindWaveWindInfoData({
+    this.waveNumber = 0,
+    this.windDelay = 0,
+    List<HeianWindInfoData>? windInfos,
+  }) : windInfos = windInfos ?? [];
+
+  /// 0-based wave index.
+  int waveNumber;
+  int windDelay;
+  List<HeianWindInfoData> windInfos;
+
+  factory HeianWindWaveWindInfoData.fromJson(Map<String, dynamic> json) {
+    final windList = json['WindInfos'] as List<dynamic>?;
+    final gameWave = (json['WaveNumber'] as num?)?.toInt() ?? 1;
+    return HeianWindWaveWindInfoData(
+      waveNumber: gameWave < 1 ? 0 : gameWave - 1,
+      windDelay: (json['WindDelay'] as num?)?.toInt() ?? 0,
+      windInfos: windList
+              ?.map((e) =>
+                  HeianWindInfoData.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'WaveNumber': waveNumber + 1,
+    'WindDelay': windDelay,
+    'WindInfos': windInfos.map((e) => e.toJson()).toList(),
+  };
+}
+
+class HeianWindInfoData {
+  HeianWindInfoData({
+    this.row = 0,
+    this.affectZombies = 0,
+    this.distance = 0,
+    this.moveTime = 1.5,
+  });
+
+  /// 0-based row index. -1 means all rows.
+  int row;
+  int affectZombies;
+  double distance;
+  double moveTime;
+
+  factory HeianWindInfoData.fromJson(Map<String, dynamic> json) {
+    return HeianWindInfoData(
+      row: (json['Row'] as num?)?.toInt() ?? 0,
+      affectZombies: (json['AffectZombies'] as num?)?.toInt() ?? 0,
+      distance: (json['Distance'] as num?)?.toDouble() ?? 0,
+      moveTime: (json['MoveTime'] as num?)?.toDouble() ?? 1.5,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'Row': row,
+    'AffectZombies': affectZombies,
+    'Distance': distance,
+    'MoveTime': moveTime,
   };
 }
 
@@ -2584,6 +2861,73 @@ class DinoWaveActionPropsData {
   };
 }
 
+class DinoTreadActionPropsData {
+  DinoTreadActionPropsData({
+    this.gridY = 0,
+    this.gridXMin = 0,
+    this.gridXMax = 4,
+    this.timeInterval = 2,
+    this.waveStartMessage = '[WARNING_DINO_TREAD]',
+  });
+
+  int gridY;
+  int gridXMin;
+  int gridXMax;
+  int timeInterval;
+  String waveStartMessage;
+
+  factory DinoTreadActionPropsData.fromJson(Map<String, dynamic> json) {
+    return DinoTreadActionPropsData(
+      gridY: parseIntSafe(json['GridY']) ?? 0,
+      gridXMin: parseIntSafe(json['GridXMin']) ?? 0,
+      gridXMax: parseIntSafe(json['GridXMax']) ?? 4,
+      timeInterval: parseIntSafe(json['TimeInterval']) ?? 2,
+      waveStartMessage: json['WaveStartMessage'] as String? ?? '[WARNING_DINO_TREAD]',
+    );
+  }
+
+  static int? parseIntSafe(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return v;
+    if (v is String) return int.tryParse(v);
+    return null;
+  }
+
+  Map<String, dynamic> toJson() => {
+    'GridY': gridY,
+    'GridXMin': gridXMin,
+    'GridXMax': gridXMax,
+    'TimeInterval': timeInterval,
+    'WaveStartMessage': waveStartMessage,
+  };
+}
+
+class DinoRunActionPropsData {
+  DinoRunActionPropsData({
+    this.dinoRow = 0,
+    this.timeInterval = 2,
+    this.waveStartMessage = '[WARNING_DINO_RUN]',
+  });
+
+  int dinoRow;
+  int timeInterval;
+  String waveStartMessage;
+
+  factory DinoRunActionPropsData.fromJson(Map<String, dynamic> json) {
+    return DinoRunActionPropsData(
+      dinoRow: DinoTreadActionPropsData.parseIntSafe(json['DinoRow']) ?? 0,
+      timeInterval: DinoTreadActionPropsData.parseIntSafe(json['TimeInterval']) ?? 2,
+      waveStartMessage: json['WaveStartMessage'] as String? ?? '[WARNING_DINO_RUN]',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'DinoRow': dinoRow,
+    'TimeInterval': timeInterval,
+    'WaveStartMessage': waveStartMessage,
+  };
+}
+
 class SpawnGraveStonesData {
   SpawnGraveStonesData({
     this.gravestonePool = const [],
@@ -2630,6 +2974,306 @@ class GravestonePoolItem {
   }
 
   Map<String, dynamic> toJson() => {'Count': count, 'Type': type};
+}
+
+// === Barrel Wave Event ===
+
+/// Barrel types: barrelempty, barrelmoster (zombie), barrelexplosive
+class BarrelWaveEventData {
+  BarrelWaveEventData({this.barrels = const []});
+
+  List<BarrelEntryData> barrels;
+
+  factory BarrelWaveEventData.fromJson(Map<String, dynamic> json) {
+    final raw = json['Barrels'] as List<dynamic>? ?? [];
+    return BarrelWaveEventData(
+      barrels: raw
+          .map((e) => BarrelEntryData.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'Barrels': barrels.map((e) => e.toJson()).toList(),
+      };
+}
+
+class BarrelEntryData {
+  BarrelEntryData({
+    required this.row,
+    required this.type,
+    this.params,
+  });
+
+  /// 1-based row (1–5 standard, 1–6 Deep Sea)
+  int row;
+  /// barrelempty | barrelmoster | barrelexplosive
+  String type;
+  BarrelParamsData? params;
+
+  factory BarrelEntryData.fromJson(Map<String, dynamic> json) {
+    final paramsRaw = json['Params'];
+    var type = json['Type'] as String? ?? 'barrelempty';
+    if (type == 'barrelexplosive') type = 'barrelpowder'; // Normalize legacy type
+    return BarrelEntryData(
+      row: json['Row'] as int? ?? 1,
+      type: type,
+      params: paramsRaw is Map<String, dynamic>
+          ? BarrelParamsData.fromJson(paramsRaw)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final m = <String, dynamic>{
+      'Row': row,
+      'Type': type,
+    };
+    if (params != null) m['Params'] = params!.toJson();
+    return m;
+  }
+}
+
+class BarrelParamsData {
+  BarrelParamsData({
+    this.barrelHitPoints = 1100,
+    this.barrelSpeed = 0.1,
+    this.barrelBlowDamageAmount,
+    this.zombies = const [],
+  });
+
+  int barrelHitPoints;
+  double barrelSpeed;
+  /// Explosion damage for explosive barrels (barrelpowder). Null = omit from JSON.
+  int? barrelBlowDamageAmount;
+  List<BarrelZombieData> zombies;
+
+  factory BarrelParamsData.fromJson(Map<String, dynamic> json) {
+    final raw = json['Zombies'] as List<dynamic>? ?? [];
+    return BarrelParamsData(
+      barrelHitPoints: json['BarrelHitPoints'] as int? ?? 1100,
+      barrelSpeed: (json['BarrelSpeed'] as num?)?.toDouble() ?? 0.1,
+      barrelBlowDamageAmount: json['BarrelBlowDamageAmount'] as int?,
+      zombies: raw
+          .map((e) => BarrelZombieData.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final m = <String, dynamic>{
+      'BarrelHitPoints': barrelHitPoints,
+      'BarrelSpeed': barrelSpeed,
+    };
+    if (barrelBlowDamageAmount != null) {
+      m['BarrelBlowDamageAmount'] = barrelBlowDamageAmount!;
+    }
+    if (zombies.isNotEmpty) {
+      m['Zombies'] = zombies.map((e) => e.toJson()).toList();
+    }
+    return m;
+  }
+}
+
+class BarrelZombieData {
+  BarrelZombieData({this.typeName = '', this.level = 1});
+
+  String typeName;
+  int level;
+
+  factory BarrelZombieData.fromJson(Map<String, dynamic> json) {
+    return BarrelZombieData(
+      typeName: json['TypeName'] as String? ?? '',
+      level: json['Level'] as int? ?? 1,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'TypeName': typeName,
+        'Level': level,
+      };
+}
+
+// === Thunder Wave Event ===
+
+/// Thunder type: positive or negative
+class ThunderWaveActionPropsData {
+  ThunderWaveActionPropsData({
+    this.thunders = const [],
+    this.killRate = 0.3,
+  });
+
+  List<ThunderEntryData> thunders;
+  double killRate;
+
+  factory ThunderWaveActionPropsData.fromJson(Map<String, dynamic> json) {
+    final raw = json['Thunders'] as List<dynamic>? ?? [];
+    return ThunderWaveActionPropsData(
+      thunders: raw
+          .map((e) => ThunderEntryData.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      killRate: (json['KillRate'] as num?)?.toDouble() ?? 0.3,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'Thunders': thunders.map((e) => e.toJson()).toList(),
+        'KillRate': killRate,
+      };
+}
+
+class ThunderEntryData {
+  ThunderEntryData({this.type = 'positive'});
+
+  /// positive | negative
+  String type;
+
+  factory ThunderEntryData.fromJson(Map<String, dynamic> json) {
+    return ThunderEntryData(
+      type: json['Type'] as String? ?? 'positive',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'Type': type};
+}
+
+// === Tide Wave Event ===
+
+class TideWaveWaveActionPropsData {
+  TideWaveWaveActionPropsData({
+    this.type = 'left',
+    this.duration = 10,
+    this.submarineMovingDistance = 1,
+    this.speedUpDuration = 3,
+    this.speedUpIncreased = 2,
+    this.submarineMovingTime = 1.5,
+    this.zombieMovingSpeed = 180,
+  });
+
+  /// left | right
+  String type;
+  double duration;
+  double submarineMovingDistance;
+  double speedUpDuration;
+  double speedUpIncreased;
+  double submarineMovingTime;
+  double zombieMovingSpeed;
+
+  factory TideWaveWaveActionPropsData.fromJson(Map<String, dynamic> json) {
+    return TideWaveWaveActionPropsData(
+      type: json['Type'] as String? ?? 'left',
+      duration: (json['Duration'] as num?)?.toDouble() ?? 10,
+      submarineMovingDistance:
+          (json['SubmarineMovingDistance'] as num?)?.toDouble() ?? 1,
+      speedUpDuration: (json['SpeedUpDuration'] as num?)?.toDouble() ?? 3,
+      speedUpIncreased: (json['SpeedUpIncreased'] as num?)?.toDouble() ?? 2,
+      submarineMovingTime:
+          (json['SubmarineMovingTime'] as num?)?.toDouble() ?? 1.5,
+      zombieMovingSpeed: (json['ZombieMovingSpeed'] as num?)?.toDouble() ?? 180,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'Type': type,
+        'Duration': duration,
+        'SubmarineMovingDistance': submarineMovingDistance,
+        'SpeedUpDuration': speedUpDuration,
+        'SpeedUpIncreased': speedUpIncreased,
+        'SubmarineMovingTime': submarineMovingTime,
+        'ZombieMovingSpeed': zombieMovingSpeed,
+      };
+}
+
+// === Spawn Zombies Fish Wave (ZombieFishWaveEvent) ===
+
+class SpawnZombiesFishWaveActionPropsData {
+  SpawnZombiesFishWaveActionPropsData({
+    this.notificationEvents,
+    this.additionalPlantFood,
+    this.spawnPlantName,
+    this.zombies = const [],
+    this.fishes = const [],
+  });
+
+  List<String>? notificationEvents;
+  int? additionalPlantFood;
+  List<String>? spawnPlantName;
+  List<ZombieSpawnData> zombies;
+  List<FishSpawnData> fishes;
+
+  factory SpawnZombiesFishWaveActionPropsData.fromJson(
+      Map<String, dynamic> json) {
+    final zombiesRaw = json['Zombies'] as List<dynamic>? ?? [];
+    final fishesRaw = json['Fishes'] as List<dynamic>? ?? [];
+    return SpawnZombiesFishWaveActionPropsData(
+      notificationEvents: (json['NotificationEvents'] as List<dynamic>?)
+          ?.cast<String>(),
+      additionalPlantFood: json['AdditionalPlantfood'] as int?,
+      spawnPlantName: (json['SpawnPlantName'] as List<dynamic>?)
+          ?.cast<String>(),
+      zombies: zombiesRaw.map((e) {
+        if (e is Map<String, dynamic>) return ZombieSpawnData.fromJson(e);
+        if (e is String) return ZombieSpawnData(type: e);
+        return ZombieSpawnData();
+      }).toList(),
+      fishes: fishesRaw
+          .map((e) =>
+              FishSpawnData.fromJson(e as Map<String, dynamic>? ?? {}))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final m = <String, dynamic>{
+      'Zombies': zombies.map((e) => e.toJson()).toList(),
+    };
+    if (notificationEvents != null) m['NotificationEvents'] = notificationEvents;
+    if (additionalPlantFood != null) m['AdditionalPlantfood'] = additionalPlantFood;
+    if (spawnPlantName != null) m['SpawnPlantName'] = spawnPlantName;
+    if (fishes.isNotEmpty) m['Fishes'] = fishes.map((e) => e.toJson()).toList();
+    return m;
+  }
+}
+
+class FishSpawnData {
+  FishSpawnData({
+    this.type = '',
+    FishPositionData? position,
+  }) : position = position ?? FishPositionData();
+
+  String type;
+  FishPositionData position;
+
+  factory FishSpawnData.fromJson(Map<String, dynamic> json) {
+    final pos = json['Position'];
+    return FishSpawnData(
+      type: json['Type'] as String? ?? '',
+      position: pos is Map<String, dynamic>
+          ? FishPositionData.fromJson(pos)
+          : FishPositionData(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'Type': type,
+        'Position': position.toJson(),
+      };
+}
+
+class FishPositionData {
+  FishPositionData({this.mX = 0, this.mY = 0});
+
+  int mX;
+  int mY;
+
+  factory FishPositionData.fromJson(Map<String, dynamic> json) {
+    return FishPositionData(
+      mX: json['mX'] as int? ?? 0,
+      mY: json['mY'] as int? ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {'mX': mX, 'mY': mY};
 }
 
 class SpawnZombiesFromGridItemData {
@@ -2708,6 +3352,47 @@ class ZombiePotionData {
         json['Location'] as Map<String, dynamic>? ?? {},
       ),
       type: json['Type'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'Location': location.toJson(),
+    'Type': type,
+  };
+}
+
+class ZombieAtlantisShellActionPropsData {
+  ZombieAtlantisShellActionPropsData({this.tiles = const []});
+
+  List<AtlantisShellTileData> tiles;
+
+  factory ZombieAtlantisShellActionPropsData.fromJson(Map<String, dynamic> json) {
+    return ZombieAtlantisShellActionPropsData(
+      tiles: (json['Tiles'] as List<dynamic>?)
+              ?.map((e) => AtlantisShellTileData.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'Tiles': tiles.map((e) => e.toJson()).toList(),
+  };
+}
+
+class AtlantisShellTileData {
+  AtlantisShellTileData({LocationData? location, this.type = 'atlantis_shell'})
+    : location = location ?? LocationData();
+
+  LocationData location;
+  String type;
+
+  factory AtlantisShellTileData.fromJson(Map<String, dynamic> json) {
+    return AtlantisShellTileData(
+      location: LocationData.fromJson(
+        json['Location'] as Map<String, dynamic>? ?? {},
+      ),
+      type: json['Type'] as String? ?? 'atlantis_shell',
     );
   }
 
@@ -2989,7 +3674,20 @@ class ZombiePropertySheetData {
     this.eliteScale,
     this.armDropFraction,
     this.headDropFraction,
+    this.resilience,
   });
+
+  /// Resilience: RTID string (e.g. RTID(ResilienceFire2@ResilienceConfig))
+  /// or embedded ZombieResilienceData for custom config.
+  Object? resilience;
+
+  /// Returns the resilience RTID string if using a preset, null otherwise.
+  String? get resilienceRtid =>
+      resilience is String ? resilience as String : null;
+
+  /// Returns embedded custom resilience data, null if using preset or disabled.
+  ZombieResilienceData? get resilienceCustom =>
+      resilience is ZombieResilienceData ? resilience as ZombieResilienceData : null;
 
   double hitpoints;
   double speed;
@@ -3055,6 +3753,17 @@ class ZombiePropertySheetData {
       eliteScale: (json['EliteScale'] as num?)?.toDouble(),
       armDropFraction: json['ArmDropFraction'] as int?,
       headDropFraction: json['HeadDropFraction'] as int?,
+      resilience: () {
+        final r = json['Resilience'];
+        if (r == null) return null;
+        if (r is String) return r;
+        if (r is Map) {
+          return ZombieResilienceData.fromJson(
+            Map<String, dynamic>.from(r),
+          );
+        }
+        return null;
+      }(),
     );
   }
 
@@ -3092,6 +3801,52 @@ class ZombiePropertySheetData {
     if (eliteScale != null) 'EliteScale': eliteScale,
     if (armDropFraction != null) 'ArmDropFraction': armDropFraction,
     if (headDropFraction != null) 'HeadDropFraction': headDropFraction,
+    if (resilience != null)
+      'Resilience': resilience is ZombieResilienceData
+          ? (resilience as ZombieResilienceData).toJson()
+          : resilience,
+  };
+}
+
+/// ZombieResilience (armor) config. Excludes AnimLabels.
+class ZombieResilienceData {
+  ZombieResilienceData({
+    this.amount = 300,
+    this.weakType = 6,
+    this.recoverSpeed = 25,
+    this.damageThresholdPerSecond = 1500,
+    this.resilienceBaseDamageThreshold = 40,
+    this.resilienceExtraDamageThreshold = 60,
+  });
+
+  int amount;
+  int weakType;
+  double recoverSpeed;
+  double damageThresholdPerSecond;
+  int resilienceBaseDamageThreshold;
+  int resilienceExtraDamageThreshold;
+
+  factory ZombieResilienceData.fromJson(Map<String, dynamic> json) {
+    return ZombieResilienceData(
+      amount: (json['Amount'] as num?)?.toInt() ?? 300,
+      weakType: (json['WeakType'] as num?)?.toInt() ?? 6,
+      recoverSpeed: (json['RecoverSpeed'] as num?)?.toDouble() ?? 25,
+      damageThresholdPerSecond:
+          (json['DamageThresholdPerSecond'] as num?)?.toDouble() ?? 1500,
+      resilienceBaseDamageThreshold:
+          (json['ResilienceBaseDamageThreshold'] as num?)?.toInt() ?? 40,
+      resilienceExtraDamageThreshold:
+          (json['ResilienceExtraDamageThreshold'] as num?)?.toInt() ?? 60,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'Amount': amount,
+    'WeakType': weakType,
+    'RecoverSpeed': recoverSpeed,
+    'DamageThresholdPerSecond': damageThresholdPerSecond,
+    'ResilienceBaseDamageThreshold': resilienceBaseDamageThreshold,
+    'ResilienceExtraDamageThreshold': resilienceExtraDamageThreshold,
   };
 }
 

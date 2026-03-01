@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:z_editor/escape_override.dart';
@@ -44,7 +45,7 @@ class _DesktopEscapeHandlerState extends State<_DesktopEscapeHandler> {
   }
 
   bool _handleKeyEvent(KeyEvent event) {
-    if (event is KeyRepeatEvent) return false;
+    if (event is KeyRepeatEvent) return true;
     if (event is! KeyDownEvent) return false;
     if (event.logicalKey != LogicalKeyboardKey.escape) return false;
     if (!mounted) return false;
@@ -133,9 +134,15 @@ class _ZEditorAppState extends State<ZEditorApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       builder: (context, child) {
-        final scale = widget.uiScale;
+        var scale = widget.uiScale;
         final mediaQuery = MediaQuery.of(context);
         final viewportSize = mediaQuery.size;
+        if (kIsWeb) {
+          final isMobileViewport = mediaQuery.size.shortestSide < 600;
+          if (isMobileViewport) {
+            scale *= 0.85;
+          }
+        }
         final scaledSize = Size(
           viewportSize.width / scale,
           viewportSize.height / scale,

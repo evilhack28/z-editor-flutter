@@ -10,11 +10,15 @@ import 'package:z_editor/data/repository/reference_repository.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/repository/plant_repository.dart';
+import 'package:z_editor/data/repository/resilience_config_repository.dart';
 import 'package:z_editor/data/repository/zombie_properties_repository.dart';
+import 'package:z_editor/data/repository/fish_type_repository.dart';
+import 'package:z_editor/data/repository/fish_properties_repository.dart';
 import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/screens/editor/basic_info_screen.dart';
 import 'package:z_editor/screens/editor/json_viewer_screen.dart';
 import 'package:z_editor/screens/editor/others/custom_zombie_properties_screen.dart';
+import 'package:z_editor/screens/editor/others/custom_fish_properties_screen.dart';
 import 'package:z_editor/screens/editor/others/unknown_module_screen.dart';
 import 'package:z_editor/screens/editor/modules/star_challenge_screen.dart';
 import 'package:z_editor/screens/editor/modules/max_sun_module_screen.dart';
@@ -41,9 +45,13 @@ import 'package:z_editor/screens/editor/modules/protect_grid_item_challenge_scre
 import 'package:z_editor/screens/editor/modules/protect_plant_challenge_screen.dart';
 import 'package:z_editor/screens/editor/modules/roof_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/rain_dark_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/bomb_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/sun_bomb_challenge_screen.dart';
 import 'package:z_editor/screens/editor/modules/war_mist_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/zombie_potion_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/air_drop_ship_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/heian_wind_module_screen.dart';
+import 'package:z_editor/screens/editor/modules/renai_module_screen.dart';
 import 'package:z_editor/screens/editor/modules/penny_classroom_module_screen.dart';
 import 'package:z_editor/screens/editor/modules/manhole_pipeline_module_screen.dart';
 import 'package:z_editor/screens/editor/modules/wave_manager_module_screen.dart';
@@ -60,6 +68,8 @@ import 'package:z_editor/screens/editor/events/invalid_event_screen.dart';
 import 'package:z_editor/screens/editor/events/beach_stage_event_screen.dart';
 import 'package:z_editor/screens/editor/events/black_hole_event_screen.dart';
 import 'package:z_editor/screens/editor/events/dino_event_screen.dart';
+import 'package:z_editor/screens/editor/events/dino_run_event_screen.dart';
+import 'package:z_editor/screens/editor/events/dino_tread_event_screen.dart';
 import 'package:z_editor/screens/editor/events/fairy_tale_fog_event_screen.dart';
 import 'package:z_editor/screens/editor/events/fairy_tale_wind_event_screen.dart';
 import 'package:z_editor/screens/editor/events/frost_wind_event_screen.dart';
@@ -69,11 +79,17 @@ import 'package:z_editor/screens/editor/events/modify_conveyor_event_screen.dart
 import 'package:z_editor/screens/editor/events/modern_portals_event_screen.dart';
 import 'package:z_editor/screens/editor/events/parachute_rain_event_screen.dart';
 import 'package:z_editor/screens/editor/events/raiding_party_event_screen.dart';
+import 'package:z_editor/screens/editor/events/barrel_wave_event_screen.dart';
+import 'package:z_editor/screens/editor/events/thunder_wave_event_screen.dart';
+import 'package:z_editor/screens/editor/events/tide_wave_event_screen.dart';
+import 'package:z_editor/screens/editor/events/zombie_fish_wave_event_screen.dart';
 import 'package:z_editor/screens/editor/events/spawn_grave_stones_event_screen.dart';
 import 'package:z_editor/screens/editor/events/storm_event_screen.dart';
 import 'package:z_editor/screens/editor/events/tidal_change_event_screen.dart';
 import 'package:z_editor/screens/editor/events/zombie_potion_event_screen.dart';
-import 'package:z_editor/screens/editor/events/zombie_spawn_event_screen.dart';
+import 'package:z_editor/screens/editor/events/shell_event_screen.dart';
+import 'package:z_editor/screens/editor/events/jittered_event_screen.dart';
+import 'package:z_editor/screens/editor/events/ground_spawn_event_screen.dart';
 import 'package:z_editor/screens/select/event_selection_screen.dart';
 import 'package:z_editor/data/repository/grid_item_repository.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
@@ -157,8 +173,11 @@ class _EditorScreenState extends State<EditorScreen> {
     setState(() => _isLoading = true);
     await ReferenceRepository.init();
     await ZombiePropertiesRepository.init();
+    await ResilienceConfigRepository.init();
     await PlantRepository().init();
     await ZombieRepository().init();
+    await FishTypeRepository().init();
+    await FishPropertiesRepository.init();
     var level = await LevelRepository.loadLevel(widget.fileName);
     if (level == null && widget.filePath.isNotEmpty) {
       level = await LevelRepository.loadLevelFromPath(widget.filePath);
@@ -312,6 +331,10 @@ class _EditorScreenState extends State<EditorScreen> {
                 Expanded(
                   child: Text(
                     l10n?.saved ?? 'Saved',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -391,12 +414,42 @@ class _EditorScreenState extends State<EditorScreen> {
   }) async {
     if (_levelFile == null) return;
     final current = levelDef.stageModule;
+    final wasDeepSea = LevelParser.isDeepSeaLawn(levelDef);
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => StageSelectionScreen(
           currentStageRtid: current,
-          onStageSelected: (newRtid) {
+          onStageSelected: (newRtid) async {
+            final newAlias = LevelParser.extractAlias(newRtid);
+            final willBeDeepSea = newAlias == 'DeepseaStage' || newAlias == 'DeepseaLandStage';
+            if (wasDeepSea && !willBeDeepSea) {
+              final has6RowData = LevelParser.has6RowDataInLevel(_levelFile!);
+              if (has6RowData && mounted) {
+                final l10n = AppLocalizations.of(context);
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text(l10n?.confirm ?? 'Confirm'),
+                    content: Text(
+                      l10n?.warningStageSwitchedTo5Rows ??
+                          'Stage uses 5 rows but some data references row 6. These objects may not display correctly in-game. Continue?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(l10n?.cancel ?? 'Cancel'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(l10n?.confirm ?? 'Confirm'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirmed != true) return;
+              }
+            }
             levelDef.stageModule = newRtid;
             for (final o in _levelFile!.objects) {
               if (o.objClass == 'LevelDefinition') {
@@ -518,6 +571,58 @@ class _EditorScreenState extends State<EditorScreen> {
     }
 
     final objClass = obj.objClass;
+    if (objClass == 'BarrelWaveActionProps') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BarrelWaveEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () {
+              _setActiveTab(EditorTabType.timeline);
+              Navigator.pop(context);
+            },
+            onRequestZombieSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZombieSelectionScreen(
+                    multiSelect: false,
+                    onZombieSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiZombieSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'ThunderWaveActionProps') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ThunderWaveEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () {
+              _setActiveTab(EditorTabType.timeline);
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
     if (objClass == 'SpawnGravestonesWaveActionProps') {
       await Navigator.push(
         context,
@@ -602,11 +707,11 @@ class _EditorScreenState extends State<EditorScreen> {
       return;
     }
 
-    if (objClass == 'SpawnZombiesJitteredWaveActionProps') {
+    if (objClass == 'TideWaveWaveActionProps') {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ZombieSpawnEventScreen(
+          builder: (context) => TideWaveEventScreen(
             rtid: rtid,
             levelFile: _levelFile!,
             onChanged: _markDirty,
@@ -614,8 +719,78 @@ class _EditorScreenState extends State<EditorScreen> {
               _setActiveTab(EditorTabType.timeline);
               Navigator.pop(context);
             },
-            eventSubtitle: 'Event: Standard spawn',
-            isGroundSpawner: false,
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'SpawnZombiesFishWaveActionProps') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ZombieFishWaveEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () {
+              _setActiveTab(EditorTabType.timeline);
+              Navigator.pop(context);
+            },
+            onEditCustomZombie: _handleEditCustomZombie,
+            onInjectCustomZombie: _injectCustomZombie,
+            onEditCustomFish: _handleEditCustomFish,
+            onInjectCustomFish: _injectCustomFish,
+            onRequestPlantSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PlantSelectionScreen(
+                    isMultiSelect: false,
+                    onPlantSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiPlantSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+            onRequestZombieSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ZombieSelectionScreen(
+                    multiSelect: false,
+                    onZombieSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onMultiZombieSelected: (_) {},
+                    onBack: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'SpawnZombiesJitteredWaveActionProps') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => JitteredEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () {
+              _setActiveTab(EditorTabType.timeline);
+              Navigator.pop(context);
+            },
             onEditCustomZombie: _handleEditCustomZombie,
             onInjectCustomZombie: _injectCustomZombie,
             onRequestPlantSelection: (onSelected) {
@@ -660,7 +835,7 @@ class _EditorScreenState extends State<EditorScreen> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ZombieSpawnEventScreen(
+          builder: (context) => GroundSpawnEventScreen(
             rtid: rtid,
             levelFile: _levelFile!,
             onChanged: _markDirty,
@@ -668,8 +843,6 @@ class _EditorScreenState extends State<EditorScreen> {
               _setActiveTab(EditorTabType.timeline);
               Navigator.pop(context);
             },
-            eventSubtitle: 'Event: Ground spawn',
-            isGroundSpawner: true,
             onEditCustomZombie: _handleEditCustomZombie,
             onInjectCustomZombie: _injectCustomZombie,
             onRequestPlantSelection: (onSelected) {
@@ -868,6 +1041,36 @@ class _EditorScreenState extends State<EditorScreen> {
       return;
     }
 
+    if (objClass == 'DinoTreadActionProps') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DinoTreadEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'DinoRunActionProps') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DinoRunEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
     if (objClass == 'SpawnZombiesFromGridItemSpawnerProps') {
       await Navigator.push(
         context,
@@ -943,6 +1146,21 @@ class _EditorScreenState extends State<EditorScreen> {
                 ),
               );
             },
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (objClass == 'ZombieAtlantisShellActionProps') {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ShellEventScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
           ),
         ),
       );
@@ -1194,6 +1412,75 @@ class _EditorScreenState extends State<EditorScreen> {
         ),
       ),
     ).then((_) => _setActiveTab(EditorTabType.timeline));
+  }
+
+  void _handleEditCustomFish(String rtid) {
+    if (_levelFile == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CustomFishPropertiesScreen(
+          rtid: rtid,
+          levelFile: _levelFile!,
+          onChanged: _markDirty,
+          onBack: () => Navigator.pop(context),
+        ),
+      ),
+    ).then((_) => _setActiveTab(EditorTabType.timeline));
+  }
+
+  String? _injectCustomFish(String baseFishAlias) {
+    if (_levelFile == null) return null;
+    final template = FishPropertiesRepository.getFishTemplate(baseFishAlias);
+    if (template == null) return null;
+
+    final typeTemplate = template['type'];
+    final propsTemplate = template['props'];
+    if (typeTemplate is! PvzObject || propsTemplate is! PvzObject) {
+      return null;
+    }
+
+    final baseName = FishPropertiesRepository.getTypeName(baseFishAlias);
+    var index = 1;
+    while (_levelFile!.objects.any(
+      (o) => o.aliases?.contains('${baseName}_$index') == true,
+    )) {
+      index++;
+    }
+    final newTypeAlias = '${baseName}_$index';
+
+    var propsIndex = index;
+    while (_levelFile!.objects.any(
+      (o) => o.aliases?.contains('${baseName}_props_$propsIndex') == true,
+    )) {
+      propsIndex++;
+    }
+    final newPropsAlias = '${baseName}_props_$propsIndex';
+
+    final newPropsData = _cloneJson(propsTemplate.objData);
+    final newTypeData = _cloneJson(typeTemplate.objData);
+    if (newTypeData is Map<String, dynamic>) {
+      newTypeData['Properties'] =
+          RtidParser.build(newPropsAlias, 'CurrentLevel');
+    }
+
+    final newPropsObj = PvzObject(
+      aliases: [newPropsAlias],
+      objClass: propsTemplate.objClass,
+      objData: newPropsData,
+    );
+    final newTypeObj = PvzObject(
+      aliases: [newTypeAlias],
+      objClass: typeTemplate.objClass,
+      objData: newTypeData,
+    );
+
+    _levelFile!.objects.addAll([newPropsObj, newTypeObj]);
+    _parsedData = LevelParser.parseLevel(_levelFile!);
+    _markDirty();
+    setState(() {});
+
+    return RtidParser.build(newTypeAlias, 'CurrentLevel');
   }
 
   void _showUiScaleDialog(BuildContext context) {
@@ -1718,6 +2005,20 @@ class _EditorScreenState extends State<EditorScreen> {
       );
       return;
     }
+    if (info.source == 'CurrentLevel' && objClass == 'BombProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BombPropertiesScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
     if (info.source == 'CurrentLevel' &&
         objClass == 'SunBombChallengeProperties') {
       Navigator.push(
@@ -1739,6 +2040,51 @@ class _EditorScreenState extends State<EditorScreen> {
         context,
         MaterialPageRoute(
           builder: (context) => ZombiePotionModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'DropShipProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AirDropShipModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'HeianWindModuleProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HeianWindModuleScreen(
+            rtid: rtid,
+            levelFile: _levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'RenaiModuleProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RenaiModuleScreen(
             rtid: rtid,
             levelFile: _levelFile!,
             onChanged: _markDirty,
@@ -2092,6 +2438,8 @@ class _EditorScreenState extends State<EditorScreen> {
                                     onEditWaveManagerSettings:
                                         _handleEditWaveManagerSettings,
                                     onEditCustomZombie: _handleEditCustomZombie,
+                                    onEditCustomFish: _handleEditCustomFish,
+                                    onOpenModule: _handleEditModule,
                                     openWaveSheetNotifier: _openWaveSheetNotifier,
                                     onCreateContainer: () => _handleCreateWaveContainer(),
                                     onDeleteContainer: () => _handleDeleteWaveContainer(),

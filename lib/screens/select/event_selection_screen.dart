@@ -90,14 +90,20 @@ class EventSelectionScreen extends StatelessWidget {
   }
 
   String _getTitle(BuildContext context, EventMetadata meta, AppLocalizations? l10n) {
-    return _resolveEventKey(context, meta.titleKey, 'eventTitle_', l10n);
+    return resolveEventTitle(context, meta, l10n);
   }
 
-  String _getDescription(BuildContext context, EventMetadata meta, AppLocalizations? l10n) {
-    return _resolveEventKey(context, meta.descriptionKey, 'eventDesc_', l10n);
+  /// Resolves event metadata to a localized display title. Shared for wave timeline and event chips.
+  static String resolveEventTitle(
+    BuildContext context,
+    EventMetadata? meta,
+    AppLocalizations? l10n,
+  ) {
+    if (meta == null) return '';
+    return _resolveEventKeyStatic(meta.titleKey, 'eventTitle_', l10n);
   }
 
-  String _resolveEventKey(BuildContext context, String key, String prefix, AppLocalizations? l10n) {
+  static String _resolveEventKeyStatic(String key, String prefix, AppLocalizations? l10n) {
     if (l10n == null) return key.replaceAll(prefix, '');
     try {
       final name = key.replaceAll(prefix, '');
@@ -113,10 +119,18 @@ class EventSelectionScreen extends StatelessWidget {
           return isTitle ? l10n.eventTitle_BeachStageEventZombieSpawnerProps : l10n.eventDesc_BeachStageEventZombieSpawnerProps;
         case 'TidalChangeWaveActionProps':
           return isTitle ? l10n.eventTitle_TidalChangeWaveActionProps : l10n.eventDesc_TidalChangeWaveActionProps;
+        case 'TideWaveWaveActionProps':
+          return isTitle ? l10n.eventTitle_TideWaveWaveActionProps : l10n.eventDesc_TideWaveWaveActionProps;
+        case 'SpawnZombiesFishWaveActionProps':
+          return isTitle ? l10n.eventTitle_SpawnZombiesFishWaveActionProps : l10n.eventDesc_SpawnZombiesFishWaveActionProps;
         case 'ModifyConveyorWaveActionProps':
           return isTitle ? l10n.eventTitle_ModifyConveyorWaveActionProps : l10n.eventDesc_ModifyConveyorWaveActionProps;
         case 'DinoWaveActionProps':
           return isTitle ? l10n.eventTitle_DinoWaveActionProps : l10n.eventDesc_DinoWaveActionProps;
+        case 'DinoTreadActionProps':
+          return isTitle ? l10n.eventTitle_DinoTreadActionProps : l10n.eventDesc_DinoTreadActionProps;
+        case 'DinoRunActionProps':
+          return isTitle ? l10n.eventTitle_DinoRunActionProps : l10n.eventDesc_DinoRunActionProps;
         case 'SpawnModernPortalsWaveActionProps':
           return isTitle ? l10n.eventTitle_SpawnModernPortalsWaveActionProps : l10n.eventDesc_SpawnModernPortalsWaveActionProps;
         case 'StormZombieSpawnerProps':
@@ -125,6 +139,8 @@ class EventSelectionScreen extends StatelessWidget {
           return isTitle ? l10n.eventTitle_RaidingPartyZombieSpawnerProps : l10n.eventDesc_RaidingPartyZombieSpawnerProps;
         case 'ZombiePotionActionProps':
           return isTitle ? l10n.eventTitle_ZombiePotionActionProps : l10n.eventDesc_ZombiePotionActionProps;
+        case 'ZombieAtlantisShellActionProps':
+          return isTitle ? l10n.eventTitle_ZombieAtlantisShellActionProps : l10n.eventDesc_ZombieAtlantisShellActionProps;
         case 'SpawnGravestonesWaveActionProps':
           return isTitle ? l10n.eventTitle_SpawnGravestonesWaveActionProps : l10n.eventDesc_SpawnGravestonesWaveActionProps;
         case 'SpawnZombiesFromGridItemSpawnerProps':
@@ -141,6 +157,10 @@ class EventSelectionScreen extends StatelessWidget {
           return isTitle ? l10n.eventTitle_BassRainZombieSpawnerProps : l10n.eventDesc_BassRainZombieSpawnerProps;
         case 'BlackHoleWaveActionProps':
           return isTitle ? l10n.eventTitle_BlackHoleWaveActionProps : l10n.eventDesc_BlackHoleWaveActionProps;
+        case 'BarrelWaveActionProps':
+          return isTitle ? l10n.eventTitle_BarrelWaveActionProps : l10n.eventDesc_BarrelWaveActionProps;
+        case 'ThunderWaveActionProps':
+          return isTitle ? l10n.eventTitle_ThunderWaveActionProps : l10n.eventDesc_ThunderWaveActionProps;
         case 'MagicMirrorWaveActionProps':
         case 'WaveActionMagicMirrorTeleportationArrayProps':
           return isTitle ? l10n.eventTitle_MagicMirrorWaveActionProps : l10n.eventDesc_MagicMirrorWaveActionProps;
@@ -150,5 +170,9 @@ class EventSelectionScreen extends StatelessWidget {
     } catch (_) {
       return key.replaceAll(prefix, '');
     }
+  }
+
+  String _getDescription(BuildContext context, EventMetadata meta, AppLocalizations? l10n) {
+    return _resolveEventKeyStatic(meta.descriptionKey, 'eventDesc_', l10n);
   }
 }

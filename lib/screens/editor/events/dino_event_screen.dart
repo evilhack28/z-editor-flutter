@@ -28,6 +28,9 @@ class _DinoEventScreenState extends State<DinoEventScreen> {
   late PvzObject _moduleObj;
   late DinoWaveActionPropsData _data;
 
+  bool get _isDeepSeaLawn => LevelParser.isDeepSeaLawnFromFile(widget.levelFile);
+  int get _maxRowIndex => _isDeepSeaLawn ? 5 : 4;
+
   static const _dinoOptions = [
     ('raptor', 'Raptor'),
     ('stego', 'Stego'),
@@ -203,7 +206,7 @@ class _DinoEventScreenState extends State<DinoEventScreen> {
                           ),
                           IconButton(
                             icon: const Icon(Icons.add),
-                            onPressed: _data.dinoRow < 4
+                            onPressed: _data.dinoRow < _maxRowIndex
                                 ? () {
                                     _data = DinoWaveActionPropsData(
                                       dinoRow: _data.dinoRow + 1,

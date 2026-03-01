@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
@@ -27,6 +28,10 @@ class TidalChangeEventScreen extends StatefulWidget {
 class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
   late PvzObject _moduleObj;
   late TidalChangeWaveActionData _data;
+
+  bool get _isDeepSeaLawn => LevelParser.isDeepSeaLawnFromFile(widget.levelFile);
+  int get _gridRows => _isDeepSeaLawn ? 6 : 5;
+  int get _gridCols => _isDeepSeaLawn ? 10 : 9;
 
   @override
   void initState() {
@@ -66,7 +71,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
   }
 
   bool _isCellInWater(int col) {
-    final waterStartCol = 9 - _data.tidalChange.changeAmount;
+    final waterStartCol = _gridCols - _data.tidalChange.changeAmount;
     return col >= waterStartCol;
   }
 
@@ -212,7 +217,7 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                       ),
                       const SizedBox(height: 16),
                       AspectRatio(
-                        aspectRatio: 1.8,
+                        aspectRatio: _gridCols / _gridRows,
                         child: Container(
                           decoration: BoxDecoration(
                             color: theme.brightness == Brightness.dark
@@ -224,10 +229,10 @@ class _TidalChangeEventScreenState extends State<TidalChangeEventScreen> {
                             ),
                           ),
                           child: Column(
-                            children: List.generate(5, (row) {
+                            children: List.generate(_gridRows, (row) {
                               return Expanded(
                                 child: Row(
-                                  children: List.generate(9, (col) {
+                                  children: List.generate(_gridCols, (col) {
                                     final inWater = _isCellInWater(col);
                                     return Expanded(
                                       child: Container(

@@ -7,7 +7,6 @@ import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
 import 'package:z_editor/l10n/resource_names.dart';
-import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Initial grid item entry. Ported from Z-Editor-master InitialGridItemEntryEP.kt
@@ -208,6 +207,7 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
                     )),
                     AddItemCard(
                       onPressed: _handleSelectItem,
+                      minHeight: 130,
                     ),
                   ],
                 ),
@@ -302,33 +302,38 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
                                           padding: const EdgeInsets.all(2),
                                           child: FittedBox(
                                             fit: BoxFit.contain,
-                                            child: _GridItemIconSmall(
-                                                firstItem.typeName),
+                                            child: GridItemIcon(
+                                                typeName: firstItem.typeName,
+                                                size: 32,
+                                                fit: BoxFit.contain,
+                                                borderRadius: 4,
+                                                badgeScaleFactor: 1.0),
                                           ),
                                         ),
                                       ),
                                       if (count > 1)
                                         Positioned(
-                                          top: 2,
-                                          right: 2,
+                                          top: 3,
+                                          right: 3,
                                           child: Container(
                                             padding:
                                                 const EdgeInsets.symmetric(
-                                              horizontal: 2,
+                                              horizontal: 6,
+                                              vertical: 3,
                                             ),
                                             decoration: BoxDecoration(
                                               color: theme.colorScheme
                                                   .onSurfaceVariant,
                                               borderRadius:
                                                   const BorderRadius.only(
-                                                bottomLeft: Radius.circular(4),
+                                                bottomLeft: Radius.circular(6),
                                               ),
                                             ),
                                             child: Text(
                                               '+${count - 1}',
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 8,
+                                                fontSize: 12,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -381,27 +386,6 @@ class _InitialGridItemEntryScreenState extends State<InitialGridItemEntryScreen>
   }
 }
 
-class _GridItemIconSmall extends StatelessWidget {
-  const _GridItemIconSmall(this.typeName);
-
-  final String typeName;
-
-  @override
-  Widget build(BuildContext context) {
-    final path = GridItemRepository.getIconPath(typeName);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: AssetImageWidget(
-        assetPath: path,
-        fit: BoxFit.cover,
-        width: 32,
-        height: 32,
-        altCandidates: imageAltCandidates(path),
-      ),
-    );
-  }
-}
-
 class _GridItemCard extends StatelessWidget {
   const _GridItemCard({
     required this.item,
@@ -422,7 +406,6 @@ class _GridItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final path = GridItemRepository.getIconPath(item.typeName);
     final displayName = ResourceNames.lookup(context, 'griditem_${item.typeName}');
     final name = displayName != 'griditem_${item.typeName}'
         ? displayName
@@ -441,29 +424,15 @@ class _GridItemCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                   child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: AssetImageWidget(
-                        assetPath: path,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.cover,
-                        altCandidates: imageAltCandidates(path),
-                        errorWidget: Container(
-                          color: const Color(0xFFF5EEE8),
-                          width: 64,
-                          height: 64,
-                          alignment: Alignment.center,
-                          child: Text(
-                            item.typeName.isNotEmpty ? item.typeName[0] : '?',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF407A9A),
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: GridItemIcon(
+                      typeName: item.typeName,
+                      size: 64,
+                      fit: BoxFit.contain,
+                      iconScaleFactor:
+                          GridItemRepository.isRenaiStatueNonHalf(item.typeName)
+                              ? 3.0
+                              : 1.5,
+                      badgeScaleFactor: 1.0,
                     ),
                   ),
                 ),

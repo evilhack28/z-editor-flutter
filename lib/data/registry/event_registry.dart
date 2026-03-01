@@ -33,7 +33,7 @@ class EventRegistry {
       icon: Icons.groups,
       color: const Color(0xFF936457),
       darkColor: const Color(0xFFC2A197),
-      defaultAlias: 'GroundSpawner',
+      defaultAlias: 'GroundSpawnEvent',
       defaultObjClass: 'SpawnZombiesFromGroundSpawnerProps',
       initialDataFactory: () => WaveActionData(),
       summaryProvider: (obj) {
@@ -53,7 +53,7 @@ class EventRegistry {
       icon: Icons.groups,
       color: const Color(0xFF2196F3),
       darkColor: const Color(0xFF90CAF9),
-      defaultAlias: 'Jittered',
+      defaultAlias: 'JitteredEvent',
       defaultObjClass: 'SpawnZombiesJitteredWaveActionProps',
       initialDataFactory: () => WaveActionData(),
       summaryProvider: (obj) {
@@ -137,6 +137,26 @@ class EventRegistry {
       defaultObjClass: 'DinoWaveActionProps',
       initialDataFactory: () => DinoWaveActionPropsData(),
     ),
+    'DinoTreadActionProps': EventMetadata(
+      titleKey: 'eventTitle_DinoTreadActionProps',
+      descriptionKey: 'eventDesc_DinoTreadActionProps',
+      icon: Icons.pets,
+      color: const Color(0xFF91B900),
+      darkColor: const Color(0xFFA2B659),
+      defaultAlias: 'DinoTreadEvent',
+      defaultObjClass: 'DinoTreadActionProps',
+      initialDataFactory: () => DinoTreadActionPropsData(),
+    ),
+    'DinoRunActionProps': EventMetadata(
+      titleKey: 'eventTitle_DinoRunActionProps',
+      descriptionKey: 'eventDesc_DinoRunActionProps',
+      icon: Icons.pets,
+      color: const Color(0xFF91B900),
+      darkColor: const Color(0xFFA2B659),
+      defaultAlias: 'DinoRunEvent',
+      defaultObjClass: 'DinoRunActionProps',
+      initialDataFactory: () => DinoRunActionPropsData(),
+    ),
     'SpawnModernPortalsWaveActionProps': EventMetadata(
       titleKey: 'eventTitle_SpawnModernPortalsWaveActionProps',
       descriptionKey: 'eventDesc_SpawnModernPortalsWaveActionProps',
@@ -176,6 +196,26 @@ class EventRegistry {
       defaultAlias: 'PotionEvent',
       defaultObjClass: 'ZombiePotionActionProps',
       initialDataFactory: () => ZombiePotionActionPropsData(),
+    ),
+    'ZombieAtlantisShellActionProps': EventMetadata(
+      titleKey: 'eventTitle_ZombieAtlantisShellActionProps',
+      descriptionKey: 'eventDesc_ZombieAtlantisShellActionProps',
+      icon: Icons.beach_access,
+      color: const Color(0xFF00838F),
+      darkColor: const Color(0xFF4DD0E1),
+      defaultAlias: 'ShellEvent',
+      defaultObjClass: 'ZombieAtlantisShellActionProps',
+      initialDataFactory: () => ZombieAtlantisShellActionPropsData(),
+      summaryProvider: (obj) {
+        try {
+          final data = ZombieAtlantisShellActionPropsData.fromJson(
+            obj.objData as Map<String, dynamic>,
+          );
+          return '${data.tiles.length}';
+        } catch (_) {
+          return '';
+        }
+      },
     ),
     'SpawnGravestonesWaveActionProps': EventMetadata(
       titleKey: 'eventTitle_SpawnGravestonesWaveActionProps',
@@ -276,16 +316,6 @@ class EventRegistry {
       defaultAlias: 'BassRainEvent',
       defaultObjClass: 'BassRainZombieSpawnerProps',
       initialDataFactory: () => ParachuteRainEventData(),
-      summaryProvider: (obj) {
-        try {
-          final data = ParachuteRainEventData.fromJson(
-            obj.objData as Map<String, dynamic>,
-          );
-          return '${data.groupSize}x${data.spiderCount}';
-        } catch (_) {
-          return '';
-        }
-      },
     ),
     'BlackHoleWaveActionProps': EventMetadata(
       titleKey: 'eventTitle_BlackHoleWaveActionProps',
@@ -302,6 +332,76 @@ class EventRegistry {
             obj.objData as Map<String, dynamic>,
           );
           return 'col: ${data.colNumPlantIsDragged}';
+        } catch (_) {
+          return '';
+        }
+      },
+    ),
+    'BarrelWaveActionProps': EventMetadata(
+      titleKey: 'eventTitle_BarrelWaveActionProps',
+      descriptionKey: 'eventDesc_BarrelWaveActionProps',
+      icon: Icons.local_fire_department,
+      color: const Color(0xFFE65100),
+      darkColor: const Color(0xFFFFAB91),
+      defaultAlias: 'BarrelEvent',
+      defaultObjClass: 'BarrelWaveActionProps',
+      initialDataFactory: () => BarrelWaveEventData(),
+      summaryProvider: (obj) {
+        try {
+          final data = BarrelWaveEventData.fromJson(
+            obj.objData as Map<String, dynamic>,
+          );
+          return '${data.barrels.length}';
+        } catch (_) {
+          return '';
+        }
+      },
+    ),
+    'SpawnZombiesFishWaveActionProps': EventMetadata(
+      titleKey: 'eventTitle_SpawnZombiesFishWaveActionProps',
+      descriptionKey: 'eventDesc_SpawnZombiesFishWaveActionProps',
+      icon: Icons.water,
+      color: const Color(0xFF00ACC1),
+      darkColor: const Color(0xFF81D4FA),
+      defaultAlias: 'ZombieFishWave',
+      defaultObjClass: 'SpawnZombiesFishWaveActionProps',
+      initialDataFactory: () => SpawnZombiesFishWaveActionPropsData(),
+      summaryProvider: (obj) {
+        try {
+          final data = SpawnZombiesFishWaveActionPropsData.fromJson(
+            obj.objData as Map<String, dynamic>,
+          );
+          return 'Z:${data.zombies.length} F:${data.fishes.length}';
+        } catch (_) {
+          return '';
+        }
+      },
+    ),
+    'TideWaveWaveActionProps': EventMetadata(
+      titleKey: 'eventTitle_TideWaveWaveActionProps',
+      descriptionKey: 'eventDesc_TideWaveWaveActionProps',
+      icon: Icons.water,
+      color: const Color(0xFF00ACC1),
+      darkColor: const Color(0xFF81D4FA),
+      defaultAlias: 'TideWaveEvent',
+      defaultObjClass: 'TideWaveWaveActionProps',
+      initialDataFactory: () => TideWaveWaveActionPropsData(),
+    ),
+    'ThunderWaveActionProps': EventMetadata(
+      titleKey: 'eventTitle_ThunderWaveActionProps',
+      descriptionKey: 'eventDesc_ThunderWaveActionProps',
+      icon: Icons.thunderstorm,
+      color: const Color(0xFF5C6BC0),
+      darkColor: const Color(0xFF9FA8DA),
+      defaultAlias: 'ThunderEvent',
+      defaultObjClass: 'ThunderWaveActionProps',
+      initialDataFactory: () => ThunderWaveActionPropsData(),
+      summaryProvider: (obj) {
+        try {
+          final data = ThunderWaveActionPropsData.fromJson(
+            obj.objData as Map<String, dynamic>,
+          );
+          return '${data.thunders.length}';
         } catch (_) {
           return '';
         }

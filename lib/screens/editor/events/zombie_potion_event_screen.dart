@@ -1,11 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:z_editor/data/repository/grid_item_repository.dart';
 import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/data/level_parser.dart';
+import 'package:z_editor/data/repository/grid_item_repository.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
-import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Zombie potion event editor. Ported from Z-Editor-master ZombiePotionActionPropsEP.kt
@@ -224,7 +223,10 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
                             onDelete: () => setState(() => _itemToDelete = item),
                             deleteTooltip: l10n?.delete ?? 'Delete',
                           )),
-                      AddItemCard(onPressed: _addPotion),
+                      AddItemCard(
+                        onPressed: _addPotion,
+                        minHeight: 130,
+                      ),
                     ],
                   ),
                   if (itemsOutsideLawn.isNotEmpty) ...[
@@ -321,33 +323,38 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
                                           padding: const EdgeInsets.all(2),
                                           child: FittedBox(
                                             fit: BoxFit.contain,
-                                            child: _PotionIconSmall(
-                                                firstItem.type),
+                                            child: GridItemIcon(
+                                                typeName: firstItem.type,
+                                                size: 32,
+                                                fit: BoxFit.contain,
+                                                borderRadius: 4,
+                                                badgeScaleFactor: 1.0),
                                           ),
                                         ),
                                       ),
                                       if (count > 1)
                                         Positioned(
-                                          top: 2,
-                                          right: 2,
+                                          top: 3,
+                                          right: 3,
                                           child: Container(
                                             padding:
                                                 const EdgeInsets.symmetric(
-                                                  horizontal: 4,
-                                                  vertical: 2,
-                                            ),
+                                                  horizontal: 6,
+                                                  vertical: 3,
+                                                ),
                                             decoration: BoxDecoration(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.6,
-                                              ),
+                                              color: theme.colorScheme
+                                                  .onSurfaceVariant,
                                               borderRadius:
-                                                  BorderRadius.circular(4),
+                                                  const BorderRadius.only(
+                                                bottomLeft: Radius.circular(6),
+                                              ),
                                             ),
                                             child: Text(
                                               '+${count - 1}',
                                               style: const TextStyle(
                                                 color: Colors.white,
-                                                fontSize: 8,
+                                                fontSize: 12,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -401,27 +408,6 @@ class _ZombiePotionEventScreenState extends State<ZombiePotionEventScreen> {
   }
 }
 
-class _PotionIconSmall extends StatelessWidget {
-  const _PotionIconSmall(this.typeName);
-
-  final String typeName;
-
-  @override
-  Widget build(BuildContext context) {
-    final path = GridItemRepository.getIconPath(typeName);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(4),
-      child: AssetImageWidget(
-        assetPath: path,
-        fit: BoxFit.cover,
-        width: 32,
-        height: 32,
-        altCandidates: imageAltCandidates(path),
-      ),
-    );
-  }
-}
-
 class _PotionItemCard extends StatelessWidget {
   const _PotionItemCard({
     required this.item,
@@ -442,7 +428,6 @@ class _PotionItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final path = GridItemRepository.getIconPath(item.type);
     final displayName = ResourceNames.lookup(context, 'griditem_${item.type}');
     final name = displayName != 'griditem_${item.type}' ? displayName : item.type;
 
@@ -459,29 +444,15 @@ class _PotionItemCard extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 8, left: 8, right: 8),
                   child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: AssetImageWidget(
-                        assetPath: path,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.cover,
-                        altCandidates: imageAltCandidates(path),
-                        errorWidget: Container(
-                          color: const Color(0xFFF5EEE8),
-                          width: 64,
-                          height: 64,
-                          alignment: Alignment.center,
-                          child: Text(
-                            item.type.isNotEmpty ? item.type[0] : '?',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF407A9A),
-                            ),
-                          ),
-                        ),
-                      ),
+                    child: GridItemIcon(
+                      typeName: item.type,
+                      size: 64,
+                      fit: BoxFit.contain,
+                      iconScaleFactor:
+                          GridItemRepository.isRenaiStatueNonHalf(item.type)
+                              ? 3.0
+                              : 1.5,
+                      badgeScaleFactor: 1.0,
                     ),
                   ),
                 ),

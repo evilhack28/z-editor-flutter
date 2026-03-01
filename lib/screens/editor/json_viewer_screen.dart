@@ -140,6 +140,10 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
                 Expanded(
                   child: Text(
                     l10n?.saved ?? 'Saved',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -525,6 +529,10 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
                 Expanded(
                   child: Text(
                     l10n?.clearUnusedNone ?? 'No unused objects found.',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -584,7 +592,14 @@ class _JsonViewerScreenState extends State<JsonViewerScreen> {
                           color: Colors.white, size: 20),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(msg, overflow: TextOverflow.ellipsis),
+                        child: Text(
+                          msg,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   )

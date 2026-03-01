@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:z_editor/data/level_parser.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/repository/reference_repository.dart';
 import 'package:z_editor/data/rtid_parser.dart';
@@ -32,6 +33,9 @@ class _PiratePlankPropertiesScreenState
   late PvzObject _moduleObj;
   late PiratePlankPropertiesData _data;
   bool _isPirateStage = false;
+
+  bool get _isDeepSeaLawn => LevelParser.isDeepSeaLawnFromFile(widget.levelFile);
+  int get _gridRows => _isDeepSeaLawn ? 6 : 5;
 
   @override
   void initState() {
@@ -148,7 +152,9 @@ class _PiratePlankPropertiesScreenState
               const SizedBox(height: 16),
             ],
             Text(
-              l10n?.plankRows ?? 'Plank rows (0–4)',
+              _gridRows == 5
+                  ? (l10n?.plankRows ?? 'Plank rows (0–4)')
+                  : (l10n?.plankRowsDeepSea ?? 'Plank rows (0–5)'),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -156,8 +162,8 @@ class _PiratePlankPropertiesScreenState
             const SizedBox(height: 12),
             Card(
               child: Column(
-                children: List.generate(5, (row) {
-                  final hasDivider = row < 4;
+                children: List.generate(_gridRows, (row) {
+                  final hasDivider = row < _gridRows - 1;
                   return Column(
                     children: [
                       Padding(

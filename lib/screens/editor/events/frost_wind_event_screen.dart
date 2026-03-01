@@ -28,6 +28,9 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
   late PvzObject _moduleObj;
   late FrostWindWaveActionPropsData _data;
 
+  bool get _isDeepSeaLawn => LevelParser.isDeepSeaLawnFromFile(widget.levelFile);
+  int get _maxRowIndex => _isDeepSeaLawn ? 5 : 4;
+
   @override
   void initState() {
     super.initState();
@@ -213,7 +216,7 @@ class _FrostWindEventScreenState extends State<FrostWindEventScreen> {
                             Text(l10n?.rowNShort(wind.row + 1) ?? 'Row ${wind.row + 1}'),
                             IconButton(
                               icon: const Icon(Icons.add),
-                              onPressed: wind.row < 4
+                              onPressed: wind.row < _maxRowIndex
                                   ? () => _updateWind(
                                         idx,
                                         FrostWindData(

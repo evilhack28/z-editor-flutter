@@ -1,8 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/data/repository/zombie_properties_repository.dart';
+import 'package:z_editor/data/repository/zombie_repository.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/l10n/resource_names.dart';
+import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Beach stage / low tide event editor. Ported from Z-Editor-master BeachStageEventEP.kt
@@ -129,48 +133,89 @@ class _BeachStageEventScreenState extends State<BeachStageEventScreen> {
   }
 
   Widget _buildZombieConfigCard(BuildContext context, ThemeData theme, AppLocalizations? l10n) {
+    final realTypeName = ZombiePropertiesRepository.getTypeNameByAlias(_data.zombieName);
+    final zombieInfo = ZombieRepository().getZombieById(realTypeName.isEmpty ? _data.zombieName : realTypeName);
+    final typeName = realTypeName.isEmpty ? _data.zombieName : realTypeName;
+    final nameKey = ZombieRepository().getName(typeName);
+    final displayName = ResourceNames.lookup(context, nameKey);
+    final iconPath = zombieInfo?.iconAssetPath;
+
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n?.zombieTypeZombieName ?? 'Zombie type (ZombieName)',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+      child: InkWell(
+        onTap: () {
+          widget.onRequestZombieSelection((id) {
+            final aliases = ZombieRepository().buildZombieAliases(id);
+            _data = BeachStageEventData(
+              columnStart: _data.columnStart,
+              columnEnd: _data.columnEnd,
+              groupSize: _data.groupSize,
+              zombieCount: _data.zombieCount,
+              zombieName: aliases,
+              timeBeforeFullSpawn: _data.timeBeforeFullSpawn,
+              timeBetweenGroups: _data.timeBetweenGroups,
+              waveStartMessage: _data.waveStartMessage,
+            );
+            _sync();
+          });
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: iconPath != null
+                    ? AssetImageWidget(
+                        assetPath: iconPath,
+                        altCandidates: imageAltCandidates(iconPath),
+                        width: 48,
+                        height: 48,
+                        fit: BoxFit.cover,
+                      )
+                    : Center(
+                        child: Text(
+                          _data.zombieName.isEmpty ? '?' : displayName.isNotEmpty ? displayName[0] : '?',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _data.zombieName.isEmpty ? (l10n?.jamNone ?? 'None') : _data.zombieName,
-                    style: theme.textTheme.bodyLarge,
-                  ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _data.zombieName.isEmpty ? (l10n?.jamNone ?? 'None') : displayName,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (_data.zombieName.isNotEmpty && typeName.isNotEmpty)
+                      Text(
+                        typeName,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
                 ),
-                FilledButton(
-                  onPressed: () {
-                    widget.onRequestZombieSelection((id) {
-                      _data = BeachStageEventData(
-                        columnStart: _data.columnStart,
-                        columnEnd: _data.columnEnd,
-                        groupSize: _data.groupSize,
-                        zombieCount: _data.zombieCount,
-                        zombieName: id,
-                        timeBeforeFullSpawn: _data.timeBeforeFullSpawn,
-                        timeBetweenGroups: _data.timeBetweenGroups,
-                        waveStartMessage: _data.waveStartMessage,
-                      );
-                      _sync();
-                    });
-                  },
-                  child: Text(l10n?.selectZombie ?? 'Select zombie'),
-                ),
-              ],
-            ),
-          ],
+              ),
+              Icon(Icons.edit, color: theme.colorScheme.primary, size: 20),
+            ],
+          ),
         ),
       ),
     );

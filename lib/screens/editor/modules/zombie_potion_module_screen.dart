@@ -5,7 +5,6 @@ import 'package:z_editor/l10n/resource_names.dart';
 import 'package:z_editor/data/pvz_models.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/screens/select/grid_item_selection_screen.dart';
-import 'package:z_editor/widgets/asset_image.dart' show AssetImageWidget, imageAltCandidates;
 import 'package:z_editor/widgets/editor_components.dart';
 
 /// Zombie potion module editor. Ported from PotionPropertiesEP.kt
@@ -289,7 +288,6 @@ class _ZombiePotionModuleScreenState extends State<ZombiePotionModuleScreen> {
                         style: theme.textTheme.bodySmall,
                       ),
                     ..._data.potionTypes.map((id) {
-                      final path = GridItemRepository.getIconPath(id);
                       final displayName = ResourceNames.lookup(context, 'griditem_$id');
                       final name = displayName != 'griditem_$id'
                           ? displayName
@@ -297,15 +295,15 @@ class _ZombiePotionModuleScreenState extends State<ZombiePotionModuleScreen> {
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: AssetImageWidget(
-                              assetPath: path,
-                              width: 40,
-                              height: 40,
-                              fit: BoxFit.cover,
-                              altCandidates: imageAltCandidates(path),
-                            ),
+                          leading: GridItemIcon(
+                            typeName: id,
+                            size: 40,
+                            fit: BoxFit.contain,
+                            iconScaleFactor:
+                                GridItemRepository.isRenaiStatueNonHalf(id)
+                                    ? 3.0
+                                    : 1.5,
+                            badgeScaleFactor: 1.0,
                           ),
                           title: Text(name),
                           subtitle: Text(id),

@@ -1,12 +1,11 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
-import 'package:path/path.dart' as p;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:path/path.dart' as p;
 import 'package:z_editor/data/repository/level_repository.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/screens/level_list_platform.dart';
 
 class LevelListScreen extends StatefulWidget {
   const LevelListScreen({
@@ -58,38 +57,27 @@ class _LevelListScreenState extends State<LevelListScreen> {
   }
 
   Future<void> _ensureStoragePermission() async {
-    if (!Platform.isAndroid) return;
-    // On Android 11+, full folder access requires manageExternalStorage; storage alone
-    // may be granted for media only. On Android 10 and below, manageExternalStorage
-    // is not available (returns restricted), so storage (read+write) is sufficient.
-    final manageStatus = await Permission.manageExternalStorage.status;
-    if (manageStatus.isGranted) return;
-    if (manageStatus.isRestricted) {
-      // Android 10 or below: manageExternalStorage not available, use storage permission
-      var status = await Permission.storage.status;
-      if (status.isDenied) status = await Permission.storage.request();
-      if (status.isGranted) return;
-    }
-    if (mounted) {
-      final l10n = AppLocalizations.of(context);
-      await showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => _StoragePermissionDialog(
-          l10n: l10n,
-          onDeny: () {
-            Navigator.pop(ctx);
-            SystemNavigator.pop();
-          },
-        ),
-      );
-    }
+    if (kIsWeb) return;
+    if (!mounted) return;
+    await ensureStoragePermission(context);
   }
 
   Future<void> _loadSavedPathAndList() async {
     await _ensureStoragePermission();
     final path = await LevelRepository.getSavedFolderPath();
-    final lastLevelDir = await LevelRepository.getLastOpenedLevelDirectory();
+    final lastLevelDir = kIsWeb ? null : await LevelRepository.getLastOpenedLevelDirectory();
+    if (kIsWeb) {
+      const webPath = 'web://';
+      final items = await LevelRepository.getDirectoryContents(webPath);
+      if (items.isNotEmpty && mounted) {
+        setState(() {
+          _rootFolderPath = webPath;
+          _pathStack = [(name: 'My levels', path: webPath)];
+        });
+        _loadCurrentDirectory();
+      }
+      return;
+    }
     if (path != null && mounted) {
       setState(() {
         _rootFolderPath = path;
@@ -122,6 +110,10 @@ class _LevelListScreenState extends State<LevelListScreen> {
 
   Future<void> _pickFolder() async {
     await _ensureStoragePermission();
+    if (kIsWeb) {
+      await _pickAndAddFile();
+      return;
+    }
     final result = await FilePicker.platform.getDirectoryPath();
     if (result != null && mounted) {
       await LevelRepository.setSavedFolderPath(result);
@@ -129,6 +121,30 @@ class _LevelListScreenState extends State<LevelListScreen> {
         _rootFolderPath = result;
         final name = result.split(RegExp(r'[/\\]')).last;
         _pathStack = [(name: name.isEmpty ? 'Root' : name, path: result)];
+      });
+      _loadCurrentDirectory();
+    }
+  }
+
+  /// Web-only: pick a .json file and add to virtual workspace.
+  Future<void> _pickAndAddFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+    );
+    if (result == null || result.files.isEmpty || !mounted) return;
+    for (final file in result.files) {
+      if (file.name.isEmpty) continue;
+      final bytes = file.bytes;
+      if (bytes == null) continue;
+      final ok = await LevelRepository.prepareInternalCacheFromBytes(file.name, bytes);
+      if (!ok) continue;
+    }
+    if (mounted) {
+      const webPath = 'web://';
+      setState(() {
+        _rootFolderPath = webPath;
+        _pathStack = [(name: 'My levels', path: webPath)];
       });
       _loadCurrentDirectory();
     }
@@ -179,7 +195,14 @@ class _LevelListScreenState extends State<LevelListScreen> {
                 Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(l10n.renameSuccess, overflow: TextOverflow.ellipsis),
+                  child: Text(
+                    l10n.renameSuccess,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -232,7 +255,16 @@ class _LevelListScreenState extends State<LevelListScreen> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
-                Expanded(child: Text(l10n.copySuccess, overflow: TextOverflow.ellipsis)),
+                Expanded(
+                  child: Text(
+                    l10n.copySuccess,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),
@@ -279,7 +311,16 @@ class _LevelListScreenState extends State<LevelListScreen> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
-                Expanded(child: Text(l10n.folderCreated, overflow: TextOverflow.ellipsis)),
+                Expanded(
+                  child: Text(
+                    l10n.folderCreated,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),
@@ -445,7 +486,16 @@ class _LevelListScreenState extends State<LevelListScreen> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
-                Expanded(child: Text(l10n.levelCreated, overflow: TextOverflow.ellipsis)),
+                Expanded(
+                  child: Text(
+                    l10n.levelCreated,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),
@@ -510,8 +560,8 @@ class _LevelListScreenState extends State<LevelListScreen> {
               PopupMenuItem(
                 value: 'folder',
                 child: ListTile(
-                  leading: const Icon(Icons.folder_open),
-                  title: Text(l10n.switchFolder),
+                  leading: Icon(kIsWeb ? Icons.file_open : Icons.folder_open),
+                  title: Text(kIsWeb ? 'Add file' : l10n.switchFolder),
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
@@ -584,12 +634,17 @@ class _LevelListScreenState extends State<LevelListScreen> {
                     children: [
                       Text(l10n.initSetup, style: theme.textTheme.titleLarge),
                       const SizedBox(height: 8),
-                      Text(l10n.selectFolderPrompt, textAlign: TextAlign.center),
+                      Text(
+                        kIsWeb
+                            ? 'Open a level file (.json) to get started.'
+                            : l10n.selectFolderPrompt,
+                        textAlign: TextAlign.center,
+                      ),
                       const SizedBox(height: 16),
                       FilledButton.icon(
                         onPressed: _pickFolder,
-                        icon: const Icon(Icons.folder_open),
-                        label: Text(l10n.selectFolderButton),
+                        icon: Icon(kIsWeb ? Icons.file_open : Icons.folder_open),
+                        label: Text(kIsWeb ? 'Open file' : l10n.selectFolderButton),
                       ),
                     ],
                   ),
@@ -746,7 +801,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
                                     });
                                   }
                                 },
-                                showMove: !item.isDirectory,
+                                showMove: !item.isDirectory && !kIsWeb,
                               ),
                             );
                           },
@@ -787,15 +842,23 @@ class _LevelListScreenState extends State<LevelListScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    FloatingActionButton(
-                      heroTag: 'folder',
-                      onPressed: () {
-                        setState(() => _showNewFolderDialog = true);
-                        WidgetsBinding.instance.addPostFrameCallback((_) => _showNewFolderDialogImpl());
-                      },
-                      child: const Icon(Icons.create_new_folder),
-                    ),
-                    const SizedBox(height: 12),
+                    if (!kIsWeb)
+                      FloatingActionButton(
+                        heroTag: 'folder',
+                        onPressed: () {
+                          setState(() => _showNewFolderDialog = true);
+                          WidgetsBinding.instance.addPostFrameCallback((_) => _showNewFolderDialogImpl());
+                        },
+                        child: const Icon(Icons.create_new_folder),
+                      ),
+                    if (!kIsWeb) const SizedBox(height: 12),
+                    if (kIsWeb)
+                      FloatingActionButton(
+                        heroTag: 'addFile',
+                        onPressed: _pickAndAddFile,
+                        child: const Icon(Icons.file_open),
+                      ),
+                    if (kIsWeb) const SizedBox(height: 12),
                     FloatingActionButton(
                       heroTag: 'level',
                       onPressed: _openTemplateSelector,
@@ -969,7 +1032,8 @@ class _LevelListScreenState extends State<LevelListScreen> {
       default:
         return;
     }
-    final textColor = (type == 'success' || type == 'renamed' || type == 'overwritten')
+    final isGreen = type == 'success' || type == 'renamed' || type == 'overwritten';
+    final textColor = isGreen
         ? Colors.white
         : (isDark ? Colors.white : const Color(0xFF5D4E00));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -981,7 +1045,14 @@ class _LevelListScreenState extends State<LevelListScreen> {
             leading,
             const SizedBox(width: 8),
             Expanded(
-              child: Text(text, style: TextStyle(color: textColor), overflow: TextOverflow.ellipsis),
+              child: Text(
+                text,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: isGreen ? FontWeight.bold : null,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -1002,8 +1073,7 @@ class _LevelListScreenState extends State<LevelListScreen> {
       });
       return;
     }
-    final destFile = File(p.join(destPath, target.name));
-    final destExists = await destFile.exists();
+    final destExists = await LevelRepository.fileExistsInDirectory(destPath, target.name);
     if (destExists) {
       final l10n = AppLocalizations.of(context)!;
       final choice = await showDialog<int>(
@@ -1140,7 +1210,16 @@ class _LevelListScreenState extends State<LevelListScreen> {
             children: [
               const Icon(Icons.check_circle, color: Colors.white, size: 20),
               const SizedBox(width: 8),
-              Expanded(child: Text(l10n.deleted, overflow: TextOverflow.ellipsis)),
+              Expanded(
+                child: Text(
+                  l10n.deleted,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
         ),
@@ -1422,78 +1501,3 @@ class _FileItemRow extends StatelessWidget {
   }
 }
 
-/// Storage permission dialog. Requests permission on button tap and hides when granted.
-class _StoragePermissionDialog extends StatefulWidget {
-  const _StoragePermissionDialog({
-    required this.l10n,
-    required this.onDeny,
-  });
-
-  final AppLocalizations? l10n;
-  final VoidCallback onDeny;
-
-  @override
-  State<_StoragePermissionDialog> createState() => _StoragePermissionDialogState();
-}
-
-class _StoragePermissionDialogState extends State<_StoragePermissionDialog>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkAndDismissIfGranted();
-    }
-  }
-
-  Future<void> _checkAndDismissIfGranted() async {
-    final manageStatus = await Permission.manageExternalStorage.status;
-    if (manageStatus.isGranted && mounted) {
-      Navigator.of(context).pop();
-      return;
-    }
-    // Android 10: manageExternalStorage is restricted; storage is sufficient
-    if (manageStatus.isRestricted && await Permission.storage.isGranted && mounted) {
-      Navigator.of(context).pop();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = widget.l10n;
-    return AlertDialog(
-      title: Text(l10n?.storagePermissionDialogTitle ?? 'Storage Permission Required'),
-      content: Text(
-        l10n?.storagePermissionDialogMessage ??
-            'This app requires external storage access to open and save level files. Please grant "All files access" permission in Settings.',
-      ),
-      actions: [
-        FilledButton(
-          onPressed: () async {
-            await Permission.manageExternalStorage.request();
-          },
-          child: Text(l10n?.storagePermissionGoToSettings ?? 'Go to settings'),
-        ),
-        TextButton(
-          onPressed: widget.onDeny,
-          style: TextButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.error,
-            foregroundColor: Colors.white,
-          ),
-          child: Text(l10n?.storagePermissionDeny ?? 'Deny'),
-        ),
-      ],
-    );
-  }
-}
