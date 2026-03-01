@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/data/repository/resilience_config_repository.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/theme/app_theme.dart';
@@ -31,9 +32,14 @@ class _CustomZombiePropertiesScreenState
     extends State<CustomZombiePropertiesScreen> {
   PvzObject? _typeObj;
   PvzObject? _propsObj;
+  PvzObject? _customResilienceObj;
   late ZombieTypeData _typeData;
   late ZombiePropertySheetData _propsData;
   final List<double> _resistances = List<double>.filled(7, 0.0);
+  ZombieResilienceData _customResilienceData = ZombieResilienceData();
+  bool _resilienceUsePreset = true;
+  String? _resiliencePresetAlias;
+  String _customResilienceCodename = '';
 
   @override
   void initState() {
@@ -67,7 +73,123 @@ class _CustomZombiePropertiesScreenState
     for (var i = 0; i < 7; i++) {
       _resistances[i] = i < list.length ? list[i] : 0.0;
     }
+    _loadResilienceState();
   }
+
+  void _loadResilienceState() {
+    final r = _propsData.resilience;
+    if (r == null) {
+      _resilienceUsePreset = true;
+      _resiliencePresetAlias = null;
+      _customResilienceObj = null;
+      _customResilienceData = ZombieResilienceData();
+      _customResilienceCodename = '';
+      return;
+    }
+    if (r is ZombieResilienceData) {
+      _resilienceUsePreset = false;
+      _customResilienceData = ZombieResilienceData(
+        amount: r.amount,
+        weakType: r.weakType,
+        recoverSpeed: r.recoverSpeed,
+        damageThresholdPerSecond: r.damageThresholdPerSecond,
+        resilienceBaseDamageThreshold: r.resilienceBaseDamageThreshold,
+        resilienceExtraDamageThreshold: r.resilienceExtraDamageThreshold,
+      );
+      _customResilienceCodename = _nextCustomResilienceCodename();
+      final rtid = _ensureCustomResilienceInLevel();
+      _propsData.resilience = rtid;
+      _customResilienceObj = widget.levelFile.objects.firstWhereOrNull(
+        (o) => o.aliases?.contains(RtidParser.parse(rtid)?.alias ?? '') == true,
+      );
+      _propsObj?.objData = _propsData.toJson();
+      WidgetsBinding.instance.addPostFrameCallback((_) => widget.onChanged());
+      return;
+    }
+    if (r is! String || r.isEmpty) return;
+    final info = RtidParser.parse(r);
+    if (info == null) return;
+    if (info.source == 'ResilienceConfig') {
+      _resilienceUsePreset = true;
+      _resiliencePresetAlias = info.alias;
+      _customResilienceObj = null;
+      _customResilienceCodename = '';
+      final entry = ResilienceConfigRepository.getByAlias(info.alias);
+      _customResilienceData = entry != null
+          ? ZombieResilienceData(
+              amount: entry.data.amount,
+              weakType: entry.data.weakType,
+              recoverSpeed: entry.data.recoverSpeed,
+              damageThresholdPerSecond: entry.data.damageThresholdPerSecond,
+              resilienceBaseDamageThreshold:
+                  entry.data.resilienceBaseDamageThreshold,
+              resilienceExtraDamageThreshold:
+                  entry.data.resilienceExtraDamageThreshold,
+            )
+          : ZombieResilienceData();
+    } else {
+      _resilienceUsePreset = false;
+      _resiliencePresetAlias = null;
+      _customResilienceCodename = info.alias;
+      _customResilienceObj = widget.levelFile.objects.firstWhereOrNull(
+        (o) => o.aliases?.contains(info.alias) == true,
+      );
+      if (_customResilienceObj?.objData is Map) {
+        _customResilienceData = ZombieResilienceData.fromJson(
+          Map<String, dynamic>.from(_customResilienceObj!.objData as Map),
+        );
+      }
+    }
+  }
+
+  String _nextCustomResilienceCodename() {
+    var i = 0;
+    while (true) {
+      final codename = 'CustomResilience$i';
+      final exists = widget.levelFile.objects
+          .any((o) => o.aliases?.contains(codename) == true);
+      if (!exists) return codename;
+      i++;
+    }
+  }
+
+  /// Ensures custom resilience object exists in level. Creates or updates it.
+  /// Returns RTID(alias@CurrentLevel).
+  String _ensureCustomResilienceInLevel() {
+    var codename = _customResilienceCodename.trim();
+    if (codename.isEmpty) {
+      codename = _nextCustomResilienceCodename();
+      _customResilienceCodename = codename;
+    }
+
+    if (_customResilienceObj != null) {
+      _customResilienceObj!.aliases = [codename];
+      _customResilienceObj!.objData = _customResilienceData.toJson();
+      return RtidParser.build(codename, 'CurrentLevel');
+    }
+    final existing = widget.levelFile.objects
+        .firstWhereOrNull((o) => o.aliases?.contains(codename) == true);
+    if (existing != null && existing.objClass == 'ZombieResilience') {
+      _customResilienceObj = existing;
+      _customResilienceObj!.objData = _customResilienceData.toJson();
+      return RtidParser.build(codename, 'CurrentLevel');
+    }
+    var finalCodename = codename;
+    if (existing != null) {
+      finalCodename = _nextCustomResilienceCodename();
+      _customResilienceCodename = finalCodename;
+    }
+    final obj = PvzObject(
+      aliases: [finalCodename],
+      objClass: 'ZombieResilience',
+      objData: _customResilienceData.toJson(),
+    );
+    widget.levelFile.objects.add(obj);
+    _customResilienceObj = obj;
+    return RtidParser.build(finalCodename, 'CurrentLevel');
+  }
+
+  bool get _isResilienceEnabled => _propsData.resilience != null;
 
   void _sync() {
     final allZero = _resistances.every((e) => e == 0.0);
@@ -741,6 +863,169 @@ class _CustomZombiePropertiesScreenState
               ),
             ),
               const SizedBox(height: 16),
+              Text(l10n?.resilienceArmor ?? 'Resilience (armor)',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: themeColor,
+                  )),
+              const SizedBox(height: 8),
+              Card(
+                child: Theme(
+                  data: theme.copyWith(
+                    switchTheme: SwitchThemeData(
+                      trackColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.selected)) {
+                          return themeColor;
+                        }
+                        return null;
+                      }),
+                      thumbColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.selected)) {
+                          return theme.colorScheme.onPrimary;
+                        }
+                        return null;
+                      }),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _switchRow(
+                          title: l10n?.enableResilience ?? 'Enable resilience',
+                        checked: _isResilienceEnabled,
+                        onChanged: (checked) {
+                          if (checked) {
+                            if (_resilienceUsePreset) {
+                              final presets =
+                                  ResilienceConfigRepository.getAll();
+                              if (presets.isNotEmpty) {
+                                _propsData.resilience = presets.first.rtid;
+                                _resiliencePresetAlias = presets.first.alias;
+                              } else {
+                                _propsData.resilience =
+                                    _ensureCustomResilienceInLevel();
+                              }
+                            } else {
+                              _propsData.resilience =
+                                  _ensureCustomResilienceInLevel();
+                            }
+                            _loadResilienceState();
+                          } else {
+                            _propsData.resilience = null;
+                          }
+                          _sync();
+                        },
+                      ),
+                      if (_isResilienceEnabled) ...[
+                        const Divider(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n?.resilienceSource ?? 'Source',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  RadioGroup<bool>(
+                                    groupValue: _resilienceUsePreset,
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        setState(() {
+                                          _resilienceUsePreset = v;
+                                          if (v) {
+                                            final presets =
+                                                ResilienceConfigRepository.getAll();
+                                            _propsData.resilience =
+                                                presets.isNotEmpty
+                                                    ? presets.first.rtid
+                                                    : null;
+                                            _resiliencePresetAlias =
+                                                presets.isNotEmpty
+                                                    ? presets.first.alias
+                                                    : null;
+                                          } else {
+                                            _propsData.resilience =
+                                                _ensureCustomResilienceInLevel();
+                                          }
+                                        });
+                                        _sync();
+                                      }
+                                    },
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: RadioListTile<bool>(
+                                            value: true,
+                                            title: Text(l10n?.resiliencePreset ?? 'Preset'),
+                                          ),
+                                        ),
+                                        Flexible(
+                                          child: RadioListTile<bool>(
+                                            value: false,
+                                            title: Text(l10n?.resilienceCustom ?? 'Custom'),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        if (_resilienceUsePreset)
+                          DropdownButtonFormField<String>(
+                            isExpanded: true,
+                            initialValue: _resiliencePresetAlias ??
+                                (ResilienceConfigRepository.getAll().isNotEmpty
+                                    ? ResilienceConfigRepository
+                                        .getAll()
+                                        .first
+                                        .alias
+                                    : null),
+                            decoration: InputDecoration(
+                              labelText: l10n?.resiliencePresetSelect ??
+                                  'Select preset',
+                              border: const OutlineInputBorder(),
+                            ),
+                            items: ResilienceConfigRepository.getAll()
+                                .map((e) => DropdownMenuItem<String>(
+                                      value: e.alias,
+                                      child: _WeakTypeDropdownRow(
+                                        weakType: e.data.weakType,
+                                        label: e.alias,
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (v) {
+                              if (v != null) {
+                                setState(() {
+                                  _resiliencePresetAlias = v;
+                                  _propsData.resilience =
+                                      RtidParser.build(v, 'ResilienceConfig');
+                                });
+                                _sync();
+                              }
+                            },
+                          )
+                        else
+                          _buildCustomResilienceFields(theme, l10n),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+              const SizedBox(height: 16),
               Text(l10n?.resilience ?? 'Resilience',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -812,6 +1097,134 @@ class _CustomZombiePropertiesScreenState
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCustomResilienceFields(ThemeData theme, AppLocalizations? l10n) {
+    void onCustomResilienceChanged() {
+      _propsData.resilience = _ensureCustomResilienceInLevel();
+      setState(() {});
+      _sync();
+    }
+
+    void onCodenameChanged(String v) {
+      _customResilienceCodename = v;
+      onCustomResilienceChanged();
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _CodenameInputField(
+          key: const ValueKey('resilience_codename'),
+          label: l10n?.resilienceCodename ?? 'Codename',
+          hint: l10n?.resilienceCodenameHint ?? 'e.g. CustomResilience0',
+          value: _customResilienceCodename,
+          onChanged: onCodenameChanged,
+        ),
+        const SizedBox(height: 12),
+        _intInput(
+          label: l10n?.resilienceAmount ?? 'Amount',
+          value: _customResilienceData.amount,
+          onChanged: (v) {
+            _customResilienceData.amount = v;
+            onCustomResilienceChanged();
+          },
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: DropdownButtonFormField<int>(
+            isExpanded: true,
+            initialValue: _customResilienceData.weakType.clamp(1, 6),
+            decoration: InputDecoration(
+              labelText: l10n?.resilienceWeakType ?? 'Weak type',
+              border: const OutlineInputBorder(),
+            ),
+            items: [1, 2, 3, 4, 5, 6].map((wt) {
+              return DropdownMenuItem<int>(
+                value: wt,
+                child: _WeakTypeDropdownRow(
+                  weakType: wt,
+                  label: _weakTypeLabel(wt, l10n),
+                ),
+              );
+            }).toList(),
+            onChanged: (v) {
+              if (v != null) {
+                setState(() {
+                  _customResilienceData.weakType = v;
+                });
+                onCustomResilienceChanged();
+              }
+            },
+          ),
+        ),
+        _doubleInput(
+          label: l10n?.resilienceRecoverSpeed ?? 'RecoverSpeed',
+          value: _customResilienceData.recoverSpeed,
+          onChanged: (v) {
+            _customResilienceData.recoverSpeed = v;
+            onCustomResilienceChanged();
+          },
+        ),
+        const SizedBox(height: 12),
+        _doubleInput(
+          label: l10n?.resilienceDamageThresholdPerSecond ??
+              'DamageThresholdPerSecond',
+          value: _customResilienceData.damageThresholdPerSecond,
+          onChanged: (v) {
+            _customResilienceData.damageThresholdPerSecond = v;
+            onCustomResilienceChanged();
+          },
+        ),
+        const SizedBox(height: 12),
+        _intInput(
+          label: l10n?.resilienceBaseDamageThreshold ??
+              'ResilienceBaseDamageThreshold',
+          value: _customResilienceData.resilienceBaseDamageThreshold,
+          onChanged: (v) {
+            _customResilienceData.resilienceBaseDamageThreshold = v;
+            onCustomResilienceChanged();
+          },
+        ),
+        const SizedBox(height: 12),
+        _intInput(
+          label: l10n?.resilienceExtraDamageThreshold ??
+              'ResilienceExtraDamageThreshold',
+          value: _customResilienceData.resilienceExtraDamageThreshold,
+          onChanged: (v) {
+            _customResilienceData.resilienceExtraDamageThreshold = v;
+            onCustomResilienceChanged();
+          },
+        ),
+      ],
+    );
+  }
+
+  String _weakTypeLabel(int weakType, AppLocalizations? l10n) {
+    switch (weakType) {
+      case 1: return l10n?.resiliencePhysics ?? 'Physics';
+      case 2: return l10n?.resiliencePoison ?? 'Poison';
+      case 3: return l10n?.resilienceElectric ?? 'Electric';
+      case 4: return l10n?.resilienceMagic ?? 'Magic';
+      case 5: return l10n?.resilienceIce ?? 'Ice';
+      case 6: return l10n?.resilienceFire ?? 'Fire';
+      default: return '$weakType';
+    }
+  }
+
+  Widget _intInput({
+    required String label,
+    required int value,
+    required ValueChanged<int> onChanged,
+  }) {
+    return _IntInputField(
+      key: ValueKey('int_$label'),
+      label: label,
+      value: value,
+      onChanged: onChanged,
     );
   }
 
@@ -988,6 +1401,143 @@ class _DoubleInputFieldState extends State<_DoubleInputField> {
   }
 }
 
+class _CodenameInputField extends StatefulWidget {
+  const _CodenameInputField({
+    super.key,
+    required this.label,
+    required this.hint,
+    required this.value,
+    required this.onChanged,
+  });
+  final String label;
+  final String hint;
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_CodenameInputField> createState() => _CodenameInputFieldState();
+}
+
+class _CodenameInputFieldState extends State<_CodenameInputField> {
+  late TextEditingController _controller;
+  late FocusNode _focusNode;
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value);
+    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    final focused = _focusNode.hasFocus;
+    if (_isFocused != focused) {
+      setState(() => _isFocused = focused);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _CodenameInputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_isFocused && oldWidget.value != widget.value) {
+      _controller.text = widget.value;
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      focusNode: _focusNode,
+      decoration: InputDecoration(
+        labelText: widget.label,
+        hintText: widget.hint,
+        border: const OutlineInputBorder(),
+      ),
+      onChanged: widget.onChanged,
+    );
+  }
+}
+
+class _IntInputField extends StatefulWidget {
+  const _IntInputField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+  final String label;
+  final int value;
+  final ValueChanged<int> onChanged;
+
+  @override
+  State<_IntInputField> createState() => _IntInputFieldState();
+}
+
+class _IntInputFieldState extends State<_IntInputField> {
+  late TextEditingController _controller;
+  late FocusNode _focusNode;
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.value.toString());
+    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    final focused = _focusNode.hasFocus;
+    if (_isFocused != focused) {
+      setState(() => _isFocused = focused);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _IntInputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_isFocused && oldWidget.value != widget.value) {
+      _controller.text = widget.value.toString();
+    }
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChange);
+    _focusNode.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      focusNode: _focusNode,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: widget.label,
+        border: const OutlineInputBorder(),
+      ),
+      onChanged: (v) {
+        final n = int.tryParse(v);
+        if (n != null) widget.onChanged(n);
+      },
+    );
+  }
+}
+
 /// Resilience input field with same styling as base stats (_DoubleInputField).
 class _ResilienceInputField extends StatefulWidget {
   const _ResilienceInputField({
@@ -1071,6 +1621,40 @@ class _ResilienceInputFieldState extends State<_ResilienceInputField> {
           widget.onChanged(val.clamp(0.0, 1.0));
         }
       },
+    );
+  }
+}
+
+class _WeakTypeDropdownRow extends StatelessWidget {
+  const _WeakTypeDropdownRow({
+    required this.weakType,
+    required this.label,
+  });
+
+  final int weakType;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final iconPath = weakType >= 1 && weakType < weakTypeIcons.length
+        ? weakTypeIcons[weakType]
+        : null;
+    return Row(
+      children: [
+        if (iconPath != null) ...[
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: AssetImageWidget(
+              assetPath: iconPath,
+              width: 20,
+              height: 20,
+              fit: BoxFit.contain,
+              altCandidates: imageAltCandidates(iconPath),
+            ),
+          ),
+        ],
+        Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+      ],
     );
   }
 }
