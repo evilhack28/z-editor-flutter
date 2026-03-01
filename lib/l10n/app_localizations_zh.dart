@@ -1359,6 +1359,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get moduleDesc_TideProperties => '启用潮汐系统';
 
   @override
+  String get moduleTitle_BombProperties => '木桶炸弹';
+
+  @override
+  String get moduleDesc_BombProperties => '木桶/樱桃炸弹每行引信长度';
+
+  @override
   String get moduleTitle_WarMistProperties => '战争迷雾';
 
   @override
@@ -1371,13 +1377,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get moduleDesc_RainDarkProperties => '雨、雪、风暴效果';
 
   @override
-  String get eventTitle_SpawnZombiesFromGroundSpawnerProps => '地底出怪';
+  String get eventTitle_SpawnZombiesFromGroundSpawnerProps =>
+      'GroundSpawnEvent';
 
   @override
   String get eventDesc_SpawnZombiesFromGroundSpawnerProps => '从地下生成僵尸';
 
   @override
-  String get eventTitle_SpawnZombiesJitteredWaveActionProps => '标准出怪';
+  String get eventTitle_SpawnZombiesJitteredWaveActionProps => '抖动出怪事件';
 
   @override
   String get eventDesc_SpawnZombiesJitteredWaveActionProps => '基本自然出怪';
@@ -1401,6 +1408,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get eventDesc_TidalChangeWaveActionProps => '改变潮位位置';
 
   @override
+  String get eventTitle_TideWaveWaveActionProps => '潮汐波';
+
+  @override
+  String get eventDesc_TideWaveWaveActionProps => '潜艇潮汐波（左/右）';
+
+  @override
+  String get eventTitle_SpawnZombiesFishWaveActionProps => '僵尸鱼波';
+
+  @override
+  String get eventDesc_SpawnZombiesFishWaveActionProps => '潜艇关卡僵尸与鱼';
+
+  @override
   String get eventTitle_ModifyConveyorWaveActionProps => '传送带修改';
 
   @override
@@ -1411,6 +1430,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get eventDesc_DinoWaveActionProps => '在行上召唤恐龙';
+
+  @override
+  String get eventTitle_DinoTreadActionProps => '恐龙践踏';
+
+  @override
+  String get eventDesc_DinoTreadActionProps => '恐龙在网格区域践踏造成伤害';
+
+  @override
+  String get eventTitle_DinoRunActionProps => '恐龙冲刺';
+
+  @override
+  String get eventDesc_DinoRunActionProps => '恐龙沿行冲刺造成伤害';
 
   @override
   String get eventTitle_SpawnModernPortalsWaveActionProps => '时空裂隙';
@@ -1435,6 +1466,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get eventDesc_ZombiePotionActionProps => '在网格上生成药水';
+
+  @override
+  String get eventTitle_ZombieAtlantisShellActionProps => '贝壳生成';
+
+  @override
+  String get eventDesc_ZombieAtlantisShellActionProps => '在网格上生成亚特兰蒂斯贝壳';
 
   @override
   String get eventTitle_SpawnGravestonesWaveActionProps => '墓碑生成';
@@ -1483,6 +1520,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get eventDesc_BlackHoleWaveActionProps => '黑洞吸引植物';
+
+  @override
+  String get eventTitle_BarrelWaveActionProps => '木桶滚落';
+
+  @override
+  String get eventDesc_BarrelWaveActionProps => '行上滚动的木桶（空桶/僵尸桶/炸药桶）';
+
+  @override
+  String get eventTitle_ThunderWaveActionProps => '雷电';
+
+  @override
+  String get eventDesc_ThunderWaveActionProps => '波次中闪电（正/负）';
 
   @override
   String get eventTitle_MagicMirrorWaveActionProps => '魔镜';
@@ -1709,6 +1758,60 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get resilience => '韧性';
+
+  @override
+  String get resilienceArmor => '韧性（护甲）';
+
+  @override
+  String get enableResilience => '启用韧性';
+
+  @override
+  String get resilienceSource => '来源';
+
+  @override
+  String get resiliencePreset => '预设';
+
+  @override
+  String get resilienceCustom => '自定义';
+
+  @override
+  String get resiliencePresetSelect => '选择预设';
+
+  @override
+  String get resilienceAmount => '数值';
+
+  @override
+  String get resilienceWeakType => '弱点类型';
+
+  @override
+  String get resilienceRecoverSpeed => '恢复速度';
+
+  @override
+  String get resilienceDamageThresholdPerSecond => '每秒伤害阈值';
+
+  @override
+  String get resilienceBaseDamageThreshold => '韧性基础伤害阈值';
+
+  @override
+  String get resilienceExtraDamageThreshold => '韧性额外伤害阈值';
+
+  @override
+  String get resilienceCodename => '代码名';
+
+  @override
+  String get resilienceCodenameHint => '例如 CustomResilience0';
+
+  @override
+  String get resistances => '抗性';
+
+  @override
+  String get zombieResilience => '护甲/韧性';
+
+  @override
+  String get resilienceEnable => '启用护甲';
+
+  @override
+  String get weakTypeExplosive => '爆炸';
 
   @override
   String get instantKillResistance => '秒杀抗性';
@@ -2021,6 +2124,173 @@ class AppLocalizationsZh extends AppLocalizations {
   String get eventHelpTidalChangeBody => '此事件在波次中改变潮汐位置。';
 
   @override
+  String get eventTideWave => '潮汐波事件';
+
+  @override
+  String get eventHelpTideWaveBody => '潜艇潮汐波。方向可左可右。';
+
+  @override
+  String get tideWaveHelpType => '方向';
+
+  @override
+  String get eventHelpTideWaveType => '左：潮汐向左。右：潮汐向右。';
+
+  @override
+  String get tideWaveHelpParams => '参数';
+
+  @override
+  String get eventHelpTideWaveParams => '持续时间、潜艇移动距离、加速、僵尸移动速度。';
+
+  @override
+  String get tideWaveType => '方向';
+
+  @override
+  String get tideWaveTypeLeft => '左';
+
+  @override
+  String get tideWaveTypeRight => '右';
+
+  @override
+  String get tideWaveDuration => '持续时间';
+
+  @override
+  String get tideWaveSubmarineMovingDistance => '潜艇移动距离';
+
+  @override
+  String get tideWaveSpeedUpDuration => '加速持续时间';
+
+  @override
+  String get tideWaveSpeedUpIncreased => '加速增幅';
+
+  @override
+  String get tideWaveSubmarineMovingTime => '潜艇移动时间';
+
+  @override
+  String get tideWaveZombieMovingSpeed => '僵尸移动速度';
+
+  @override
+  String get eventZombieFishWave => '僵尸鱼波';
+
+  @override
+  String get eventHelpZombieFishWaveBody => '配置潜艇关卡的僵尸与鱼。行和列从0开始。';
+
+  @override
+  String get eventHelpZombieFishWaveFish =>
+      '使用鱼属性在网格上放置鱼。网格大小取决于关卡：深海6×10，普通5×9。行=Y，列=X。';
+
+  @override
+  String get eventHelpBatchLevel => '将此波次所有非精英僵尸设为指定等级。精英僵尸保持默认等级。';
+
+  @override
+  String get eventHelpDropConfig => '僵尸携带的植物能量或植物卡。添加植物以掉落特定卡牌。';
+
+  @override
+  String get fishPropertiesEntryHelp =>
+      '点击单元格选中，然后添加鱼。点击 + 添加内置鱼。点击鱼卡片可复制、删除、切换自定义变体或设为自定义。自定义鱼显示蓝色 C 徽章。场地外的鱼会显示警告。';
+
+  @override
+  String get fishAddCustom => '添加自定义鱼';
+
+  @override
+  String get addFishLabel => '添加鱼';
+
+  @override
+  String get addBuiltInFishLabel => '添加内置鱼';
+
+  @override
+  String get makeFishAsCustom => '设为自定义';
+
+  @override
+  String get switchCustomFish => '切换';
+
+  @override
+  String get selectCustomFish => '选择自定义鱼';
+
+  @override
+  String get editCustomFishProperties => '编辑自定义鱼属性';
+
+  @override
+  String get fishPropertiesButton => '鱼属性';
+
+  @override
+  String get addFishProperties => '添加鱼属性';
+
+  @override
+  String get editFishProperties => '编辑鱼属性';
+
+  @override
+  String get fishPropertiesGrid => '鱼放置（行Y，列X）';
+
+  @override
+  String get fishSelectedPosition => '已选：';
+
+  @override
+  String get fishRow => '行';
+
+  @override
+  String get fishColumn => '列';
+
+  @override
+  String get fishAtPosition => '此处鱼：';
+
+  @override
+  String get searchFish => '搜索鱼';
+
+  @override
+  String get noFishFound => '未找到鱼';
+
+  @override
+  String get customFishManagerTitle => '自定义鱼';
+
+  @override
+  String get customFishAppearanceLocation => '出现位置：';
+
+  @override
+  String get customFishNotUsed => '此自定义鱼未被任何波次使用。';
+
+  @override
+  String customFishWaveItem(int n) {
+    return '第 $n 波';
+  }
+
+  @override
+  String get customFishDeleteConfirm => '移除此自定义鱼及其属性数据。';
+
+  @override
+  String get customFish => '自定义鱼';
+
+  @override
+  String get customFishProperties => '自定义鱼属性';
+
+  @override
+  String get fishTypeNotFound => '鱼类对象未找到。';
+
+  @override
+  String fishTypeLabel(Object type) {
+    return '鱼类：$type';
+  }
+
+  @override
+  String get customFishHelpIntro => '简要介绍';
+
+  @override
+  String get customFishHelpIntroBody =>
+      '此屏幕编辑自定义鱼参数。仅支持常用属性；动画和特殊属性需手动编辑 JSON。';
+
+  @override
+  String get customFishHelpProps => '属性';
+
+  @override
+  String get customFishHelpPropsBody =>
+      'HitRect、AttackRect、ScareRect 定义碰撞区域。Speed 和 ScareSpeed 控制移动。ArtCenter 为绘制锚点。';
+
+  @override
+  String get noEditableFishProps => '未找到可编辑属性。';
+
+  @override
+  String get edit => '编辑';
+
+  @override
   String get eventHelpTidalChangePosition => '列0为最右，9为最左。ChangeAmount 设置水位边界。';
 
   @override
@@ -2072,10 +2342,66 @@ class AppLocalizationsZh extends AppLocalizations {
   String get eventHelpDinoDuration => '恐龙在场上停留的时间，单位为波次。';
 
   @override
+  String get eventDinoTread => '事件：恐龙践踏';
+
+  @override
+  String get eventDinoRun => '事件：恐龙冲刺';
+
+  @override
+  String get eventHelpDinoTreadBody =>
+      '恐龙践踏事件。恐龙在网格区域（行 Y，列 XMin 到 XMax）践踏，对植物造成伤害。';
+
+  @override
+  String get eventHelpDinoTreadRowCol =>
+      'GridY = 行（从0开始）。GridXMin/GridXMax = 列范围（从0开始）。深海：行0-5，列0-9。';
+
+  @override
+  String get dinoTreadRowLabel => '行 [GridY]';
+
+  @override
+  String get dinoTreadColMinLabel => '列最小 [GridXMin]';
+
+  @override
+  String get dinoTreadColMaxLabel => '列最大 [GridXMax]';
+
+  @override
+  String get dinoTreadTimeIntervalLabel => '时间间隔 [TimeInterval]';
+
+  @override
+  String get columnStartLabel => '起始 [ColumnStart]';
+
+  @override
+  String get columnEndLabel => '结束 [ColumnEnd]';
+
+  @override
+  String get eventHelpDinoRunBody => '恐龙冲刺事件。恐龙沿一行冲刺，对植物造成伤害。';
+
+  @override
+  String get eventHelpDinoRunRow => 'DinoRow = 行索引（从0开始）。深海支持第6行。';
+
+  @override
+  String get positionAndArea => '位置与区域';
+
+  @override
+  String get positionAndDuration => '位置与时机';
+
+  @override
+  String get rowCol0Index => '行/列（从0开始）';
+
+  @override
+  String get timeInterval => '时间间隔';
+
+  @override
   String get eventHelpZombiePotionBody => '在场地上强行生成药水，可无视植物。';
 
   @override
   String get eventHelpZombiePotionUsage => '选择网格位置，点击添加物品，选择药水类型。';
+
+  @override
+  String get eventHelpShellBody => '在指定位置生成亚特兰蒂斯贝壳。';
+
+  @override
+  String get eventHelpShellUsage => '选择网格位置，点击添加放置贝壳（5×9或6×10根据关卡）。';
 
   @override
   String get eventHelpFairyFogBody => '生成覆盖场地的迷雾，给僵尸护盾。只有微风事件能吹散。';
@@ -2107,6 +2433,107 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get eventHelpGravestoneMissingAssets => '部分地图无墓碑生成效果时可能显示阳光纹理。';
+
+  @override
+  String get eventHelpBarrelWaveBody =>
+      '木桶在行上滚动。三种类型：空桶（无奖励）、僵尸桶（内含僵尸）、炸药桶（被击中爆炸）。行从1开始编号。';
+
+  @override
+  String get barrelWaveHelpTypes => '木桶类型';
+
+  @override
+  String get eventHelpBarrelWaveTypes =>
+      '空桶：无僵尸。僵尸桶（怪物桶）：内含僵尸，击破后生成；使用僵尸选择器添加。炸药桶：被击中时爆炸；可设置爆炸伤害。';
+
+  @override
+  String get barrelWaveHelpRows => '行';
+
+  @override
+  String get eventHelpBarrelWaveRows => '行从1开始：行1=顶部，行5/6=底部。标准草地5行，深海6行。';
+
+  @override
+  String get eventHelpThunderWaveBody => '波次中随机降雷。每道雷可为正（有益）或负（对植物有害）。';
+
+  @override
+  String get thunderWaveHelpTypes => '雷类型';
+
+  @override
+  String get eventHelpThunderWaveTypes => '正：有益闪电。负：有害闪电，按击杀率可能杀死植物。';
+
+  @override
+  String get thunderWaveHelpKillRate => '击杀率';
+
+  @override
+  String get eventHelpThunderWaveKillRate => '负雷击中时杀死格内植物的概率（0.0–1.0）。';
+
+  @override
+  String get thunderWaveTypePositive => '正';
+
+  @override
+  String get thunderWaveTypeNegative => '负';
+
+  @override
+  String get thunderWaveKillRate => '击杀率';
+
+  @override
+  String get thunderWaveKillRateHint => '闪电击中杀死植物的概率（0.0–1.0）';
+
+  @override
+  String get thunderWaveThunders => '雷击';
+
+  @override
+  String get thunderWaveAddThunder => '添加雷击';
+
+  @override
+  String get thunderWaveThunder => '雷击';
+
+  @override
+  String get barrelWaveTypeEmpty => '空桶';
+
+  @override
+  String get barrelWaveTypeZombie => '僵尸桶';
+
+  @override
+  String get barrelWaveTypeExplosive => '炸药桶';
+
+  @override
+  String get barrelWaveRowsHint => '行从1开始（标准5行，深海6行）。';
+
+  @override
+  String get barrelWaveAddBarrel => '添加木桶';
+
+  @override
+  String get barrelWaveBarrel => '木桶';
+
+  @override
+  String get barrelWaveRow => '行';
+
+  @override
+  String get barrelWaveType => '类型';
+
+  @override
+  String get barrelWaveHitPoints => '生命值';
+
+  @override
+  String get barrelWaveSpeed => '速度';
+
+  @override
+  String get barrelWaveZombies => '僵尸';
+
+  @override
+  String get barrelWaveAddZombie => '添加僵尸';
+
+  @override
+  String get barrelWaveExplosionDamage => '爆炸伤害';
+
+  @override
+  String get barrelWaveDeleteTitle => '删除木桶';
+
+  @override
+  String get barrelWaveDeleteConfirm => '删除此木桶？';
+
+  @override
+  String get barrelWaveDeleteLastHint => '这是最后一个木桶。删除后事件将无木桶。继续？';
 
   @override
   String get eventHelpGraveSpawnBody => '此事件在特定障碍物类型上出怪，常用于黑暗时代。';
@@ -2303,6 +2730,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get eventPotionDrop => '药水掉落事件';
 
   @override
+  String get eventShellSpawn => '贝壳生成事件';
+
+  @override
   String get warMist => '战争迷雾';
 
   @override
@@ -2331,6 +2761,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get eventSpawnGravestones => '生成墓碑事件';
+
+  @override
+  String get eventBarrelWave => '木桶滚落事件';
+
+  @override
+  String get eventThunderWave => '雷电事件';
 
   @override
   String get eventGraveSpawn => '墓穴出怪事件';
@@ -2601,6 +3037,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get plankRows => '木板行 (0–4)';
 
   @override
+  String get plankRowsDeepSea => '木板行 (0–5)';
+
+  @override
   String get selectedRows => '已选行';
 
   @override
@@ -2850,6 +3289,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get eventHelpStandardRow => '行0–4。未设置则为随机行。';
+
+  @override
+  String get eventHelpStandardRowDeepSea => '行0–5（6行草坪）。未设置则为随机行。';
+
+  @override
+  String get warningStageSwitchedTo5Rows =>
+      '关卡使用5行，但部分数据引用了第6行。这些对象在游戏中可能无法正确显示。';
+
+  @override
+  String warningObjectsOutsideArea(int rows, int cols) {
+    return '部分对象在可玩区域外（$rows行×$cols列）。';
+  }
 
   @override
   String get izombieModeTitle => '我是僵尸模式';
@@ -3192,6 +3643,32 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sunBombHelpBody => '将掉落阳光变为爆炸阳光炸弹。可配置半径和伤害。';
 
   @override
+  String get bombProperties => '炸弹属性';
+
+  @override
+  String get bombPropertiesHelpBody =>
+      '配置木桶和樱桃炸弹每行的引信长度。用于功夫/小游戏关卡。数组长度与草坪行数（5或6）匹配。';
+
+  @override
+  String get bombPropertiesHelpFuse => '引信长度';
+
+  @override
+  String get bombPropertiesHelpFuseBody =>
+      'FuseLengths：每行一个值。长度为游戏单位。标准草坪：5行。深海：6行。打开本界面时数组会自动调整。';
+
+  @override
+  String get bombPropertiesFlameSpeed => '火焰速度';
+
+  @override
+  String get bombPropertiesFuseLengths => '引信长度';
+
+  @override
+  String get bombPropertiesFuseLengthsHint => '每行一个值（标准0-4，深海0-5）。打开时数组大小自动调整。';
+
+  @override
+  String get bombPropertiesFuseLength => '长度';
+
+  @override
   String get damage => '伤害';
 
   @override
@@ -3265,6 +3742,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get searchGridItems => '搜索格子物品';
+
+  @override
+  String get searchStatues => '搜索雕像';
 
   @override
   String get noItems => '无物品';
@@ -3482,6 +3962,188 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get moduleDesc_ZombieRushModuleProperties => '关卡倒计时';
+
+  @override
+  String get moduleTitle_RenaiModuleProperties => '文艺复兴';
+
+  @override
+  String get moduleDesc_RenaiModuleProperties => '启用文艺复兴滚轮和地砖功能，允许配置文艺复兴雕像';
+
+  @override
+  String get renaiModuleTitle => '文艺复兴模块';
+
+  @override
+  String get renaiModuleHelpTitle => '文艺复兴模块帮助';
+
+  @override
+  String get renaiModuleHelpOverview => '概述';
+
+  @override
+  String get renaiModuleHelpOverviewBody =>
+      '启用滚轮和地砖。黑夜开始波次（0起始）切换至夜晚模式。日间和夜间雕像在配置的波次苏醒。';
+
+  @override
+  String get renaiModuleHelpStatues => '雕像';
+
+  @override
+  String get renaiModuleHelpStatuesBody =>
+      '日间雕像：白天出现。夜间雕像：黑夜开始后出现。WaveNumber为0起始。';
+
+  @override
+  String get renaiModuleEnableNight => '启用黑夜';
+
+  @override
+  String get renaiModuleEnableNightSubtitle => '允许设置黑夜开始波次和夜间雕像';
+
+  @override
+  String get renaiModuleNightStart => '黑夜开始波次（0起始）';
+
+  @override
+  String get renaiModuleDayStatues => '日间雕像';
+
+  @override
+  String get renaiModuleNightStatues => '夜间雕像';
+
+  @override
+  String get renaiModuleNightStatuesDisabledHint => '请先启用黑夜以添加夜间雕像';
+
+  @override
+  String get renaiModuleAddStatue => '添加雕像';
+
+  @override
+  String get renaiModuleCarveWave => '苏醒波次';
+
+  @override
+  String get renaiModuleStatuesInCell => '所选格内雕像';
+
+  @override
+  String get renaiModuleExpectationLabel => '文艺复兴事件';
+
+  @override
+  String get renaiModuleNightStarts => '黑夜开始';
+
+  @override
+  String get renaiModuleStatueCarve => '雕像苏醒';
+
+  @override
+  String get moduleTitle_DropShipProperties => '空投船';
+
+  @override
+  String get moduleDesc_DropShipProperties => '配置小鬼空投波次';
+
+  @override
+  String get airDropShipModuleTitle => '空投船';
+
+  @override
+  String get airDropShipModuleHelpTitle => '空投船帮助';
+
+  @override
+  String get airDropShipModuleHelpOverview => '概述';
+
+  @override
+  String get airDropShipModuleHelpOverviewBody =>
+      '配置小鬼从空中投放的波次。每项定义波次、额外小鬼数量、小鬼等级及投放区域（行列范围）。';
+
+  @override
+  String get airDropShipModuleHelpImps => '小鬼';
+
+  @override
+  String get airDropShipModuleHelpImpsBody => '额外小鬼数量为额外投放的数量。至少会投放一个小鬼。';
+
+  @override
+  String get airDropShipModuleAppearWaves => '出现波次';
+
+  @override
+  String get airDropShipModuleExtraImpCount => '额外小鬼数量';
+
+  @override
+  String get airDropShipModuleDropArea => '投放区域';
+
+  @override
+  String get airDropShipModuleDropAreaPreview => '投放区域预览';
+
+  @override
+  String get airDropShipModuleExpectationLabel => '小鬼投放';
+
+  @override
+  String get airDropShipModuleImpLevel => '小鬼等级';
+
+  @override
+  String get airDropShipModuleRowMin => '最小行';
+
+  @override
+  String get airDropShipModuleRowMax => '最大行';
+
+  @override
+  String get airDropShipModuleColMin => '最小列';
+
+  @override
+  String get airDropShipModuleColMax => '最大列';
+
+  @override
+  String get openModuleSettings => '打开模块设置';
+
+  @override
+  String get moduleTitle_HeianWindModuleProperties => '平安京之风';
+
+  @override
+  String get moduleDesc_HeianWindModuleProperties => '配置波次中风对僵尸的影响';
+
+  @override
+  String get heianWindModuleTitle => '平安京之风';
+
+  @override
+  String get heianWindModuleHelpTitle => '平安京之风帮助';
+
+  @override
+  String get heianWindModuleHelpOverview => '概述';
+
+  @override
+  String get heianWindModuleHelpOverviewBody =>
+      '配置特定波次的风。风会推动僵尸；在单行上的风还会召唤龙卷风，将僵尸卷向前方并吹走植物。';
+
+  @override
+  String get heianWindModuleHelpDistance => '距离';
+
+  @override
+  String get heianWindModuleHelpDistanceBody => '距离50等于一格。负值将僵尸向左移动；正值向右移动。';
+
+  @override
+  String get heianWindModuleHelpRow => '行';
+
+  @override
+  String get heianWindModuleHelpRowBody =>
+      '可指定任意行或全部行。单行上的风还会召唤龙卷风，将僵尸卷向前方并吹走植物。';
+
+  @override
+  String get heianWindModuleWaves => '有风的波次';
+
+  @override
+  String get heianWindModuleWindDelay => '风延迟';
+
+  @override
+  String get heianWindModuleWindEntries => '风条目';
+
+  @override
+  String get heianWindModuleAddWind => '添加风';
+
+  @override
+  String get heianWindModuleRow => '行';
+
+  @override
+  String get heianWindModuleAllRows => '全部行';
+
+  @override
+  String get heianWindModuleAffectZombies => '影响僵尸数';
+
+  @override
+  String get heianWindModuleDistance => '距离';
+
+  @override
+  String get heianWindModuleMoveTime => '移动时间';
+
+  @override
+  String get heianWindModuleExpectationLabel => '平安京之风';
 
   @override
   String get jsonViewerModeReading => '（只读模式）';

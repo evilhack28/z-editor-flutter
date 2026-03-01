@@ -2704,6 +2704,18 @@ abstract class AppLocalizations {
   /// **'Enable tide system'**
   String get moduleDesc_TideProperties;
 
+  /// No description provided for @moduleTitle_BombProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Barrel Bombs'**
+  String get moduleTitle_BombProperties;
+
+  /// No description provided for @moduleDesc_BombProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuze length per row for barrel/cherry bombs'**
+  String get moduleDesc_BombProperties;
+
   /// No description provided for @moduleTitle_WarMistProperties.
   ///
   /// In en, this message translates to:
@@ -2731,7 +2743,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventTitle_SpawnZombiesFromGroundSpawnerProps.
   ///
   /// In en, this message translates to:
-  /// **'Ground Spawn'**
+  /// **'GroundSpawnEvent'**
   String get eventTitle_SpawnZombiesFromGroundSpawnerProps;
 
   /// No description provided for @eventDesc_SpawnZombiesFromGroundSpawnerProps.
@@ -2743,7 +2755,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventTitle_SpawnZombiesJitteredWaveActionProps.
   ///
   /// In en, this message translates to:
-  /// **'Standard Spawn'**
+  /// **'Jittered Event'**
   String get eventTitle_SpawnZombiesJitteredWaveActionProps;
 
   /// No description provided for @eventDesc_SpawnZombiesJitteredWaveActionProps.
@@ -2788,6 +2800,30 @@ abstract class AppLocalizations {
   /// **'Change tide position'**
   String get eventDesc_TidalChangeWaveActionProps;
 
+  /// No description provided for @eventTitle_TideWaveWaveActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Tide Wave'**
+  String get eventTitle_TideWaveWaveActionProps;
+
+  /// No description provided for @eventDesc_TideWaveWaveActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Submarine tide wave (left/right)'**
+  String get eventDesc_TideWaveWaveActionProps;
+
+  /// No description provided for @eventTitle_SpawnZombiesFishWaveActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Zombie Fish Wave'**
+  String get eventTitle_SpawnZombiesFishWaveActionProps;
+
+  /// No description provided for @eventDesc_SpawnZombiesFishWaveActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Zombies and fishes for submarine levels'**
+  String get eventDesc_SpawnZombiesFishWaveActionProps;
+
   /// No description provided for @eventTitle_ModifyConveyorWaveActionProps.
   ///
   /// In en, this message translates to:
@@ -2811,6 +2847,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Summon dinosaur on row'**
   String get eventDesc_DinoWaveActionProps;
+
+  /// No description provided for @eventTitle_DinoTreadActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Dino Tread'**
+  String get eventTitle_DinoTreadActionProps;
+
+  /// No description provided for @eventDesc_DinoTreadActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinosaur tread hazard on grid area'**
+  String get eventDesc_DinoTreadActionProps;
+
+  /// No description provided for @eventTitle_DinoRunActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Dino Run'**
+  String get eventTitle_DinoRunActionProps;
+
+  /// No description provided for @eventDesc_DinoRunActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinosaur run hazard on row'**
+  String get eventDesc_DinoRunActionProps;
 
   /// No description provided for @eventTitle_SpawnModernPortalsWaveActionProps.
   ///
@@ -2859,6 +2919,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Spawn potions on grid'**
   String get eventDesc_ZombiePotionActionProps;
+
+  /// No description provided for @eventTitle_ZombieAtlantisShellActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Shell Spawn'**
+  String get eventTitle_ZombieAtlantisShellActionProps;
+
+  /// No description provided for @eventDesc_ZombieAtlantisShellActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Spawn atlantis shells on grid'**
+  String get eventDesc_ZombieAtlantisShellActionProps;
 
   /// No description provided for @eventTitle_SpawnGravestonesWaveActionProps.
   ///
@@ -2955,6 +3027,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Black hole attracts plants'**
   String get eventDesc_BlackHoleWaveActionProps;
+
+  /// No description provided for @eventTitle_BarrelWaveActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Barrel Wave'**
+  String get eventTitle_BarrelWaveActionProps;
+
+  /// No description provided for @eventDesc_BarrelWaveActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Rolling barrels on rows (empty, zombie, explosive)'**
+  String get eventDesc_BarrelWaveActionProps;
+
+  /// No description provided for @eventTitle_ThunderWaveActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Thunder'**
+  String get eventTitle_ThunderWaveActionProps;
+
+  /// No description provided for @eventDesc_ThunderWaveActionProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightning strikes during wave (positive/negative)'**
+  String get eventDesc_ThunderWaveActionProps;
 
   /// No description provided for @eventTitle_MagicMirrorWaveActionProps.
   ///
@@ -3399,6 +3495,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Resilience'**
   String get resilience;
+
+  /// No description provided for @resilienceArmor.
+  ///
+  /// In en, this message translates to:
+  /// **'Resilience (armor)'**
+  String get resilienceArmor;
+
+  /// No description provided for @enableResilience.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable resilience'**
+  String get enableResilience;
+
+  /// No description provided for @resilienceSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get resilienceSource;
+
+  /// No description provided for @resiliencePreset.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset'**
+  String get resiliencePreset;
+
+  /// No description provided for @resilienceCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get resilienceCustom;
+
+  /// No description provided for @resiliencePresetSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select preset'**
+  String get resiliencePresetSelect;
+
+  /// No description provided for @resilienceAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get resilienceAmount;
+
+  /// No description provided for @resilienceWeakType.
+  ///
+  /// In en, this message translates to:
+  /// **'Weak type'**
+  String get resilienceWeakType;
+
+  /// No description provided for @resilienceRecoverSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'RecoverSpeed'**
+  String get resilienceRecoverSpeed;
+
+  /// No description provided for @resilienceDamageThresholdPerSecond.
+  ///
+  /// In en, this message translates to:
+  /// **'DamageThresholdPerSecond'**
+  String get resilienceDamageThresholdPerSecond;
+
+  /// No description provided for @resilienceBaseDamageThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'ResilienceBaseDamageThreshold'**
+  String get resilienceBaseDamageThreshold;
+
+  /// No description provided for @resilienceExtraDamageThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'ResilienceExtraDamageThreshold'**
+  String get resilienceExtraDamageThreshold;
+
+  /// No description provided for @resilienceCodename.
+  ///
+  /// In en, this message translates to:
+  /// **'Codename'**
+  String get resilienceCodename;
+
+  /// No description provided for @resilienceCodenameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. CustomResilience0'**
+  String get resilienceCodenameHint;
+
+  /// No description provided for @resistances.
+  ///
+  /// In en, this message translates to:
+  /// **'Resistances'**
+  String get resistances;
+
+  /// No description provided for @zombieResilience.
+  ///
+  /// In en, this message translates to:
+  /// **'Armor / Resilience'**
+  String get zombieResilience;
+
+  /// No description provided for @resilienceEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable armor'**
+  String get resilienceEnable;
+
+  /// No description provided for @weakTypeExplosive.
+  ///
+  /// In en, this message translates to:
+  /// **'Explosive'**
+  String get weakTypeExplosive;
 
   /// No description provided for @instantKillResistance.
   ///
@@ -3964,6 +4168,324 @@ abstract class AppLocalizations {
   /// **'This event changes the tide position during a wave.'**
   String get eventHelpTidalChangeBody;
 
+  /// No description provided for @eventTideWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Event: Tide Wave'**
+  String get eventTideWave;
+
+  /// No description provided for @eventHelpTideWaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Submarine tide wave event. Direction can be left or right. Affects zombie and submarine movement.'**
+  String get eventHelpTideWaveBody;
+
+  /// No description provided for @tideWaveHelpType.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get tideWaveHelpType;
+
+  /// No description provided for @eventHelpTideWaveType.
+  ///
+  /// In en, this message translates to:
+  /// **'Left: tide moves left. Right: tide moves right.'**
+  String get eventHelpTideWaveType;
+
+  /// No description provided for @tideWaveHelpParams.
+  ///
+  /// In en, this message translates to:
+  /// **'Parameters'**
+  String get tideWaveHelpParams;
+
+  /// No description provided for @eventHelpTideWaveParams.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration, submarine moving distance, speed up, zombie moving speed.'**
+  String get eventHelpTideWaveParams;
+
+  /// No description provided for @tideWaveType.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get tideWaveType;
+
+  /// No description provided for @tideWaveTypeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left'**
+  String get tideWaveTypeLeft;
+
+  /// No description provided for @tideWaveTypeRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Right'**
+  String get tideWaveTypeRight;
+
+  /// No description provided for @tideWaveDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get tideWaveDuration;
+
+  /// No description provided for @tideWaveSubmarineMovingDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Submarine moving distance'**
+  String get tideWaveSubmarineMovingDistance;
+
+  /// No description provided for @tideWaveSpeedUpDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed up duration'**
+  String get tideWaveSpeedUpDuration;
+
+  /// No description provided for @tideWaveSpeedUpIncreased.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed up increased'**
+  String get tideWaveSpeedUpIncreased;
+
+  /// No description provided for @tideWaveSubmarineMovingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Submarine moving time'**
+  String get tideWaveSubmarineMovingTime;
+
+  /// No description provided for @tideWaveZombieMovingSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Zombie moving speed'**
+  String get tideWaveZombieMovingSpeed;
+
+  /// No description provided for @eventZombieFishWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Zombie Fish Wave'**
+  String get eventZombieFishWave;
+
+  /// No description provided for @eventHelpZombieFishWaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure zombies and fishes for submarine levels. Row and column are 0-based.'**
+  String get eventHelpZombieFishWaveBody;
+
+  /// No description provided for @eventHelpZombieFishWaveFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Use fish properties to place fishes on the grid. Grid size depends on stage: Deep Sea 6×10, normal 5×9. Row = Y, Column = X.'**
+  String get eventHelpZombieFishWaveFish;
+
+  /// No description provided for @eventHelpBatchLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Set level for all non-elite zombies in this wave. Elite zombies keep their default level.'**
+  String get eventHelpBatchLevel;
+
+  /// No description provided for @eventHelpDropConfig.
+  ///
+  /// In en, this message translates to:
+  /// **'Plant food or plant cards carried by zombies. Add plants to drop specific cards.'**
+  String get eventHelpDropConfig;
+
+  /// No description provided for @fishPropertiesEntryHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a grid cell to select it, then add fishes. Tap + to add built-in fish. Tap a fish card to copy, delete, switch custom variant, or make custom. Custom fishes show a blue C badge. Fishes outside the lawn are shown with a warning.'**
+  String get fishPropertiesEntryHelp;
+
+  /// No description provided for @fishAddCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Add custom fish'**
+  String get fishAddCustom;
+
+  /// No description provided for @addFishLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add fish'**
+  String get addFishLabel;
+
+  /// No description provided for @addBuiltInFishLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add built-in fish'**
+  String get addBuiltInFishLabel;
+
+  /// No description provided for @makeFishAsCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Make custom'**
+  String get makeFishAsCustom;
+
+  /// No description provided for @switchCustomFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get switchCustomFish;
+
+  /// No description provided for @selectCustomFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Select custom fish'**
+  String get selectCustomFish;
+
+  /// No description provided for @editCustomFishProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit custom fish properties'**
+  String get editCustomFishProperties;
+
+  /// No description provided for @fishPropertiesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish properties'**
+  String get fishPropertiesButton;
+
+  /// No description provided for @addFishProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Add fish properties'**
+  String get addFishProperties;
+
+  /// No description provided for @editFishProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit fish properties'**
+  String get editFishProperties;
+
+  /// No description provided for @fishPropertiesGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish placement (row Y, column X)'**
+  String get fishPropertiesGrid;
+
+  /// No description provided for @fishSelectedPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected:'**
+  String get fishSelectedPosition;
+
+  /// No description provided for @fishRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Row'**
+  String get fishRow;
+
+  /// No description provided for @fishColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Column'**
+  String get fishColumn;
+
+  /// No description provided for @fishAtPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish at position'**
+  String get fishAtPosition;
+
+  /// No description provided for @searchFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Search fish'**
+  String get searchFish;
+
+  /// No description provided for @noFishFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No fish found'**
+  String get noFishFound;
+
+  /// No description provided for @customFishManagerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom fish'**
+  String get customFishManagerTitle;
+
+  /// No description provided for @customFishAppearanceLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance location:'**
+  String get customFishAppearanceLocation;
+
+  /// No description provided for @customFishNotUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'This custom fish is not used by any wave.'**
+  String get customFishNotUsed;
+
+  /// No description provided for @customFishWaveItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Wave {n}'**
+  String customFishWaveItem(int n);
+
+  /// No description provided for @customFishDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this custom fish and its property data.'**
+  String get customFishDeleteConfirm;
+
+  /// No description provided for @customFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom fish'**
+  String get customFish;
+
+  /// No description provided for @customFishProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom fish properties'**
+  String get customFishProperties;
+
+  /// No description provided for @fishTypeNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish type object not found.'**
+  String get fishTypeNotFound;
+
+  /// No description provided for @fishTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish type: {type}'**
+  String fishTypeLabel(Object type);
+
+  /// No description provided for @customFishHelpIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Brief introduction'**
+  String get customFishHelpIntro;
+
+  /// No description provided for @customFishHelpIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen edits custom fish parameters. Only common properties are supported; animation and special attributes require manual JSON editing.'**
+  String get customFishHelpIntroBody;
+
+  /// No description provided for @customFishHelpProps.
+  ///
+  /// In en, this message translates to:
+  /// **'Properties'**
+  String get customFishHelpProps;
+
+  /// No description provided for @customFishHelpPropsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'HitRect, AttackRect, ScareRect define collision areas. Speed and ScareSpeed control movement. ArtCenter is the drawing anchor.'**
+  String get customFishHelpPropsBody;
+
+  /// No description provided for @noEditableFishProps.
+  ///
+  /// In en, this message translates to:
+  /// **'No editable properties found.'**
+  String get noEditableFishProps;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
   /// No description provided for @eventHelpTidalChangePosition.
   ///
   /// In en, this message translates to:
@@ -4066,6 +4588,102 @@ abstract class AppLocalizations {
   /// **'How long the dinosaur stays, in waves.'**
   String get eventHelpDinoDuration;
 
+  /// No description provided for @eventDinoTread.
+  ///
+  /// In en, this message translates to:
+  /// **'Event: Dino tread'**
+  String get eventDinoTread;
+
+  /// No description provided for @eventDinoRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Event: Dino run'**
+  String get eventDinoRun;
+
+  /// No description provided for @eventHelpDinoTreadBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Dino tread event. A dinosaur treads across a grid area (row Y, columns XMin to XMax), damaging plants.'**
+  String get eventHelpDinoTreadBody;
+
+  /// No description provided for @eventHelpDinoTreadRowCol.
+  ///
+  /// In en, this message translates to:
+  /// **'GridY = row (0-based). GridXMin/GridXMax = column range (0-based). Deep Sea: rows 0-5, cols 0-9.'**
+  String get eventHelpDinoTreadRowCol;
+
+  /// No description provided for @dinoTreadRowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Row [GridY]'**
+  String get dinoTreadRowLabel;
+
+  /// No description provided for @dinoTreadColMinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Column min [GridXMin]'**
+  String get dinoTreadColMinLabel;
+
+  /// No description provided for @dinoTreadColMaxLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Column max [GridXMax]'**
+  String get dinoTreadColMaxLabel;
+
+  /// No description provided for @dinoTreadTimeIntervalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time interval [TimeInterval]'**
+  String get dinoTreadTimeIntervalLabel;
+
+  /// No description provided for @columnStartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start [ColumnStart]'**
+  String get columnStartLabel;
+
+  /// No description provided for @columnEndLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'End [ColumnEnd]'**
+  String get columnEndLabel;
+
+  /// No description provided for @eventHelpDinoRunBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Dino run event. A dinosaur runs along a row, damaging plants.'**
+  String get eventHelpDinoRunBody;
+
+  /// No description provided for @eventHelpDinoRunRow.
+  ///
+  /// In en, this message translates to:
+  /// **'DinoRow = row index (0-based). Deep Sea supports row 5.'**
+  String get eventHelpDinoRunRow;
+
+  /// No description provided for @positionAndArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Position & area'**
+  String get positionAndArea;
+
+  /// No description provided for @positionAndDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Position & timing'**
+  String get positionAndDuration;
+
+  /// No description provided for @rowCol0Index.
+  ///
+  /// In en, this message translates to:
+  /// **'Row/column (0-based)'**
+  String get rowCol0Index;
+
+  /// No description provided for @timeInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Time interval'**
+  String get timeInterval;
+
   /// No description provided for @eventHelpZombiePotionBody.
   ///
   /// In en, this message translates to:
@@ -4077,6 +4695,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select grid position, tap add item, choose potion type.'**
   String get eventHelpZombiePotionUsage;
+
+  /// No description provided for @eventHelpShellBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Spawns atlantis shells on the grid at specified positions.'**
+  String get eventHelpShellBody;
+
+  /// No description provided for @eventHelpShellUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select grid position, tap add to place atlantis shell (5×9 or 6×10 depending on stage).'**
+  String get eventHelpShellUsage;
 
   /// No description provided for @eventHelpFairyFogBody.
   ///
@@ -4137,6 +4767,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Some maps without gravestone spawn effects may show sun textures instead.'**
   String get eventHelpGravestoneMissingAssets;
+
+  /// No description provided for @eventHelpBarrelWaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rolling barrels spawn on rows. Three types: Empty (no reward), Zombie (contains zombies), Explosive (explodes when hit). Rows are 1-based.'**
+  String get eventHelpBarrelWaveBody;
+
+  /// No description provided for @barrelWaveHelpTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Barrel types'**
+  String get barrelWaveHelpTypes;
+
+  /// No description provided for @eventHelpBarrelWaveTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty: barrel with no zombies. Zombie (monster): barrel contains zombies that spawn when broken; use Zombie selector to add zombies. Explosive: barrel explodes when hit; set explosion damage.'**
+  String get eventHelpBarrelWaveTypes;
+
+  /// No description provided for @barrelWaveHelpRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows'**
+  String get barrelWaveHelpRows;
+
+  /// No description provided for @eventHelpBarrelWaveRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows are 1-based: Row 1 = top, Row 5/6 = bottom. Standard lawns: 5 rows. Deep Sea: 6 rows.'**
+  String get eventHelpBarrelWaveRows;
+
+  /// No description provided for @eventHelpThunderWaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightning strikes randomly during the wave. Each thunder can be positive (beneficial) or negative (harmful to plants).'**
+  String get eventHelpThunderWaveBody;
+
+  /// No description provided for @thunderWaveHelpTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Thunder types'**
+  String get thunderWaveHelpTypes;
+
+  /// No description provided for @eventHelpThunderWaveTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Positive: beneficial lightning. Negative: harmful lightning that can kill plants based on Kill rate.'**
+  String get eventHelpThunderWaveTypes;
+
+  /// No description provided for @thunderWaveHelpKillRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill rate'**
+  String get thunderWaveHelpKillRate;
+
+  /// No description provided for @eventHelpThunderWaveKillRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Probability (0.0–1.0) that a negative thunder strike kills plants in the affected tile.'**
+  String get eventHelpThunderWaveKillRate;
+
+  /// No description provided for @thunderWaveTypePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Positive'**
+  String get thunderWaveTypePositive;
+
+  /// No description provided for @thunderWaveTypeNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'Negative'**
+  String get thunderWaveTypeNegative;
+
+  /// No description provided for @thunderWaveKillRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill rate'**
+  String get thunderWaveKillRate;
+
+  /// No description provided for @thunderWaveKillRateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Probability of killing plants on lightning strike (0.0–1.0)'**
+  String get thunderWaveKillRateHint;
+
+  /// No description provided for @thunderWaveThunders.
+  ///
+  /// In en, this message translates to:
+  /// **'Thunders'**
+  String get thunderWaveThunders;
+
+  /// No description provided for @thunderWaveAddThunder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add thunder'**
+  String get thunderWaveAddThunder;
+
+  /// No description provided for @thunderWaveThunder.
+  ///
+  /// In en, this message translates to:
+  /// **'Thunder'**
+  String get thunderWaveThunder;
+
+  /// No description provided for @barrelWaveTypeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty'**
+  String get barrelWaveTypeEmpty;
+
+  /// No description provided for @barrelWaveTypeZombie.
+  ///
+  /// In en, this message translates to:
+  /// **'Zombie'**
+  String get barrelWaveTypeZombie;
+
+  /// No description provided for @barrelWaveTypeExplosive.
+  ///
+  /// In en, this message translates to:
+  /// **'Explosive'**
+  String get barrelWaveTypeExplosive;
+
+  /// No description provided for @barrelWaveRowsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows are 1-based (1–5 standard, 1–6 Deep Sea).'**
+  String get barrelWaveRowsHint;
+
+  /// No description provided for @barrelWaveAddBarrel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add barrel'**
+  String get barrelWaveAddBarrel;
+
+  /// No description provided for @barrelWaveBarrel.
+  ///
+  /// In en, this message translates to:
+  /// **'Barrel'**
+  String get barrelWaveBarrel;
+
+  /// No description provided for @barrelWaveRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Row'**
+  String get barrelWaveRow;
+
+  /// No description provided for @barrelWaveType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get barrelWaveType;
+
+  /// No description provided for @barrelWaveHitPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Hit points'**
+  String get barrelWaveHitPoints;
+
+  /// No description provided for @barrelWaveSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get barrelWaveSpeed;
+
+  /// No description provided for @barrelWaveZombies.
+  ///
+  /// In en, this message translates to:
+  /// **'Zombies'**
+  String get barrelWaveZombies;
+
+  /// No description provided for @barrelWaveAddZombie.
+  ///
+  /// In en, this message translates to:
+  /// **'Add zombie'**
+  String get barrelWaveAddZombie;
+
+  /// No description provided for @barrelWaveExplosionDamage.
+  ///
+  /// In en, this message translates to:
+  /// **'Explosion damage'**
+  String get barrelWaveExplosionDamage;
+
+  /// No description provided for @barrelWaveDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete barrel'**
+  String get barrelWaveDeleteTitle;
+
+  /// No description provided for @barrelWaveDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this barrel?'**
+  String get barrelWaveDeleteConfirm;
+
+  /// No description provided for @barrelWaveDeleteLastHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the last barrel. The event will have no barrels. Continue?'**
+  String get barrelWaveDeleteLastHint;
 
   /// No description provided for @eventHelpGraveSpawnBody.
   ///
@@ -4522,6 +5350,12 @@ abstract class AppLocalizations {
   /// **'Potion drop event'**
   String get eventPotionDrop;
 
+  /// No description provided for @eventShellSpawn.
+  ///
+  /// In en, this message translates to:
+  /// **'Shell spawn event'**
+  String get eventShellSpawn;
+
   /// No description provided for @warMist.
   ///
   /// In en, this message translates to:
@@ -4581,6 +5415,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Spawn gravestones event'**
   String get eventSpawnGravestones;
+
+  /// No description provided for @eventBarrelWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Event: Barrel wave'**
+  String get eventBarrelWave;
+
+  /// No description provided for @eventThunderWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Event: Thunder'**
+  String get eventThunderWave;
 
   /// No description provided for @eventGraveSpawn.
   ///
@@ -5104,6 +5950,12 @@ abstract class AppLocalizations {
   /// **'Plank rows (0–4)'**
   String get plankRows;
 
+  /// No description provided for @plankRowsDeepSea.
+  ///
+  /// In en, this message translates to:
+  /// **'Plank rows (0–5)'**
+  String get plankRowsDeepSea;
+
   /// No description provided for @selectedRows.
   ///
   /// In en, this message translates to:
@@ -5553,6 +6405,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rows 0–4. Leave unset for random row.'**
   String get eventHelpStandardRow;
+
+  /// No description provided for @eventHelpStandardRowDeepSea.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows 0–5 (6-row lawn). Leave unset for random row.'**
+  String get eventHelpStandardRowDeepSea;
+
+  /// No description provided for @warningStageSwitchedTo5Rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage uses 5 rows but some data references row 6. These objects may not display correctly in-game.'**
+  String get warningStageSwitchedTo5Rows;
+
+  /// No description provided for @warningObjectsOutsideArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Some objects are outside the playable area ({rows} rows × {cols} cols).'**
+  String warningObjectsOutsideArea(int rows, int cols);
 
   /// No description provided for @izombieModeTitle.
   ///
@@ -6214,6 +7084,54 @@ abstract class AppLocalizations {
   /// **'Turns falling sun into explosive sun bombs. Configure radius and damage.'**
   String get sunBombHelpBody;
 
+  /// No description provided for @bombProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Bomb properties'**
+  String get bombProperties;
+
+  /// No description provided for @bombPropertiesHelpBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Configures barrel and cherry bomb fuze lengths for each row. Used in Kongfu/minigame levels. Array size matches lawn rows (5 or 6).'**
+  String get bombPropertiesHelpBody;
+
+  /// No description provided for @bombPropertiesHelpFuse.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuse lengths'**
+  String get bombPropertiesHelpFuse;
+
+  /// No description provided for @bombPropertiesHelpFuseBody.
+  ///
+  /// In en, this message translates to:
+  /// **'FuseLengths: one value per row. Length is in game units. Standard lawn: 5 rows. Deep Sea: 6 rows. Array auto-adjusts when you open this screen.'**
+  String get bombPropertiesHelpFuseBody;
+
+  /// No description provided for @bombPropertiesFlameSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Flame speed'**
+  String get bombPropertiesFlameSpeed;
+
+  /// No description provided for @bombPropertiesFuseLengths.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuse lengths'**
+  String get bombPropertiesFuseLengths;
+
+  /// No description provided for @bombPropertiesFuseLengthsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One value per row (0–4 standard, 0–5 Deep Sea). Array size auto-adjusts on open.'**
+  String get bombPropertiesFuseLengthsHint;
+
+  /// No description provided for @bombPropertiesFuseLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Length'**
+  String get bombPropertiesFuseLength;
+
   /// No description provided for @damage.
   ///
   /// In en, this message translates to:
@@ -6363,6 +7281,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search grid items'**
   String get searchGridItems;
+
+  /// No description provided for @searchStatues.
+  ///
+  /// In en, this message translates to:
+  /// **'Search statues'**
+  String get searchStatues;
 
   /// No description provided for @noItems.
   ///
@@ -6771,6 +7695,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Level countdown timer'**
   String get moduleDesc_ZombieRushModuleProperties;
+
+  /// No description provided for @moduleTitle_RenaiModuleProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Renaissance'**
+  String get moduleTitle_RenaiModuleProperties;
+
+  /// No description provided for @moduleDesc_RenaiModuleProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Enables Renai roller and tiles functionality, allows configuring Renai statues'**
+  String get moduleDesc_RenaiModuleProperties;
+
+  /// No description provided for @renaiModuleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Renaissance module'**
+  String get renaiModuleTitle;
+
+  /// No description provided for @renaiModuleHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Renaissance module help'**
+  String get renaiModuleHelpTitle;
+
+  /// No description provided for @renaiModuleHelpOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get renaiModuleHelpOverview;
+
+  /// No description provided for @renaiModuleHelpOverviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enables Renai roller and tiles functionality, allows configuring Renai statues. Night start wave (0-based) switches to night mode. Day and night statues carve at their configured wave.'**
+  String get renaiModuleHelpOverviewBody;
+
+  /// No description provided for @renaiModuleHelpStatues.
+  ///
+  /// In en, this message translates to:
+  /// **'Statues'**
+  String get renaiModuleHelpStatues;
+
+  /// No description provided for @renaiModuleHelpStatuesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Day statues: appear in day phase. Night statues: appear after night start. WaveNumber is 0-based.'**
+  String get renaiModuleHelpStatuesBody;
+
+  /// No description provided for @renaiModuleEnableNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable night'**
+  String get renaiModuleEnableNight;
+
+  /// No description provided for @renaiModuleEnableNightSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow night start wave and night statues'**
+  String get renaiModuleEnableNightSubtitle;
+
+  /// No description provided for @renaiModuleNightStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Night start wave (0-based)'**
+  String get renaiModuleNightStart;
+
+  /// No description provided for @renaiModuleDayStatues.
+  ///
+  /// In en, this message translates to:
+  /// **'Day statues'**
+  String get renaiModuleDayStatues;
+
+  /// No description provided for @renaiModuleNightStatues.
+  ///
+  /// In en, this message translates to:
+  /// **'Night statues'**
+  String get renaiModuleNightStatues;
+
+  /// No description provided for @renaiModuleNightStatuesDisabledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable night first to add night statues'**
+  String get renaiModuleNightStatuesDisabledHint;
+
+  /// No description provided for @renaiModuleAddStatue.
+  ///
+  /// In en, this message translates to:
+  /// **'Add statue'**
+  String get renaiModuleAddStatue;
+
+  /// No description provided for @renaiModuleCarveWave.
+  ///
+  /// In en, this message translates to:
+  /// **'Carve wave'**
+  String get renaiModuleCarveWave;
+
+  /// No description provided for @renaiModuleStatuesInCell.
+  ///
+  /// In en, this message translates to:
+  /// **'Statues in selected cell'**
+  String get renaiModuleStatuesInCell;
+
+  /// No description provided for @renaiModuleExpectationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Renai events'**
+  String get renaiModuleExpectationLabel;
+
+  /// No description provided for @renaiModuleNightStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Night starts'**
+  String get renaiModuleNightStarts;
+
+  /// No description provided for @renaiModuleStatueCarve.
+  ///
+  /// In en, this message translates to:
+  /// **'Statue carve'**
+  String get renaiModuleStatueCarve;
+
+  /// No description provided for @moduleTitle_DropShipProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Air Drop Ship'**
+  String get moduleTitle_DropShipProperties;
+
+  /// No description provided for @moduleDesc_DropShipProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Configures waves when imps are dropped from the air'**
+  String get moduleDesc_DropShipProperties;
+
+  /// No description provided for @airDropShipModuleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Air Drop Ship'**
+  String get airDropShipModuleTitle;
+
+  /// No description provided for @airDropShipModuleHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Air Drop Ship help'**
+  String get airDropShipModuleHelpTitle;
+
+  /// No description provided for @airDropShipModuleHelpOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get airDropShipModuleHelpOverview;
+
+  /// No description provided for @airDropShipModuleHelpOverviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Configures waves when imps are dropped from the air. Each entry defines wave, extra imp count, imp level, and drop area (row/column range).'**
+  String get airDropShipModuleHelpOverviewBody;
+
+  /// No description provided for @airDropShipModuleHelpImps.
+  ///
+  /// In en, this message translates to:
+  /// **'Imps'**
+  String get airDropShipModuleHelpImps;
+
+  /// No description provided for @airDropShipModuleHelpImpsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra imp count is the number of additional imps. At least one imp is always dropped.'**
+  String get airDropShipModuleHelpImpsBody;
+
+  /// No description provided for @airDropShipModuleAppearWaves.
+  ///
+  /// In en, this message translates to:
+  /// **'Appear waves'**
+  String get airDropShipModuleAppearWaves;
+
+  /// No description provided for @airDropShipModuleExtraImpCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra imp count'**
+  String get airDropShipModuleExtraImpCount;
+
+  /// No description provided for @airDropShipModuleDropArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop area'**
+  String get airDropShipModuleDropArea;
+
+  /// No description provided for @airDropShipModuleDropAreaPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop area preview'**
+  String get airDropShipModuleDropAreaPreview;
+
+  /// No description provided for @airDropShipModuleExpectationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Imp drops'**
+  String get airDropShipModuleExpectationLabel;
+
+  /// No description provided for @airDropShipModuleImpLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Imp level'**
+  String get airDropShipModuleImpLevel;
+
+  /// No description provided for @airDropShipModuleRowMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimal row'**
+  String get airDropShipModuleRowMin;
+
+  /// No description provided for @airDropShipModuleRowMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximal row'**
+  String get airDropShipModuleRowMax;
+
+  /// No description provided for @airDropShipModuleColMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimal column'**
+  String get airDropShipModuleColMin;
+
+  /// No description provided for @airDropShipModuleColMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximal column'**
+  String get airDropShipModuleColMax;
+
+  /// No description provided for @openModuleSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open module settings'**
+  String get openModuleSettings;
+
+  /// No description provided for @moduleTitle_HeianWindModuleProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Heian Wind'**
+  String get moduleTitle_HeianWindModuleProperties;
+
+  /// No description provided for @moduleDesc_HeianWindModuleProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Configures winds that affect zombies on waves'**
+  String get moduleDesc_HeianWindModuleProperties;
+
+  /// No description provided for @heianWindModuleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Heian Wind'**
+  String get heianWindModuleTitle;
+
+  /// No description provided for @heianWindModuleHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Heian Wind help'**
+  String get heianWindModuleHelpTitle;
+
+  /// No description provided for @heianWindModuleHelpOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get heianWindModuleHelpOverview;
+
+  /// No description provided for @heianWindModuleHelpOverviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Configures winds on specific waves. Winds push zombies and can summon tornados on single rows that carry zombies forward and blow away plants.'**
+  String get heianWindModuleHelpOverviewBody;
+
+  /// No description provided for @heianWindModuleHelpDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get heianWindModuleHelpDistance;
+
+  /// No description provided for @heianWindModuleHelpDistanceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance of 50 equals one grid cell. Negative values move zombies to the left; positive values move them to the right.'**
+  String get heianWindModuleHelpDistanceBody;
+
+  /// No description provided for @heianWindModuleHelpRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Row'**
+  String get heianWindModuleHelpRow;
+
+  /// No description provided for @heianWindModuleHelpRowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can specify any row or all rows at once. Winds on single rows also summon a tornado that carries zombies forward and blows away a plant.'**
+  String get heianWindModuleHelpRowBody;
+
+  /// No description provided for @heianWindModuleWaves.
+  ///
+  /// In en, this message translates to:
+  /// **'Waves with wind'**
+  String get heianWindModuleWaves;
+
+  /// No description provided for @heianWindModuleWindDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind delay'**
+  String get heianWindModuleWindDelay;
+
+  /// No description provided for @heianWindModuleWindEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind entries'**
+  String get heianWindModuleWindEntries;
+
+  /// No description provided for @heianWindModuleAddWind.
+  ///
+  /// In en, this message translates to:
+  /// **'Add wind'**
+  String get heianWindModuleAddWind;
+
+  /// No description provided for @heianWindModuleRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Row'**
+  String get heianWindModuleRow;
+
+  /// No description provided for @heianWindModuleAllRows.
+  ///
+  /// In en, this message translates to:
+  /// **'All rows'**
+  String get heianWindModuleAllRows;
+
+  /// No description provided for @heianWindModuleAffectZombies.
+  ///
+  /// In en, this message translates to:
+  /// **'Affect zombies'**
+  String get heianWindModuleAffectZombies;
+
+  /// No description provided for @heianWindModuleDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get heianWindModuleDistance;
+
+  /// No description provided for @heianWindModuleMoveTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Move time'**
+  String get heianWindModuleMoveTime;
+
+  /// No description provided for @heianWindModuleExpectationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Heian wind'**
+  String get heianWindModuleExpectationLabel;
 
   /// No description provided for @jsonViewerModeReading.
   ///

@@ -1432,6 +1432,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get moduleDesc_TideProperties => 'Включить прилив';
 
   @override
+  String get moduleTitle_BombProperties => 'Бочковые бомбы';
+
+  @override
+  String get moduleDesc_BombProperties => 'Длина фитиля бочки/вишни по рядам';
+
+  @override
   String get moduleTitle_WarMistProperties => 'Туман войны';
 
   @override
@@ -1444,15 +1450,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get moduleDesc_RainDarkProperties => 'Дождь, снег, буря';
 
   @override
-  String get eventTitle_SpawnZombiesFromGroundSpawnerProps => 'Земляной спавн';
+  String get eventTitle_SpawnZombiesFromGroundSpawnerProps =>
+      'GroundSpawnEvent';
 
   @override
   String get eventDesc_SpawnZombiesFromGroundSpawnerProps =>
       'Зомби появляются из-под земли';
 
   @override
-  String get eventTitle_SpawnZombiesJitteredWaveActionProps =>
-      'Стандартный спавн';
+  String get eventTitle_SpawnZombiesJitteredWaveActionProps => 'Jittered Event';
 
   @override
   String get eventDesc_SpawnZombiesJitteredWaveActionProps =>
@@ -1478,6 +1484,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get eventDesc_TidalChangeWaveActionProps => 'Изменение уровня прилива';
 
   @override
+  String get eventTitle_TideWaveWaveActionProps => 'Волна прилива';
+
+  @override
+  String get eventDesc_TideWaveWaveActionProps =>
+      'Подводная волна (влево/вправо)';
+
+  @override
+  String get eventTitle_SpawnZombiesFishWaveActionProps => 'Зомби-рыбы';
+
+  @override
+  String get eventDesc_SpawnZombiesFishWaveActionProps =>
+      'Зомби и рыбы для подводных уровней';
+
+  @override
   String get eventTitle_ModifyConveyorWaveActionProps => 'Изменение конвейера';
 
   @override
@@ -1489,6 +1509,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get eventDesc_DinoWaveActionProps => 'Призвать динозавра на ряд';
+
+  @override
+  String get eventTitle_DinoTreadActionProps => 'Шаг динозавра';
+
+  @override
+  String get eventDesc_DinoTreadActionProps =>
+      'Динозавр наступает на область сетки';
+
+  @override
+  String get eventTitle_DinoRunActionProps => 'Бег динозавра';
+
+  @override
+  String get eventDesc_DinoRunActionProps => 'Динозавр бежит по ряду';
 
   @override
   String get eventTitle_SpawnModernPortalsWaveActionProps => 'Разлом времени';
@@ -1515,6 +1548,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get eventDesc_ZombiePotionActionProps => 'Появление зелий на сетке';
+
+  @override
+  String get eventTitle_ZombieAtlantisShellActionProps => 'Спавн ракушек';
+
+  @override
+  String get eventDesc_ZombieAtlantisShellActionProps =>
+      'Появление атлантических ракушек на сетке';
 
   @override
   String get eventTitle_SpawnGravestonesWaveActionProps => 'Спавн надгробий';
@@ -1569,6 +1609,20 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get eventDesc_BlackHoleWaveActionProps =>
       'Чёрная дыра притягивает растения';
+
+  @override
+  String get eventTitle_BarrelWaveActionProps => 'Бочки';
+
+  @override
+  String get eventDesc_BarrelWaveActionProps =>
+      'Катящиеся бочки по рядам (пустые, зомби, взрывные)';
+
+  @override
+  String get eventTitle_ThunderWaveActionProps => 'Гром';
+
+  @override
+  String get eventDesc_ThunderWaveActionProps =>
+      'Молнии во время волны (положительные/отрицательные)';
 
   @override
   String get eventTitle_MagicMirrorWaveActionProps => 'Волшебное зеркало';
@@ -1800,6 +1854,61 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get resilience => 'Устойчивость';
+
+  @override
+  String get resilienceArmor => 'Устойчивость (броня)';
+
+  @override
+  String get enableResilience => 'Включить устойчивость';
+
+  @override
+  String get resilienceSource => 'Источник';
+
+  @override
+  String get resiliencePreset => 'Пресет';
+
+  @override
+  String get resilienceCustom => 'Свой';
+
+  @override
+  String get resiliencePresetSelect => 'Выбрать пресет';
+
+  @override
+  String get resilienceAmount => 'Количество';
+
+  @override
+  String get resilienceWeakType => 'Слабый тип';
+
+  @override
+  String get resilienceRecoverSpeed => 'Скорость восстановления';
+
+  @override
+  String get resilienceDamageThresholdPerSecond => 'Порог урона в секунду';
+
+  @override
+  String get resilienceBaseDamageThreshold =>
+      'Базовый порог урона устойчивости';
+
+  @override
+  String get resilienceExtraDamageThreshold => 'Доп. порог урона устойчивости';
+
+  @override
+  String get resilienceCodename => 'Кодовое имя';
+
+  @override
+  String get resilienceCodenameHint => 'напр. CustomResilience0';
+
+  @override
+  String get resistances => 'Сопротивления';
+
+  @override
+  String get zombieResilience => 'Броня / Устойчивость';
+
+  @override
+  String get resilienceEnable => 'Включить броню';
+
+  @override
+  String get weakTypeExplosive => 'Взрыв';
 
   @override
   String get instantKillResistance => 'Устойчивость к мгновенной смерти';
@@ -2118,6 +2227,182 @@ class AppLocalizationsRu extends AppLocalizations {
       'Это событие меняет позицию прилива во время волны.';
 
   @override
+  String get eventTideWave => 'Событие: волна прилива';
+
+  @override
+  String get eventHelpTideWaveBody =>
+      'Подводная волна. Направление: влево или вправо.';
+
+  @override
+  String get tideWaveHelpType => 'Направление';
+
+  @override
+  String get eventHelpTideWaveType =>
+      'Влево: прилив влево. Вправо: прилив вправо.';
+
+  @override
+  String get tideWaveHelpParams => 'Параметры';
+
+  @override
+  String get eventHelpTideWaveParams =>
+      'Длительность, расстояние движения подлодки, ускорение.';
+
+  @override
+  String get tideWaveType => 'Направление';
+
+  @override
+  String get tideWaveTypeLeft => 'Влево';
+
+  @override
+  String get tideWaveTypeRight => 'Вправо';
+
+  @override
+  String get tideWaveDuration => 'Длительность';
+
+  @override
+  String get tideWaveSubmarineMovingDistance => 'Расстояние подлодки';
+
+  @override
+  String get tideWaveSpeedUpDuration => 'Ускорение длит.';
+
+  @override
+  String get tideWaveSpeedUpIncreased => 'Ускорение увел.';
+
+  @override
+  String get tideWaveSubmarineMovingTime => 'Время подлодки';
+
+  @override
+  String get tideWaveZombieMovingSpeed => 'Скорость зомби';
+
+  @override
+  String get eventZombieFishWave => 'Зомби-рыбы';
+
+  @override
+  String get eventHelpZombieFishWaveBody =>
+      'Настройка зомби и рыб. Строка и столбец с 0.';
+
+  @override
+  String get eventHelpZombieFishWaveFish =>
+      'Размещение рыб на сетке. Размер зависит от стадии: Глубокое море 6×10, обычная 5×9. Строка=Y, Столбец=X.';
+
+  @override
+  String get eventHelpBatchLevel =>
+      'Установить уровень для всех неэлитных зомби в этой волне. Элитные сохраняют уровень по умолчанию.';
+
+  @override
+  String get eventHelpDropConfig =>
+      'Растительная еда или карточки растений, которые несут зомби. Добавьте растения для выпадения карт.';
+
+  @override
+  String get fishPropertiesEntryHelp =>
+      'Нажмите на ячейку, затем добавьте рыб. Нажмите + для встроенной рыбы. Нажмите на карточку рыбы для копирования, удаления, переключения варианта или создания кастомной. Кастомные рыбы отображают синий значок C. Рыбы вне газона показываются с предупреждением.';
+
+  @override
+  String get fishAddCustom => 'Добавить пользовательскую рыбу';
+
+  @override
+  String get addFishLabel => 'Добавить рыбу';
+
+  @override
+  String get addBuiltInFishLabel => 'Добавить встроенную рыбу';
+
+  @override
+  String get makeFishAsCustom => 'Сделать кастомной';
+
+  @override
+  String get switchCustomFish => 'Переключить';
+
+  @override
+  String get selectCustomFish => 'Выбрать пользовательскую рыбу';
+
+  @override
+  String get editCustomFishProperties =>
+      'Редактировать свойства пользовательской рыбы';
+
+  @override
+  String get fishPropertiesButton => 'Свойства рыб';
+
+  @override
+  String get addFishProperties => 'Добавить рыб';
+
+  @override
+  String get editFishProperties => 'Редактировать рыб';
+
+  @override
+  String get fishPropertiesGrid => 'Размещение рыб (строка Y, столбец X)';
+
+  @override
+  String get fishSelectedPosition => 'Выбрано:';
+
+  @override
+  String get fishRow => 'Строка';
+
+  @override
+  String get fishColumn => 'Столбец';
+
+  @override
+  String get fishAtPosition => 'Рыбы здесь:';
+
+  @override
+  String get searchFish => 'Поиск рыб';
+
+  @override
+  String get noFishFound => 'Рыбы не найдены';
+
+  @override
+  String get customFishManagerTitle => 'Пользовательские рыбы';
+
+  @override
+  String get customFishAppearanceLocation => 'Место появления:';
+
+  @override
+  String get customFishNotUsed =>
+      'Эта пользовательская рыба не используется ни в одной волне.';
+
+  @override
+  String customFishWaveItem(int n) {
+    return 'Волна $n';
+  }
+
+  @override
+  String get customFishDeleteConfirm =>
+      'Удалить эту пользовательскую рыбу и её данные свойств.';
+
+  @override
+  String get customFish => 'Пользовательская рыба';
+
+  @override
+  String get customFishProperties => 'Свойства пользовательской рыбы';
+
+  @override
+  String get fishTypeNotFound => 'Объект типа рыбы не найден.';
+
+  @override
+  String fishTypeLabel(Object type) {
+    return 'Тип рыбы: $type';
+  }
+
+  @override
+  String get customFishHelpIntro => 'Краткое введение';
+
+  @override
+  String get customFishHelpIntroBody =>
+      'На этом экране редактируются параметры пользовательской рыбы. Поддерживаются только общие свойства; анимацию и специальные атрибуты нужно редактировать вручную в JSON.';
+
+  @override
+  String get customFishHelpProps => 'Свойства';
+
+  @override
+  String get customFishHelpPropsBody =>
+      'HitRect, AttackRect, ScareRect определяют области столкновения. Speed и ScareSpeed управляют движением. ArtCenter — якорь отрисовки.';
+
+  @override
+  String get noEditableFishProps => 'Редактируемые свойства не найдены.';
+
+  @override
+  String get edit => 'Редактировать';
+
+  @override
   String get eventHelpTidalChangePosition =>
       'Колонка 0 — справа, 9 — слева. ChangeAmount задаёт границу воды.';
 
@@ -2183,12 +2468,72 @@ class AppLocalizationsRu extends AppLocalizations {
   String get eventHelpDinoDuration => 'Время пребывания динозавра, в волнах.';
 
   @override
+  String get eventDinoTread => 'Событие: Шаг динозавра';
+
+  @override
+  String get eventDinoRun => 'Событие: Бег динозавра';
+
+  @override
+  String get eventHelpDinoTreadBody =>
+      'Динозавр наступает на область сетки (ряд Y, столбцы XMin–XMax), нанося урон растениям.';
+
+  @override
+  String get eventHelpDinoTreadRowCol =>
+      'GridY = ряд (с 0). GridXMin/GridXMax = диапазон столбцов (с 0). Глубокое море: ряды 0–5, столбцы 0–9.';
+
+  @override
+  String get dinoTreadRowLabel => 'Ряд [GridY]';
+
+  @override
+  String get dinoTreadColMinLabel => 'Столбец мин [GridXMin]';
+
+  @override
+  String get dinoTreadColMaxLabel => 'Столбец макс [GridXMax]';
+
+  @override
+  String get dinoTreadTimeIntervalLabel => 'Интервал [TimeInterval]';
+
+  @override
+  String get columnStartLabel => 'Начало [ColumnStart]';
+
+  @override
+  String get columnEndLabel => 'Конец [ColumnEnd]';
+
+  @override
+  String get eventHelpDinoRunBody =>
+      'Динозавр бежит по ряду, нанося урон растениям.';
+
+  @override
+  String get eventHelpDinoRunRow =>
+      'DinoRow = индекс ряда (с 0). Глубокое море поддерживает ряд 5.';
+
+  @override
+  String get positionAndArea => 'Позиция и область';
+
+  @override
+  String get positionAndDuration => 'Позиция и время';
+
+  @override
+  String get rowCol0Index => 'Ряд/столбец (с 0)';
+
+  @override
+  String get timeInterval => 'Интервал времени';
+
+  @override
   String get eventHelpZombiePotionBody =>
       'Создаёт зелья на сетке, может перекрывать растения.';
 
   @override
   String get eventHelpZombiePotionUsage =>
       'Выберите клетку, нажмите добавить, выберите тип зелья.';
+
+  @override
+  String get eventHelpShellBody =>
+      'Создаёт атлантические ракушки на сетке в указанных позициях.';
+
+  @override
+  String get eventHelpShellUsage =>
+      'Выберите клетку, нажмите добавить для размещения ракушки (5×9 или 6×10 в зависимости от этапа).';
 
   @override
   String get eventHelpFairyFogBody =>
@@ -2227,6 +2572,113 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get eventHelpGravestoneMissingAssets =>
       'На картах без эффекта надгробий могут отображаться текстуры солнца.';
+
+  @override
+  String get eventHelpBarrelWaveBody =>
+      'Катящиеся бочки по рядам. Три типа: пустая (без награды), зомби (внутри зомби), взрывная (взрывается при попадании). Ряды с 1.';
+
+  @override
+  String get barrelWaveHelpTypes => 'Типы бочек';
+
+  @override
+  String get eventHelpBarrelWaveTypes =>
+      'Пустая: бочка без зомби. Зомби (монстр): бочка с зомби; используйте выбор зомби. Взрывная: бочка взрывается при попадании; задайте урон взрыва.';
+
+  @override
+  String get barrelWaveHelpRows => 'Ряды';
+
+  @override
+  String get eventHelpBarrelWaveRows =>
+      'Ряды с 1: ряд 1 = сверху, 5/6 = снизу. Стандарт: 5 рядов. Глубокое море: 6 рядов.';
+
+  @override
+  String get eventHelpThunderWaveBody =>
+      'Молнии случайно бьют во время волны. Каждая молния может быть положительной (полезной) или отрицательной (вредной для растений).';
+
+  @override
+  String get thunderWaveHelpTypes => 'Типы молний';
+
+  @override
+  String get eventHelpThunderWaveTypes =>
+      'Положительная: полезная молния. Отрицательная: вредная молния, может убивать растения по вероятности Kill rate.';
+
+  @override
+  String get thunderWaveHelpKillRate => 'Вероятность убийства';
+
+  @override
+  String get eventHelpThunderWaveKillRate =>
+      'Вероятность (0.0–1.0) того, что отрицательная молния убьёт растения на поражённой клетке.';
+
+  @override
+  String get thunderWaveTypePositive => 'Положительная';
+
+  @override
+  String get thunderWaveTypeNegative => 'Отрицательная';
+
+  @override
+  String get thunderWaveKillRate => 'Вероятность убийства';
+
+  @override
+  String get thunderWaveKillRateHint =>
+      'Вероятность убийства растений при ударе молнии (0.0–1.0)';
+
+  @override
+  String get thunderWaveThunders => 'Молнии';
+
+  @override
+  String get thunderWaveAddThunder => 'Добавить молнию';
+
+  @override
+  String get thunderWaveThunder => 'Молния';
+
+  @override
+  String get barrelWaveTypeEmpty => 'Пустая';
+
+  @override
+  String get barrelWaveTypeZombie => 'Зомби';
+
+  @override
+  String get barrelWaveTypeExplosive => 'Взрывная';
+
+  @override
+  String get barrelWaveRowsHint => 'Ряды с 1 (5 стандарт, 6 глубокое море).';
+
+  @override
+  String get barrelWaveAddBarrel => 'Добавить бочку';
+
+  @override
+  String get barrelWaveBarrel => 'Бочка';
+
+  @override
+  String get barrelWaveRow => 'Ряд';
+
+  @override
+  String get barrelWaveType => 'Тип';
+
+  @override
+  String get barrelWaveHitPoints => 'Прочность';
+
+  @override
+  String get barrelWaveSpeed => 'Скорость';
+
+  @override
+  String get barrelWaveZombies => 'Зомби';
+
+  @override
+  String get barrelWaveAddZombie => 'Добавить зомби';
+
+  @override
+  String get barrelWaveExplosionDamage => 'Урон взрыва';
+
+  @override
+  String get barrelWaveDeleteTitle => 'Удалить бочку';
+
+  @override
+  String get barrelWaveDeleteConfirm => 'Удалить эту бочку?';
+
+  @override
+  String get barrelWaveDeleteLastHint =>
+      'Это последняя бочка. У события не останется бочек. Продолжить?';
 
   @override
   String get eventHelpGraveSpawnBody =>
@@ -2439,6 +2891,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get eventPotionDrop => 'Событие падения зелья';
 
   @override
+  String get eventShellSpawn => 'Событие спавна ракушек';
+
+  @override
   String get warMist => 'Военный туман';
 
   @override
@@ -2467,6 +2922,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get eventSpawnGravestones => 'Событие спавна надгробий';
+
+  @override
+  String get eventBarrelWave => 'Событие: бочки';
+
+  @override
+  String get eventThunderWave => 'Событие: гром';
 
   @override
   String get eventGraveSpawn => 'Событие спавна из могил';
@@ -2740,6 +3201,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get plankRows => 'Ряды досок (0–4)';
 
   @override
+  String get plankRowsDeepSea => 'Ряды досок (0–5)';
+
+  @override
   String get selectedRows => 'Выбранные ряды';
 
   @override
@@ -3004,6 +3468,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get eventHelpStandardRow => 'Ряды 0–4. Пусто — случайный ряд.';
+
+  @override
+  String get eventHelpStandardRowDeepSea =>
+      'Ряды 0–5 (6 рядов). Пусто — случайный ряд.';
+
+  @override
+  String get warningStageSwitchedTo5Rows =>
+      'Этап использует 5 рядов, но часть данных ссылается на 6-й ряд. Объекты могут отображаться некорректно.';
+
+  @override
+  String warningObjectsOutsideArea(int rows, int cols) {
+    return 'Некоторые объекты вне игровой области ($rows×$cols).';
+  }
 
   @override
   String get izombieModeTitle => 'Режим «Я — зомби»';
@@ -3371,6 +3848,33 @@ class AppLocalizationsRu extends AppLocalizations {
       'Превращает падающее солнце в взрывные бомбы. Настройте радиус и урон.';
 
   @override
+  String get bombProperties => 'Свойства бомб';
+
+  @override
+  String get bombPropertiesHelpBody =>
+      'Настройка длины фитиля бочки и вишни для каждого ряда. Используется в Kongfu/мини-играх. Размер массива соответствует рядам газона (5 или 6).';
+
+  @override
+  String get bombPropertiesHelpFuse => 'Длина фитиля';
+
+  @override
+  String get bombPropertiesHelpFuseBody =>
+      'FuseLengths: одно значение на ряд. Длина в игровых единицах. Стандартный газон: 5 рядов. Глубокое море: 6 рядов. Массив автоматически подстраивается при открытии экрана.';
+
+  @override
+  String get bombPropertiesFlameSpeed => 'Скорость огня';
+
+  @override
+  String get bombPropertiesFuseLengths => 'Длина фитиля';
+
+  @override
+  String get bombPropertiesFuseLengthsHint =>
+      'Одно значение на ряд (0–4 стандарт, 0–5 глубокое море). Размер массива подстраивается при открытии.';
+
+  @override
+  String get bombPropertiesFuseLength => 'Длина';
+
+  @override
   String get damage => 'Урон';
 
   @override
@@ -3450,6 +3954,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get searchGridItems => 'Поиск объектов сетки';
+
+  @override
+  String get searchStatues => 'Поиск статуй';
 
   @override
   String get noItems => 'Нет объектов';
@@ -3679,6 +4186,195 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get moduleDesc_ZombieRushModuleProperties => 'Обратный отсчёт уровня';
+
+  @override
+  String get moduleTitle_RenaiModuleProperties => 'Ренессанс';
+
+  @override
+  String get moduleDesc_RenaiModuleProperties =>
+      'Включает функционал ролика и плиток Ренессанса, позволяет настраивать статуи';
+
+  @override
+  String get renaiModuleTitle => 'Модуль Ренессанса';
+
+  @override
+  String get renaiModuleHelpTitle => 'Справка по модулю Ренессанса';
+
+  @override
+  String get renaiModuleHelpOverview => 'Обзор';
+
+  @override
+  String get renaiModuleHelpOverviewBody =>
+      'Включает ролик и плитки. Волна начала ночи (0-базовый индекс) переключает на ночной режим. Дневные и ночные статуи оживают на своей волне.';
+
+  @override
+  String get renaiModuleHelpStatues => 'Статуи';
+
+  @override
+  String get renaiModuleHelpStatuesBody =>
+      'Дневные статуи: днём. Ночные статуи: после начала ночи. WaveNumber — 0-базовый.';
+
+  @override
+  String get renaiModuleEnableNight => 'Включить ночь';
+
+  @override
+  String get renaiModuleEnableNightSubtitle =>
+      'Разрешить волну начала ночи и ночные статуи';
+
+  @override
+  String get renaiModuleNightStart => 'Волна начала ночи (0-базовый)';
+
+  @override
+  String get renaiModuleDayStatues => 'Дневные статуи';
+
+  @override
+  String get renaiModuleNightStatues => 'Ночные статуи';
+
+  @override
+  String get renaiModuleNightStatuesDisabledHint =>
+      'Включите ночь, чтобы добавить ночные статуи';
+
+  @override
+  String get renaiModuleAddStatue => 'Добавить статую';
+
+  @override
+  String get renaiModuleCarveWave => 'Волна оживления';
+
+  @override
+  String get renaiModuleStatuesInCell => 'Статуи в выбранной ячейке';
+
+  @override
+  String get renaiModuleExpectationLabel => 'События Ренессанса';
+
+  @override
+  String get renaiModuleNightStarts => 'Начало ночи';
+
+  @override
+  String get renaiModuleStatueCarve => 'Оживление статуи';
+
+  @override
+  String get moduleTitle_DropShipProperties => 'Воздушный сброс';
+
+  @override
+  String get moduleDesc_DropShipProperties =>
+      'Настройка волн сброса импов с воздуха';
+
+  @override
+  String get airDropShipModuleTitle => 'Воздушный сброс';
+
+  @override
+  String get airDropShipModuleHelpTitle => 'Справка по воздушному сбросу';
+
+  @override
+  String get airDropShipModuleHelpOverview => 'Обзор';
+
+  @override
+  String get airDropShipModuleHelpOverviewBody =>
+      'Настройка волн, когда импы сбрасываются с воздуха. Каждая запись задаёт волну, доп. количество импов, уровень импов и зону сброса (диапазон строк/столбцов).';
+
+  @override
+  String get airDropShipModuleHelpImps => 'Импы';
+
+  @override
+  String get airDropShipModuleHelpImpsBody =>
+      'Доп. количество импов — число дополнительных импов. Всегда сбрасывается минимум один имп.';
+
+  @override
+  String get airDropShipModuleAppearWaves => 'Волны появления';
+
+  @override
+  String get airDropShipModuleExtraImpCount => 'Доп. количество импов';
+
+  @override
+  String get airDropShipModuleDropArea => 'Зона сброса';
+
+  @override
+  String get airDropShipModuleDropAreaPreview => 'Предпросмотр зоны сброса';
+
+  @override
+  String get airDropShipModuleExpectationLabel => 'Сброс импов';
+
+  @override
+  String get airDropShipModuleImpLevel => 'Уровень импа';
+
+  @override
+  String get airDropShipModuleRowMin => 'Минимальная строка';
+
+  @override
+  String get airDropShipModuleRowMax => 'Максимальная строка';
+
+  @override
+  String get airDropShipModuleColMin => 'Минимальный столбец';
+
+  @override
+  String get airDropShipModuleColMax => 'Максимальный столбец';
+
+  @override
+  String get openModuleSettings => 'Открыть настройки модуля';
+
+  @override
+  String get moduleTitle_HeianWindModuleProperties => 'Ветер Хэйан';
+
+  @override
+  String get moduleDesc_HeianWindModuleProperties =>
+      'Настройка ветров, влияющих на зомби в волнах';
+
+  @override
+  String get heianWindModuleTitle => 'Ветер Хэйан';
+
+  @override
+  String get heianWindModuleHelpTitle => 'Справка по ветру Хэйан';
+
+  @override
+  String get heianWindModuleHelpOverview => 'Обзор';
+
+  @override
+  String get heianWindModuleHelpOverviewBody =>
+      'Настройка ветров на конкретных волнах. Ветер толкает зомби; на отдельных рядах может вызвать торнадо, которое несёт зомби вперёд и сдувает растения.';
+
+  @override
+  String get heianWindModuleHelpDistance => 'Дистанция';
+
+  @override
+  String get heianWindModuleHelpDistanceBody =>
+      'Дистанция 50 равна одной клетке сетки. Отрицательные значения двигают зомби влево; положительные — вправо.';
+
+  @override
+  String get heianWindModuleHelpRow => 'Ряд';
+
+  @override
+  String get heianWindModuleHelpRowBody =>
+      'Можно указать любой ряд или все ряды сразу. Ветер на отдельных рядах также вызывает торнадо, которое несёт зомби вперёд и сдувает растение.';
+
+  @override
+  String get heianWindModuleWaves => 'Волны с ветром';
+
+  @override
+  String get heianWindModuleWindDelay => 'Задержка ветра';
+
+  @override
+  String get heianWindModuleWindEntries => 'Записи ветра';
+
+  @override
+  String get heianWindModuleAddWind => 'Добавить ветер';
+
+  @override
+  String get heianWindModuleRow => 'Ряд';
+
+  @override
+  String get heianWindModuleAllRows => 'Все ряды';
+
+  @override
+  String get heianWindModuleAffectZombies => 'Затронуто зомби';
+
+  @override
+  String get heianWindModuleDistance => 'Дистанция';
+
+  @override
+  String get heianWindModuleMoveTime => 'Время движения';
+
+  @override
+  String get heianWindModuleExpectationLabel => 'Ветер Хэйан';
 
   @override
   String get jsonViewerModeReading => '(режим чтения)';

@@ -1421,6 +1421,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moduleDesc_TideProperties => 'Enable tide system';
 
   @override
+  String get moduleTitle_BombProperties => 'Barrel Bombs';
+
+  @override
+  String get moduleDesc_BombProperties =>
+      'Fuze length per row for barrel/cherry bombs';
+
+  @override
   String get moduleTitle_WarMistProperties => 'War Mist';
 
   @override
@@ -1433,14 +1440,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moduleDesc_RainDarkProperties => 'Rain, snow, storm effects';
 
   @override
-  String get eventTitle_SpawnZombiesFromGroundSpawnerProps => 'Ground Spawn';
+  String get eventTitle_SpawnZombiesFromGroundSpawnerProps =>
+      'GroundSpawnEvent';
 
   @override
   String get eventDesc_SpawnZombiesFromGroundSpawnerProps =>
       'Zombies spawn from ground';
 
   @override
-  String get eventTitle_SpawnZombiesJitteredWaveActionProps => 'Standard Spawn';
+  String get eventTitle_SpawnZombiesJitteredWaveActionProps => 'Jittered Event';
 
   @override
   String get eventDesc_SpawnZombiesJitteredWaveActionProps =>
@@ -1466,6 +1474,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventDesc_TidalChangeWaveActionProps => 'Change tide position';
 
   @override
+  String get eventTitle_TideWaveWaveActionProps => 'Tide Wave';
+
+  @override
+  String get eventDesc_TideWaveWaveActionProps =>
+      'Submarine tide wave (left/right)';
+
+  @override
+  String get eventTitle_SpawnZombiesFishWaveActionProps => 'Zombie Fish Wave';
+
+  @override
+  String get eventDesc_SpawnZombiesFishWaveActionProps =>
+      'Zombies and fishes for submarine levels';
+
+  @override
   String get eventTitle_ModifyConveyorWaveActionProps => 'Conveyor Modify';
 
   @override
@@ -1477,6 +1499,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventDesc_DinoWaveActionProps => 'Summon dinosaur on row';
+
+  @override
+  String get eventTitle_DinoTreadActionProps => 'Dino Tread';
+
+  @override
+  String get eventDesc_DinoTreadActionProps =>
+      'Dinosaur tread hazard on grid area';
+
+  @override
+  String get eventTitle_DinoRunActionProps => 'Dino Run';
+
+  @override
+  String get eventDesc_DinoRunActionProps => 'Dinosaur run hazard on row';
 
   @override
   String get eventTitle_SpawnModernPortalsWaveActionProps => 'Time Rift';
@@ -1502,6 +1537,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventDesc_ZombiePotionActionProps => 'Spawn potions on grid';
+
+  @override
+  String get eventTitle_ZombieAtlantisShellActionProps => 'Shell Spawn';
+
+  @override
+  String get eventDesc_ZombieAtlantisShellActionProps =>
+      'Spawn atlantis shells on grid';
 
   @override
   String get eventTitle_SpawnGravestonesWaveActionProps => 'Gravestone Spawn';
@@ -1553,6 +1595,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventDesc_BlackHoleWaveActionProps => 'Black hole attracts plants';
+
+  @override
+  String get eventTitle_BarrelWaveActionProps => 'Barrel Wave';
+
+  @override
+  String get eventDesc_BarrelWaveActionProps =>
+      'Rolling barrels on rows (empty, zombie, explosive)';
+
+  @override
+  String get eventTitle_ThunderWaveActionProps => 'Thunder';
+
+  @override
+  String get eventDesc_ThunderWaveActionProps =>
+      'Lightning strikes during wave (positive/negative)';
 
   @override
   String get eventTitle_MagicMirrorWaveActionProps => 'Magic Mirror';
@@ -1784,6 +1840,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resilience => 'Resilience';
+
+  @override
+  String get resilienceArmor => 'Resilience (armor)';
+
+  @override
+  String get enableResilience => 'Enable resilience';
+
+  @override
+  String get resilienceSource => 'Source';
+
+  @override
+  String get resiliencePreset => 'Preset';
+
+  @override
+  String get resilienceCustom => 'Custom';
+
+  @override
+  String get resiliencePresetSelect => 'Select preset';
+
+  @override
+  String get resilienceAmount => 'Amount';
+
+  @override
+  String get resilienceWeakType => 'Weak type';
+
+  @override
+  String get resilienceRecoverSpeed => 'RecoverSpeed';
+
+  @override
+  String get resilienceDamageThresholdPerSecond => 'DamageThresholdPerSecond';
+
+  @override
+  String get resilienceBaseDamageThreshold => 'ResilienceBaseDamageThreshold';
+
+  @override
+  String get resilienceExtraDamageThreshold => 'ResilienceExtraDamageThreshold';
+
+  @override
+  String get resilienceCodename => 'Codename';
+
+  @override
+  String get resilienceCodenameHint => 'e.g. CustomResilience0';
+
+  @override
+  String get resistances => 'Resistances';
+
+  @override
+  String get zombieResilience => 'Armor / Resilience';
+
+  @override
+  String get resilienceEnable => 'Enable armor';
+
+  @override
+  String get weakTypeExplosive => 'Explosive';
 
   @override
   String get instantKillResistance => 'Instant kill resistance';
@@ -2100,6 +2210,180 @@ class AppLocalizationsEn extends AppLocalizations {
       'This event changes the tide position during a wave.';
 
   @override
+  String get eventTideWave => 'Event: Tide Wave';
+
+  @override
+  String get eventHelpTideWaveBody =>
+      'Submarine tide wave event. Direction can be left or right. Affects zombie and submarine movement.';
+
+  @override
+  String get tideWaveHelpType => 'Direction';
+
+  @override
+  String get eventHelpTideWaveType =>
+      'Left: tide moves left. Right: tide moves right.';
+
+  @override
+  String get tideWaveHelpParams => 'Parameters';
+
+  @override
+  String get eventHelpTideWaveParams =>
+      'Duration, submarine moving distance, speed up, zombie moving speed.';
+
+  @override
+  String get tideWaveType => 'Direction';
+
+  @override
+  String get tideWaveTypeLeft => 'Left';
+
+  @override
+  String get tideWaveTypeRight => 'Right';
+
+  @override
+  String get tideWaveDuration => 'Duration';
+
+  @override
+  String get tideWaveSubmarineMovingDistance => 'Submarine moving distance';
+
+  @override
+  String get tideWaveSpeedUpDuration => 'Speed up duration';
+
+  @override
+  String get tideWaveSpeedUpIncreased => 'Speed up increased';
+
+  @override
+  String get tideWaveSubmarineMovingTime => 'Submarine moving time';
+
+  @override
+  String get tideWaveZombieMovingSpeed => 'Zombie moving speed';
+
+  @override
+  String get eventZombieFishWave => 'Zombie Fish Wave';
+
+  @override
+  String get eventHelpZombieFishWaveBody =>
+      'Configure zombies and fishes for submarine levels. Row and column are 0-based.';
+
+  @override
+  String get eventHelpZombieFishWaveFish =>
+      'Use fish properties to place fishes on the grid. Grid size depends on stage: Deep Sea 6×10, normal 5×9. Row = Y, Column = X.';
+
+  @override
+  String get eventHelpBatchLevel =>
+      'Set level for all non-elite zombies in this wave. Elite zombies keep their default level.';
+
+  @override
+  String get eventHelpDropConfig =>
+      'Plant food or plant cards carried by zombies. Add plants to drop specific cards.';
+
+  @override
+  String get fishPropertiesEntryHelp =>
+      'Tap a grid cell to select it, then add fishes. Tap + to add built-in fish. Tap a fish card to copy, delete, switch custom variant, or make custom. Custom fishes show a blue C badge. Fishes outside the lawn are shown with a warning.';
+
+  @override
+  String get fishAddCustom => 'Add custom fish';
+
+  @override
+  String get addFishLabel => 'Add fish';
+
+  @override
+  String get addBuiltInFishLabel => 'Add built-in fish';
+
+  @override
+  String get makeFishAsCustom => 'Make custom';
+
+  @override
+  String get switchCustomFish => 'Switch';
+
+  @override
+  String get selectCustomFish => 'Select custom fish';
+
+  @override
+  String get editCustomFishProperties => 'Edit custom fish properties';
+
+  @override
+  String get fishPropertiesButton => 'Fish properties';
+
+  @override
+  String get addFishProperties => 'Add fish properties';
+
+  @override
+  String get editFishProperties => 'Edit fish properties';
+
+  @override
+  String get fishPropertiesGrid => 'Fish placement (row Y, column X)';
+
+  @override
+  String get fishSelectedPosition => 'Selected:';
+
+  @override
+  String get fishRow => 'Row';
+
+  @override
+  String get fishColumn => 'Column';
+
+  @override
+  String get fishAtPosition => 'Fish at position';
+
+  @override
+  String get searchFish => 'Search fish';
+
+  @override
+  String get noFishFound => 'No fish found';
+
+  @override
+  String get customFishManagerTitle => 'Custom fish';
+
+  @override
+  String get customFishAppearanceLocation => 'Appearance location:';
+
+  @override
+  String get customFishNotUsed => 'This custom fish is not used by any wave.';
+
+  @override
+  String customFishWaveItem(int n) {
+    return 'Wave $n';
+  }
+
+  @override
+  String get customFishDeleteConfirm =>
+      'Remove this custom fish and its property data.';
+
+  @override
+  String get customFish => 'Custom fish';
+
+  @override
+  String get customFishProperties => 'Custom fish properties';
+
+  @override
+  String get fishTypeNotFound => 'Fish type object not found.';
+
+  @override
+  String fishTypeLabel(Object type) {
+    return 'Fish type: $type';
+  }
+
+  @override
+  String get customFishHelpIntro => 'Brief introduction';
+
+  @override
+  String get customFishHelpIntroBody =>
+      'This screen edits custom fish parameters. Only common properties are supported; animation and special attributes require manual JSON editing.';
+
+  @override
+  String get customFishHelpProps => 'Properties';
+
+  @override
+  String get customFishHelpPropsBody =>
+      'HitRect, AttackRect, ScareRect define collision areas. Speed and ScareSpeed control movement. ArtCenter is the drawing anchor.';
+
+  @override
+  String get noEditableFishProps => 'No editable properties found.';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
   String get eventHelpTidalChangePosition =>
       'Column 0 is rightmost, 9 is leftmost. ChangeAmount sets the water boundary.';
 
@@ -2166,12 +2450,72 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventHelpDinoDuration => 'How long the dinosaur stays, in waves.';
 
   @override
+  String get eventDinoTread => 'Event: Dino tread';
+
+  @override
+  String get eventDinoRun => 'Event: Dino run';
+
+  @override
+  String get eventHelpDinoTreadBody =>
+      'Dino tread event. A dinosaur treads across a grid area (row Y, columns XMin to XMax), damaging plants.';
+
+  @override
+  String get eventHelpDinoTreadRowCol =>
+      'GridY = row (0-based). GridXMin/GridXMax = column range (0-based). Deep Sea: rows 0-5, cols 0-9.';
+
+  @override
+  String get dinoTreadRowLabel => 'Row [GridY]';
+
+  @override
+  String get dinoTreadColMinLabel => 'Column min [GridXMin]';
+
+  @override
+  String get dinoTreadColMaxLabel => 'Column max [GridXMax]';
+
+  @override
+  String get dinoTreadTimeIntervalLabel => 'Time interval [TimeInterval]';
+
+  @override
+  String get columnStartLabel => 'Start [ColumnStart]';
+
+  @override
+  String get columnEndLabel => 'End [ColumnEnd]';
+
+  @override
+  String get eventHelpDinoRunBody =>
+      'Dino run event. A dinosaur runs along a row, damaging plants.';
+
+  @override
+  String get eventHelpDinoRunRow =>
+      'DinoRow = row index (0-based). Deep Sea supports row 5.';
+
+  @override
+  String get positionAndArea => 'Position & area';
+
+  @override
+  String get positionAndDuration => 'Position & timing';
+
+  @override
+  String get rowCol0Index => 'Row/column (0-based)';
+
+  @override
+  String get timeInterval => 'Time interval';
+
+  @override
   String get eventHelpZombiePotionBody =>
       'Spawns potions on the grid, can overlap plants.';
 
   @override
   String get eventHelpZombiePotionUsage =>
       'Select grid position, tap add item, choose potion type.';
+
+  @override
+  String get eventHelpShellBody =>
+      'Spawns atlantis shells on the grid at specified positions.';
+
+  @override
+  String get eventHelpShellUsage =>
+      'Select grid position, tap add to place atlantis shell (5×9 or 6×10 depending on stage).';
 
   @override
   String get eventHelpFairyFogBody =>
@@ -2209,6 +2553,114 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get eventHelpGravestoneMissingAssets =>
       'Some maps without gravestone spawn effects may show sun textures instead.';
+
+  @override
+  String get eventHelpBarrelWaveBody =>
+      'Rolling barrels spawn on rows. Three types: Empty (no reward), Zombie (contains zombies), Explosive (explodes when hit). Rows are 1-based.';
+
+  @override
+  String get barrelWaveHelpTypes => 'Barrel types';
+
+  @override
+  String get eventHelpBarrelWaveTypes =>
+      'Empty: barrel with no zombies. Zombie (monster): barrel contains zombies that spawn when broken; use Zombie selector to add zombies. Explosive: barrel explodes when hit; set explosion damage.';
+
+  @override
+  String get barrelWaveHelpRows => 'Rows';
+
+  @override
+  String get eventHelpBarrelWaveRows =>
+      'Rows are 1-based: Row 1 = top, Row 5/6 = bottom. Standard lawns: 5 rows. Deep Sea: 6 rows.';
+
+  @override
+  String get eventHelpThunderWaveBody =>
+      'Lightning strikes randomly during the wave. Each thunder can be positive (beneficial) or negative (harmful to plants).';
+
+  @override
+  String get thunderWaveHelpTypes => 'Thunder types';
+
+  @override
+  String get eventHelpThunderWaveTypes =>
+      'Positive: beneficial lightning. Negative: harmful lightning that can kill plants based on Kill rate.';
+
+  @override
+  String get thunderWaveHelpKillRate => 'Kill rate';
+
+  @override
+  String get eventHelpThunderWaveKillRate =>
+      'Probability (0.0–1.0) that a negative thunder strike kills plants in the affected tile.';
+
+  @override
+  String get thunderWaveTypePositive => 'Positive';
+
+  @override
+  String get thunderWaveTypeNegative => 'Negative';
+
+  @override
+  String get thunderWaveKillRate => 'Kill rate';
+
+  @override
+  String get thunderWaveKillRateHint =>
+      'Probability of killing plants on lightning strike (0.0–1.0)';
+
+  @override
+  String get thunderWaveThunders => 'Thunders';
+
+  @override
+  String get thunderWaveAddThunder => 'Add thunder';
+
+  @override
+  String get thunderWaveThunder => 'Thunder';
+
+  @override
+  String get barrelWaveTypeEmpty => 'Empty';
+
+  @override
+  String get barrelWaveTypeZombie => 'Zombie';
+
+  @override
+  String get barrelWaveTypeExplosive => 'Explosive';
+
+  @override
+  String get barrelWaveRowsHint =>
+      'Rows are 1-based (1–5 standard, 1–6 Deep Sea).';
+
+  @override
+  String get barrelWaveAddBarrel => 'Add barrel';
+
+  @override
+  String get barrelWaveBarrel => 'Barrel';
+
+  @override
+  String get barrelWaveRow => 'Row';
+
+  @override
+  String get barrelWaveType => 'Type';
+
+  @override
+  String get barrelWaveHitPoints => 'Hit points';
+
+  @override
+  String get barrelWaveSpeed => 'Speed';
+
+  @override
+  String get barrelWaveZombies => 'Zombies';
+
+  @override
+  String get barrelWaveAddZombie => 'Add zombie';
+
+  @override
+  String get barrelWaveExplosionDamage => 'Explosion damage';
+
+  @override
+  String get barrelWaveDeleteTitle => 'Delete barrel';
+
+  @override
+  String get barrelWaveDeleteConfirm => 'Delete this barrel?';
+
+  @override
+  String get barrelWaveDeleteLastHint =>
+      'This is the last barrel. The event will have no barrels. Continue?';
 
   @override
   String get eventHelpGraveSpawnBody =>
@@ -2423,6 +2875,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventPotionDrop => 'Potion drop event';
 
   @override
+  String get eventShellSpawn => 'Shell spawn event';
+
+  @override
   String get warMist => 'War mist';
 
   @override
@@ -2451,6 +2906,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventSpawnGravestones => 'Spawn gravestones event';
+
+  @override
+  String get eventBarrelWave => 'Event: Barrel wave';
+
+  @override
+  String get eventThunderWave => 'Event: Thunder';
 
   @override
   String get eventGraveSpawn => 'Grave spawn event';
@@ -2724,6 +3185,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plankRows => 'Plank rows (0–4)';
 
   @override
+  String get plankRowsDeepSea => 'Plank rows (0–5)';
+
+  @override
   String get selectedRows => 'Selected rows';
 
   @override
@@ -2987,6 +3451,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventHelpStandardRow => 'Rows 0–4. Leave unset for random row.';
+
+  @override
+  String get eventHelpStandardRowDeepSea =>
+      'Rows 0–5 (6-row lawn). Leave unset for random row.';
+
+  @override
+  String get warningStageSwitchedTo5Rows =>
+      'Stage uses 5 rows but some data references row 6. These objects may not display correctly in-game.';
+
+  @override
+  String warningObjectsOutsideArea(int rows, int cols) {
+    return 'Some objects are outside the playable area ($rows rows × $cols cols).';
+  }
 
   @override
   String get izombieModeTitle => 'I, Zombie mode';
@@ -3350,6 +3827,33 @@ class AppLocalizationsEn extends AppLocalizations {
       'Turns falling sun into explosive sun bombs. Configure radius and damage.';
 
   @override
+  String get bombProperties => 'Bomb properties';
+
+  @override
+  String get bombPropertiesHelpBody =>
+      'Configures barrel and cherry bomb fuze lengths for each row. Used in Kongfu/minigame levels. Array size matches lawn rows (5 or 6).';
+
+  @override
+  String get bombPropertiesHelpFuse => 'Fuse lengths';
+
+  @override
+  String get bombPropertiesHelpFuseBody =>
+      'FuseLengths: one value per row. Length is in game units. Standard lawn: 5 rows. Deep Sea: 6 rows. Array auto-adjusts when you open this screen.';
+
+  @override
+  String get bombPropertiesFlameSpeed => 'Flame speed';
+
+  @override
+  String get bombPropertiesFuseLengths => 'Fuse lengths';
+
+  @override
+  String get bombPropertiesFuseLengthsHint =>
+      'One value per row (0–4 standard, 0–5 Deep Sea). Array size auto-adjusts on open.';
+
+  @override
+  String get bombPropertiesFuseLength => 'Length';
+
+  @override
   String get damage => 'Damage';
 
   @override
@@ -3429,6 +3933,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchGridItems => 'Search grid items';
+
+  @override
+  String get searchStatues => 'Search statues';
 
   @override
   String get noItems => 'No items';
@@ -3656,6 +4163,195 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moduleDesc_ZombieRushModuleProperties => 'Level countdown timer';
+
+  @override
+  String get moduleTitle_RenaiModuleProperties => 'Renaissance';
+
+  @override
+  String get moduleDesc_RenaiModuleProperties =>
+      'Enables Renai roller and tiles functionality, allows configuring Renai statues';
+
+  @override
+  String get renaiModuleTitle => 'Renaissance module';
+
+  @override
+  String get renaiModuleHelpTitle => 'Renaissance module help';
+
+  @override
+  String get renaiModuleHelpOverview => 'Overview';
+
+  @override
+  String get renaiModuleHelpOverviewBody =>
+      'Enables Renai roller and tiles functionality, allows configuring Renai statues. Night start wave (0-based) switches to night mode. Day and night statues carve at their configured wave.';
+
+  @override
+  String get renaiModuleHelpStatues => 'Statues';
+
+  @override
+  String get renaiModuleHelpStatuesBody =>
+      'Day statues: appear in day phase. Night statues: appear after night start. WaveNumber is 0-based.';
+
+  @override
+  String get renaiModuleEnableNight => 'Enable night';
+
+  @override
+  String get renaiModuleEnableNightSubtitle =>
+      'Allow night start wave and night statues';
+
+  @override
+  String get renaiModuleNightStart => 'Night start wave (0-based)';
+
+  @override
+  String get renaiModuleDayStatues => 'Day statues';
+
+  @override
+  String get renaiModuleNightStatues => 'Night statues';
+
+  @override
+  String get renaiModuleNightStatuesDisabledHint =>
+      'Enable night first to add night statues';
+
+  @override
+  String get renaiModuleAddStatue => 'Add statue';
+
+  @override
+  String get renaiModuleCarveWave => 'Carve wave';
+
+  @override
+  String get renaiModuleStatuesInCell => 'Statues in selected cell';
+
+  @override
+  String get renaiModuleExpectationLabel => 'Renai events';
+
+  @override
+  String get renaiModuleNightStarts => 'Night starts';
+
+  @override
+  String get renaiModuleStatueCarve => 'Statue carve';
+
+  @override
+  String get moduleTitle_DropShipProperties => 'Air Drop Ship';
+
+  @override
+  String get moduleDesc_DropShipProperties =>
+      'Configures waves when imps are dropped from the air';
+
+  @override
+  String get airDropShipModuleTitle => 'Air Drop Ship';
+
+  @override
+  String get airDropShipModuleHelpTitle => 'Air Drop Ship help';
+
+  @override
+  String get airDropShipModuleHelpOverview => 'Overview';
+
+  @override
+  String get airDropShipModuleHelpOverviewBody =>
+      'Configures waves when imps are dropped from the air. Each entry defines wave, extra imp count, imp level, and drop area (row/column range).';
+
+  @override
+  String get airDropShipModuleHelpImps => 'Imps';
+
+  @override
+  String get airDropShipModuleHelpImpsBody =>
+      'Extra imp count is the number of additional imps. At least one imp is always dropped.';
+
+  @override
+  String get airDropShipModuleAppearWaves => 'Appear waves';
+
+  @override
+  String get airDropShipModuleExtraImpCount => 'Extra imp count';
+
+  @override
+  String get airDropShipModuleDropArea => 'Drop area';
+
+  @override
+  String get airDropShipModuleDropAreaPreview => 'Drop area preview';
+
+  @override
+  String get airDropShipModuleExpectationLabel => 'Imp drops';
+
+  @override
+  String get airDropShipModuleImpLevel => 'Imp level';
+
+  @override
+  String get airDropShipModuleRowMin => 'Minimal row';
+
+  @override
+  String get airDropShipModuleRowMax => 'Maximal row';
+
+  @override
+  String get airDropShipModuleColMin => 'Minimal column';
+
+  @override
+  String get airDropShipModuleColMax => 'Maximal column';
+
+  @override
+  String get openModuleSettings => 'Open module settings';
+
+  @override
+  String get moduleTitle_HeianWindModuleProperties => 'Heian Wind';
+
+  @override
+  String get moduleDesc_HeianWindModuleProperties =>
+      'Configures winds that affect zombies on waves';
+
+  @override
+  String get heianWindModuleTitle => 'Heian Wind';
+
+  @override
+  String get heianWindModuleHelpTitle => 'Heian Wind help';
+
+  @override
+  String get heianWindModuleHelpOverview => 'Overview';
+
+  @override
+  String get heianWindModuleHelpOverviewBody =>
+      'Configures winds on specific waves. Winds push zombies and can summon tornados on single rows that carry zombies forward and blow away plants.';
+
+  @override
+  String get heianWindModuleHelpDistance => 'Distance';
+
+  @override
+  String get heianWindModuleHelpDistanceBody =>
+      'Distance of 50 equals one grid cell. Negative values move zombies to the left; positive values move them to the right.';
+
+  @override
+  String get heianWindModuleHelpRow => 'Row';
+
+  @override
+  String get heianWindModuleHelpRowBody =>
+      'You can specify any row or all rows at once. Winds on single rows also summon a tornado that carries zombies forward and blows away a plant.';
+
+  @override
+  String get heianWindModuleWaves => 'Waves with wind';
+
+  @override
+  String get heianWindModuleWindDelay => 'Wind delay';
+
+  @override
+  String get heianWindModuleWindEntries => 'Wind entries';
+
+  @override
+  String get heianWindModuleAddWind => 'Add wind';
+
+  @override
+  String get heianWindModuleRow => 'Row';
+
+  @override
+  String get heianWindModuleAllRows => 'All rows';
+
+  @override
+  String get heianWindModuleAffectZombies => 'Affect zombies';
+
+  @override
+  String get heianWindModuleDistance => 'Distance';
+
+  @override
+  String get heianWindModuleMoveTime => 'Move time';
+
+  @override
+  String get heianWindModuleExpectationLabel => 'Heian wind';
 
   @override
   String get jsonViewerModeReading => '(reading mode)';
