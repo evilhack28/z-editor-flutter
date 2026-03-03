@@ -334,8 +334,8 @@ class ModuleRegistry {
       icon: Icons.science,
       isCore: false,
       category: ModuleCategory.base,
-      defaultAlias: 'Universe42',
-      defaultSource: 'CurrentLevel',
+      defaultAlias: 'UnchartedModeNo42UniverseModule',
+      defaultSource: 'LevelModules',
       routeId: 'UnknownDetail',
     ),
     'PVZ2MausoleumModuleUnchartedMode': const ModuleMetadata(
@@ -344,8 +344,8 @@ class ModuleRegistry {
       icon: Icons.landscape,
       isCore: false,
       category: ModuleCategory.base,
-      defaultAlias: 'MausoleumUncharted',
-      defaultSource: 'CurrentLevel',
+      defaultAlias: 'PVZ2MausoleumModuleUnchartedMode',
+      defaultSource: 'LevelModules',
       routeId: 'UnknownDetail',
     ),
     'StandardLevelIntroProperties': const ModuleMetadata(

@@ -3,9 +3,11 @@ import 'package:z_editor/data/registry/conflict_registry.dart';
 import 'package:z_editor/theme/app_theme.dart';
 import 'package:z_editor/data/registry/module_registry.dart';
 import 'package:z_editor/data/pvz_models.dart';
+import 'package:z_editor/data/repository/plant_repository.dart';
 import 'package:z_editor/data/repository/reference_repository.dart';
 import 'package:z_editor/data/rtid_parser.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
+import 'package:z_editor/l10n/resource_names.dart';
 
 class ModuleUIInfo {
   final String rtid;
@@ -33,6 +35,7 @@ class LevelSettingsTab extends StatefulWidget {
     required this.levelDef,
     required this.objectMap,
     required this.missingModules,
+    this.missingModuleWarnings,
     required this.onEditBasicInfo,
     required this.onEditModule,
     required this.onRemoveModule,
@@ -42,6 +45,8 @@ class LevelSettingsTab extends StatefulWidget {
   final LevelDefinitionData? levelDef;
   final Map<String, PvzObject> objectMap;
   final List<ModuleMetadata> missingModules;
+  /// Module objClass -> list of plant IDs that need this module but it's missing (parallel plants warning).
+  final Map<String, List<String>>? missingModuleWarnings;
   final VoidCallback onEditBasicInfo;
   final ValueChanged<String> onEditModule;
   final ValueChanged<String> onRemoveModule;
@@ -53,6 +58,21 @@ class LevelSettingsTab extends StatefulWidget {
 
 class _LevelSettingsTabState extends State<LevelSettingsTab> {
   String? pendingDeleteRtid;
+
+  /// Returns localized plant name for display; falls back to a readable form of id if no translation.
+  static String _plantDisplayName(
+    BuildContext context,
+    PlantRepository repo,
+    String plantId,
+  ) {
+    final key = repo.getName(plantId);
+    final localized = ResourceNames.lookup(context, key);
+    if (localized != key) return localized;
+    return plantId
+        .split('_')
+        .map((s) => s.isEmpty ? '' : s[0].toUpperCase() + s.substring(1).toLowerCase())
+        .join(' ');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +250,7 @@ class _LevelSettingsTabState extends State<LevelSettingsTab> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            pair.first.title,
+                            pair.first,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.onErrorContainer,
@@ -250,6 +270,64 @@ class _LevelSettingsTabState extends State<LevelSettingsTab> {
                 ),
               ),
             ),
+
+            // Missing module for parallel plants (same style as conflicts)
+            if (widget.missingModuleWarnings != null &&
+                widget.missingModuleWarnings!.isNotEmpty)
+              ...widget.missingModuleWarnings!.entries.map((e) {
+                final meta = ModuleRegistry.getMetadata(e.key);
+                final moduleName = meta.getTitle(context);
+                final repo = PlantRepository();
+                final plantList = e.value
+                    .map((id) => _plantDisplayName(context, repo, id))
+                    .join(', ');
+                final message = AppLocalizations.of(context)!
+                    .missingModuleForPlantsWarning(moduleName, plantList);
+                return Card(
+                  color: Theme.of(context).colorScheme.errorContainer,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.error,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onErrorContainer,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                l10n?.missingPlantModuleWarningTitle ??
+                                    'Missing module for parallel plants',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onErrorContainer,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          message,
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onErrorContainer,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
 
             // Missing Essentials
             if (widget.missingModules.isNotEmpty)

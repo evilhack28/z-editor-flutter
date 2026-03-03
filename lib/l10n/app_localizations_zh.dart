@@ -962,6 +962,51 @@ class AppLocalizationsZh extends AppLocalizations {
   String get moduleConflict => '模块冲突';
 
   @override
+  String get conflictTitle_ModuleLogic => '模块逻辑冲突';
+
+  @override
+  String conflictDefaultDescription(String module1, String module2) {
+    return '「$module1」与「$module2」逻辑冲突，建议只保留其一。';
+  }
+
+  @override
+  String get conflictDesc_SeedBankConveyor =>
+      'Seed Bank 与传送带模块界面冲突，可能导致崩溃。请确保 Seed Bank 为预选模式。';
+
+  @override
+  String get conflictDesc_VaseBreakerIntro => '砸罐子模式不需要开场动画。';
+
+  @override
+  String get conflictDesc_LastStandIntro => 'Last Stand 模式不需要开场动画。';
+
+  @override
+  String get conflictDesc_EvilDaveZombieDrop => '我是僵尸模式不能使用僵尸掉落模块。';
+
+  @override
+  String get conflictDesc_EvilDaveVictory => '我是僵尸模式不能使用僵尸胜利条件。';
+
+  @override
+  String get conflictDesc_ZombossDeathDrop => '僵博战中死亡掉落会阻止关卡正常完成。';
+
+  @override
+  String get conflictDesc_ZombossTwoIntros => '两个开场动画不能共存，否则僵博血条显示异常。';
+
+  @override
+  String get conflictDesc_InitialPlantEntryRoof => '屋顶上的预置植物会导致崩溃。';
+
+  @override
+  String get conflictDesc_InitialPlantRoof => '屋顶上的预设植物会导致崩溃。';
+
+  @override
+  String get conflictDesc_ProtectPlantRoof => '屋顶上的保护植物会导致崩溃。';
+
+  @override
+  String get conflictDesc_LawnMowerYard => '庭院模块中割草机无效。';
+
+  @override
+  String get missingPlantModuleWarningTitle => '缺少平行植物所需模块';
+
+  @override
   String get editableModules => '可用编辑模块';
 
   @override
@@ -1061,6 +1106,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String plantModuleRequiredMessage(String moduleName) {
     return '要选择此植物，需要添加「$moduleName」模块。';
+  }
+
+  @override
+  String missingModuleForPlantsWarning(String moduleName, String plantList) {
+    return '缺少模块「$moduleName」，涉及植物：$plantList';
   }
 
   @override

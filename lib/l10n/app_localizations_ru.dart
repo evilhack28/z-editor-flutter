@@ -997,6 +997,62 @@ class AppLocalizationsRu extends AppLocalizations {
   String get moduleConflict => 'Конфликт модулей';
 
   @override
+  String get conflictTitle_ModuleLogic => 'Логический конфликт модулей';
+
+  @override
+  String conflictDefaultDescription(String module1, String module2) {
+    return '«$module1» и «$module2» конфликтуют. Рекомендуется оставить только один.';
+  }
+
+  @override
+  String get conflictDesc_SeedBankConveyor =>
+      'Модули Seed Bank и Conveyor конфликтуют в интерфейсе и могут вызвать сбой. Убедитесь, что Seed Bank в режиме предвыбора.';
+
+  @override
+  String get conflictDesc_VaseBreakerIntro =>
+      'Режиму Vase Breaker не нужна вступительная заставка.';
+
+  @override
+  String get conflictDesc_LastStandIntro =>
+      'Режиму Last Stand не нужна вступительная заставка.';
+
+  @override
+  String get conflictDesc_EvilDaveZombieDrop =>
+      'В режиме I, Zombie нельзя использовать модуль Zombie Drop.';
+
+  @override
+  String get conflictDesc_EvilDaveVictory =>
+      'В режиме I, Zombie нельзя использовать условие победы зомби.';
+
+  @override
+  String get conflictDesc_ZombossDeathDrop =>
+      'Смертельные капли в режиме Zomboss Battle помешают корректному завершению уровня.';
+
+  @override
+  String get conflictDesc_ZombossTwoIntros =>
+      'Две вступительные заставки не могут сосуществовать, иначе шкала здоровья Zomboss отображается неверно.';
+
+  @override
+  String get conflictDesc_InitialPlantEntryRoof =>
+      'Предустановленные растения на крыше вызовут сбой.';
+
+  @override
+  String get conflictDesc_InitialPlantRoof =>
+      'Легаси-растения на крыше вызовут сбой.';
+
+  @override
+  String get conflictDesc_ProtectPlantRoof =>
+      'Защищаемые растения на крыше вызовут сбой.';
+
+  @override
+  String get conflictDesc_LawnMowerYard =>
+      'Газонокосилки неэффективны в модуле Yard.';
+
+  @override
+  String get missingPlantModuleWarningTitle =>
+      'Отсутствует модуль для параллельных растений';
+
+  @override
   String get editableModules => 'Редактируемые модули';
 
   @override
@@ -1101,6 +1157,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String plantModuleRequiredMessage(String moduleName) {
     return 'Чтобы выбрать это растение, нужно добавить модуль «$moduleName».';
+  }
+
+  @override
+  String missingModuleForPlantsWarning(String moduleName, String plantList) {
+    return 'Отсутствует модуль «$moduleName» для растений: $plantList';
   }
 
   @override

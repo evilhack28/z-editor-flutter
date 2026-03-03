@@ -991,6 +991,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moduleConflict => 'Module conflict';
 
   @override
+  String get conflictTitle_ModuleLogic => 'Module logic conflict';
+
+  @override
+  String conflictDefaultDescription(String module1, String module2) {
+    return '$module1 and $module2 conflict logically. It is recommended to keep only one.';
+  }
+
+  @override
+  String get conflictDesc_SeedBankConveyor =>
+      'Seed Bank and Conveyor modules interfere with each other\'s UI and may cause crashes. Ensure Seed Bank is in pre-selection mode.';
+
+  @override
+  String get conflictDesc_VaseBreakerIntro =>
+      'Vase Breaker mode does not need an opening intro.';
+
+  @override
+  String get conflictDesc_LastStandIntro =>
+      'Last Stand mode does not need an opening intro.';
+
+  @override
+  String get conflictDesc_EvilDaveZombieDrop =>
+      'I, Zombie mode cannot have Zombie Drop module.';
+
+  @override
+  String get conflictDesc_EvilDaveVictory =>
+      'I, Zombie mode cannot have Zombie Victory Condition.';
+
+  @override
+  String get conflictDesc_ZombossDeathDrop =>
+      'Death drops in Zomboss Battle mode will prevent proper level completion.';
+
+  @override
+  String get conflictDesc_ZombossTwoIntros =>
+      'Two level opening intros cannot coexist, otherwise Zomboss health bar will not display correctly.';
+
+  @override
+  String get conflictDesc_InitialPlantEntryRoof =>
+      'Pre-placed plants on the roof will cause a crash.';
+
+  @override
+  String get conflictDesc_InitialPlantRoof =>
+      'Legacy preset plants on the roof will cause a crash.';
+
+  @override
+  String get conflictDesc_ProtectPlantRoof =>
+      'Protected plants on the roof will cause a crash.';
+
+  @override
+  String get conflictDesc_LawnMowerYard =>
+      'Lawn mowers are ineffective in Yard module.';
+
+  @override
+  String get missingPlantModuleWarningTitle =>
+      'Missing module for parallel plants';
+
+  @override
   String get editableModules => 'Editable modules';
 
   @override
@@ -1095,6 +1151,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String plantModuleRequiredMessage(String moduleName) {
     return 'In order to select this plant, $moduleName needs to be added.';
+  }
+
+  @override
+  String missingModuleForPlantsWarning(String moduleName, String plantList) {
+    return 'Missing module $moduleName for plants: $plantList';
   }
 
   @override

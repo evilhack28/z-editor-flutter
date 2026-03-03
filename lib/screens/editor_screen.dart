@@ -226,7 +226,125 @@ class _EditorScreenState extends State<EditorScreen> {
     _availableTabs = tabs;
   }
 
-  List<ModuleMetadata> _calculateMissingModules() {
+  static const _internalTagToModule = <String, String>{
+    '_internal_no42': 'UnchartedModeNo42UniverseModule',
+    '_internal_mausoleum': 'PVZ2MausoleumModuleUnchartedMode',
+  };
+
+  Set<String> _levelModuleObjClasses() {
+    if (_levelFile == null || _parsedData == null) return {};
+    final levelDef = _parsedData!.levelDef;
+    if (levelDef == null) return {};
+    final objectMap = _parsedData!.objectMap;
+    final set = <String>{};
+    for (final rtid in levelDef.modules) {
+      final info = RtidParser.parse(rtid);
+      if (info == null) continue;
+      if (info.source == 'CurrentLevel') {
+        final obj = objectMap[info.alias];
+        if (obj != null) set.add(obj.objClass);
+      } else if (info.source == 'LevelModules') {
+        set.add(info.alias);
+      }
+    }
+    return set;
+  }
+
+  void _collectPlantIdsFromDynamic(dynamic data, Set<String> out) {
+    if (data is Map) {
+      for (final entry in data.entries) {
+        final k = entry.key as String;
+        final v = entry.value;
+        if (k == 'PresetPlantList' || k == 'PlantWhiteList' || k == 'PlantBlackList') {
+          if (v is List) for (final e in v) if (e is String && e.isNotEmpty) out.add(e);
+        } else if (k == 'PlantMap' && v is Map) {
+          for (final key in v.keys) if (key is String && key.isNotEmpty) out.add(key);
+        } else if (k == 'InitialPlantList' && v is List) {
+          for (final e in v) {
+            if (e is Map) {
+              final pt = e['PlantType'];
+              if (pt is String && pt.isNotEmpty) out.add(pt);
+            }
+          }
+        } else if ((k == 'InitialPlantPlacements' || k == 'Placements') && v is List) {
+          for (final e in v) {
+            if (e is Map) {
+              final tn = e['TypeName'];
+              if (tn is String && tn.isNotEmpty) out.add(tn);
+            }
+          }
+        } else if (k == 'Plants' && v is List) {
+          for (final e in v) {
+            if (e is Map) {
+              final pt = e['PlantType'];
+              if (pt is String && pt.isNotEmpty) out.add(pt);
+              final pts = e['PlantTypes'];
+              if (pts is List) for (final p in pts) if (p is String && p.isNotEmpty) out.add(p);
+            }
+          }
+        } else if (k == 'Vases' && v is List) {
+          for (final e in v) {
+            if (e is Map) {
+              final ptn = e['PlantTypeName'];
+              if (ptn is String && ptn.isNotEmpty) out.add(ptn);
+            }
+          }
+        } else if (k == 'SeedRains' && v is List) {
+          for (final e in v) {
+            if (e is Map) {
+              final ptn = e['PlantTypeName'];
+              if (ptn is String && ptn.isNotEmpty) out.add(ptn);
+            }
+          }
+        } else if (k == 'SpawnPlantName') {
+          if (v is List) {
+            for (final p in v) if (p is String && p.isNotEmpty) out.add(p);
+          } else if (v is String && v.isNotEmpty) {
+            out.add(v);
+          }
+        } else if (k == 'PlantTypeName' && v is String && v.isNotEmpty) {
+          out.add(v);
+        }
+        _collectPlantIdsFromDynamic(v, out);
+      }
+    } else if (data is List) {
+      for (final e in data) _collectPlantIdsFromDynamic(e, out);
+    }
+  }
+
+  Set<String> _collectPlantIdsInLevel() {
+    if (_levelFile == null) return {};
+    final out = <String>{};
+    for (final obj in _levelFile!.objects) {
+      final data = obj.objData;
+      if (data is Map<String, dynamic>) {
+        _collectPlantIdsFromDynamic(data, out);
+      }
+    }
+    return out;
+  }
+
+  /// Returns map: module objClass -> list of plant IDs that need this module but it's missing.
+  Map<String, List<String>> _getMissingModuleWarnings() {
+    if (_levelFile == null || _parsedData == null) return {};
+    final levelModules = _levelModuleObjClasses();
+    final plantIds = _collectPlantIdsInLevel();
+    final repo = PlantRepository();
+    final warnings = <String, Set<String>>{};
+    for (final plantId in plantIds) {
+      final info = repo.getPlantInfoById(plantId);
+      if (info == null) continue;
+      for (final entry in _internalTagToModule.entries) {
+        if (!info.hasInternalTag(entry.key)) continue;
+        final moduleClass = entry.value;
+        if (levelModules.contains(moduleClass)) continue;
+        warnings.putIfAbsent(moduleClass, () => {}).add(plantId);
+      }
+    }
+    return warnings.map((k, v) => MapEntry(k, v.toList()..sort()));
+  }
+
+List<ModuleMetadata> _calculateMissingModules() {
     if (_levelFile == null || _parsedData == null) return const [];
     final existingClasses = <String>{
       ..._levelFile!.objects.map((o) => o.objClass),
@@ -2451,6 +2569,7 @@ class _EditorScreenState extends State<EditorScreen> {
                                     levelDef: _parsedData!.levelDef,
                                     objectMap: _parsedData!.objectMap,
                                     missingModules: _calculateMissingModules(),
+                                    missingModuleWarnings: _getMissingModuleWarnings(),
                                     onEditBasicInfo: _handleEditBasicInfo,
                                     onEditModule: _handleEditModule,
                                     onRemoveModule: _handleRemoveModule,

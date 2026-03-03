@@ -1930,6 +1930,90 @@ abstract class AppLocalizations {
   /// **'Module conflict'**
   String get moduleConflict;
 
+  /// No description provided for @conflictTitle_ModuleLogic.
+  ///
+  /// In en, this message translates to:
+  /// **'Module logic conflict'**
+  String get conflictTitle_ModuleLogic;
+
+  /// No description provided for @conflictDefaultDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'{module1} and {module2} conflict logically. It is recommended to keep only one.'**
+  String conflictDefaultDescription(String module1, String module2);
+
+  /// No description provided for @conflictDesc_SeedBankConveyor.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed Bank and Conveyor modules interfere with each other\'s UI and may cause crashes. Ensure Seed Bank is in pre-selection mode.'**
+  String get conflictDesc_SeedBankConveyor;
+
+  /// No description provided for @conflictDesc_VaseBreakerIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Vase Breaker mode does not need an opening intro.'**
+  String get conflictDesc_VaseBreakerIntro;
+
+  /// No description provided for @conflictDesc_LastStandIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Stand mode does not need an opening intro.'**
+  String get conflictDesc_LastStandIntro;
+
+  /// No description provided for @conflictDesc_EvilDaveZombieDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'I, Zombie mode cannot have Zombie Drop module.'**
+  String get conflictDesc_EvilDaveZombieDrop;
+
+  /// No description provided for @conflictDesc_EvilDaveVictory.
+  ///
+  /// In en, this message translates to:
+  /// **'I, Zombie mode cannot have Zombie Victory Condition.'**
+  String get conflictDesc_EvilDaveVictory;
+
+  /// No description provided for @conflictDesc_ZombossDeathDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Death drops in Zomboss Battle mode will prevent proper level completion.'**
+  String get conflictDesc_ZombossDeathDrop;
+
+  /// No description provided for @conflictDesc_ZombossTwoIntros.
+  ///
+  /// In en, this message translates to:
+  /// **'Two level opening intros cannot coexist, otherwise Zomboss health bar will not display correctly.'**
+  String get conflictDesc_ZombossTwoIntros;
+
+  /// No description provided for @conflictDesc_InitialPlantEntryRoof.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-placed plants on the roof will cause a crash.'**
+  String get conflictDesc_InitialPlantEntryRoof;
+
+  /// No description provided for @conflictDesc_InitialPlantRoof.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy preset plants on the roof will cause a crash.'**
+  String get conflictDesc_InitialPlantRoof;
+
+  /// No description provided for @conflictDesc_ProtectPlantRoof.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected plants on the roof will cause a crash.'**
+  String get conflictDesc_ProtectPlantRoof;
+
+  /// No description provided for @conflictDesc_LawnMowerYard.
+  ///
+  /// In en, this message translates to:
+  /// **'Lawn mowers are ineffective in Yard module.'**
+  String get conflictDesc_LawnMowerYard;
+
+  /// No description provided for @missingPlantModuleWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing module for parallel plants'**
+  String get missingPlantModuleWarningTitle;
+
   /// No description provided for @editableModules.
   ///
   /// In en, this message translates to:
@@ -2121,6 +2205,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In order to select this plant, {moduleName} needs to be added.'**
   String plantModuleRequiredMessage(String moduleName);
+
+  /// No description provided for @missingModuleForPlantsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing module {moduleName} for plants: {plantList}'**
+  String missingModuleForPlantsWarning(String moduleName, String plantList);
 
   /// No description provided for @moduleTitle_StandardLevelIntroProperties.
   ///
