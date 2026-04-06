@@ -57,6 +57,7 @@ flutter:
     - assets/images/tunnels/
 
 flutter_launcher_icons:
+  uses-material-design: true
   android: true
   ios: true
   image_path: "assets/icon.png"
