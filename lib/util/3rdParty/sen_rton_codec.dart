@@ -15,10 +15,7 @@ class ReflectionObjectNotation {
   static final BigInt _int64Min = BigInt.parse("-9223372036854775808");
   static final BigInt _int64Max = BigInt.parse("9223372036854775807");
 
-  SenBuffer decryptRTON(
-    SenBuffer raw,
-    RijndaelC cfg,
-  ) {
+  SenBuffer decryptRTON(SenBuffer raw, RijndaelC cfg) {
     final cipherBytes = raw.getBytes(raw.length - 2, 2);
     final cbc = RijndaelCbc(
       cfg.keyBytes,
@@ -38,10 +35,7 @@ class ReflectionObjectNotation {
   //   return;
   // }
 
-  SenBuffer encryptRTON(
-    SenBuffer raw,
-    RijndaelC cfg,
-  ) {
+  SenBuffer encryptRTON(SenBuffer raw, RijndaelC cfg) {
     // ReflectionObjectNotation.fillRijndaelBlock(
     //   raw,
     //   SenBuffer.fromBytes(Uint8List.fromList(cfg.ivBytes)),
@@ -73,10 +67,7 @@ class ReflectionObjectNotation {
     r0x92List.clear();
     jsonFile = {};
     if (decrypt) {
-      senFile = decryptRTON(
-        senFile,
-        rijndael!,
-      );
+      senFile = decryptRTON(senFile, rijndael!);
     }
     final magic = senFile.readString(4);
     if (magic != "RTON") {
@@ -94,10 +85,7 @@ class ReflectionObjectNotation {
             : localizations.invalidRtonVersion,
       );
     }
-    jsonFile = readObject(
-      senFile,
-      localizations,
-    );
+    jsonFile = readObject(senFile, localizations);
     final endRton = senFile.readString(4);
     if (endRton != "DONE") {
       throw Exception(
@@ -109,18 +97,11 @@ class ReflectionObjectNotation {
     return jsonFile;
   }
 
-  dynamic readObject(
-    SenBuffer senFile,
-    AppLocalizations? localizations,
-  ) {
+  dynamic readObject(SenBuffer senFile, AppLocalizations? localizations) {
     final objectTemp = {};
     var bytecode = senFile.readUInt8();
     while (bytecode != 0xFF) {
-      readByteCodeProperty(
-        senFile,
-        bytecode,
-        localizations,
-      );
+      readByteCodeProperty(senFile, bytecode, localizations);
       objectTemp[propertyName] = readByteCode(
         senFile,
         senFile.readUInt8(),
@@ -131,10 +112,7 @@ class ReflectionObjectNotation {
     return objectTemp;
   }
 
-  dynamic readArray(
-    SenBuffer senFile,
-    AppLocalizations? localizations,
-  ) {
+  dynamic readArray(SenBuffer senFile, AppLocalizations? localizations) {
     final arrayTemp = [];
     var bytecode = senFile.readUInt8();
     if (bytecode != 0xFD) {
@@ -146,13 +124,7 @@ class ReflectionObjectNotation {
     }
     final numArray = senFile.readVarInt32();
     for (var i = 0; i < numArray; i++) {
-      arrayTemp.add(
-        readByteCode(
-          senFile,
-          senFile.readUInt8(),
-          localizations,
-        ),
-      );
+      arrayTemp.add(readByteCode(senFile, senFile.readUInt8(), localizations));
     }
     bytecode = senFile.readUInt8();
     if (bytecode != 0xFE) {
@@ -275,17 +247,11 @@ class ReflectionObjectNotation {
         senFile.readVarInt32();
         return senFile.readStringByVarInt32();
       case 0x83:
-        return readRTID(
-          senFile,
-          localizations,
-        );
+        return readRTID(senFile, localizations);
       case 0x84:
         return "RTID(0)";
       case 0x85:
-        return readObject(
-          senFile,
-          localizations,
-        );
+        return readObject(senFile, localizations);
       case 0x86:
         return readArray(senFile, localizations);
       case 0x87:
@@ -317,10 +283,7 @@ class ReflectionObjectNotation {
     return "\$BINARY($str, $num)";
   }
 
-  dynamic readRTID(
-    SenBuffer senFile,
-    AppLocalizations? localizations,
-  ) {
+  dynamic readRTID(SenBuffer senFile, AppLocalizations? localizations) {
     final tempByte = senFile.readUInt8();
     switch (tempByte) {
       case 0x0:
@@ -367,19 +330,12 @@ class ReflectionObjectNotation {
     final senFile = SenBuffer();
     senFile.writeString("RTON");
     senFile.writeUInt32LE(0x01);
-    writeObject(
-      senFile,
-      jsonFile,
-      localizations,
-    );
+    writeObject(senFile, jsonFile, localizations);
     senFile.writeString("DONE");
     if (!encrypt) {
       return senFile;
     } else {
-      return encryptRTON(
-        senFile,
-        rijndael!,
-      );
+      return encryptRTON(senFile, rijndael!);
     }
   }
 
@@ -422,39 +378,30 @@ class ReflectionObjectNotation {
     }
     if (value is Map) {
       senFile.writeUInt8(0x85);
-      writeObject(
-        senFile,
-        value as dynamic,
-        localizations,
-      );
+      writeObject(senFile, value as dynamic, localizations);
+      return;
+    }
+    if (value is List) {
+      senFile.writeUInt8(0x86);
+      writeArray(senFile, value, localizations);
       return;
     }
     switch (value.runtimeType) {
-      case Object:
-        senFile.writeUInt8(0x85);
-        writeObject(
-          senFile,
-          value,
-          localizations,
-        );
-        return;
-      case List:
-        senFile.writeUInt8(0x86);
-        writeArray(
-          senFile,
-          value,
-          localizations,
-        );
-        return;
       case bool:
         senFile.writeBool(value);
         return;
       case String:
         writeString(senFile, value);
+        return;
       case int:
       case double:
       case num:
         writeNumber(senFile, value);
+        return;
+      case Object:
+        senFile.writeUInt8(0x85);
+        writeObject(senFile, value, localizations);
+        return;
       default:
         throw Exception(
           "${localizations == null ? 'Invalid Value Type' : localizations.invalidValueType} | ${value.runtimeType}",
@@ -509,8 +456,7 @@ class ReflectionObjectNotation {
       } else if (-281474976710656 <= number && number <= 0) {
         senFile.writeUInt8(0x45);
         senFile.writeZigZag64(number);
-      } else if (_int64Min <= bigIntNumber &&
-          bigIntNumber <= _int64Max) {
+      } else if (_int64Min <= bigIntNumber && bigIntNumber <= _int64Max) {
         senFile.writeUInt8(0x40);
         senFile.writeBigInt64LE(number);
       } else if (0 <= number && bigIntNumber > _int64Max) {
@@ -622,12 +568,12 @@ class ReflectionObjectNotation {
 
   // ignore: non_constant_identifier_names
   static void decode_fs(
-      String inFile,
-      String outFile,
-      bool decrypt,
-      RijndaelC? rijndael,
-      AppLocalizations? localizations,
-      ) {
+    String inFile,
+    String outFile,
+    bool decrypt,
+    RijndaelC? rijndael,
+    AppLocalizations? localizations,
+  ) {
     var rton = ReflectionObjectNotation();
     dynamic json = rton.decodeRTON(
       SenBuffer.OpenFile(inFile),
@@ -643,12 +589,12 @@ class ReflectionObjectNotation {
 
   // ignore: non_constant_identifier_names
   static void encode_fs(
-      String inFile,
-      String outFile,
-      bool encrypt,
-      RijndaelC? rijndael,
-      AppLocalizations? localizations,
-      ) {
+    String inFile,
+    String outFile,
+    bool encrypt,
+    RijndaelC? rijndael,
+    AppLocalizations? localizations,
+  ) {
     var rton = ReflectionObjectNotation();
     SenBuffer ripe = rton.encodeRTON(
       Map<String, dynamic>.from(
@@ -663,26 +609,15 @@ class ReflectionObjectNotation {
   }
 
   // ignore: non_constant_identifier_names
-  static void decrypt_fs(
-    String inFile,
-    String outFile,
-    RijndaelC rijndael,
-  ) {
+  static void decrypt_fs(String inFile, String outFile, RijndaelC rijndael) {
     var rton = ReflectionObjectNotation();
-    SenBuffer plain = rton.decryptRTON(
-      SenBuffer.OpenFile(inFile),
-      rijndael,
-    );
+    SenBuffer plain = rton.decryptRTON(SenBuffer.OpenFile(inFile), rijndael);
     plain.outFile(outFile);
     return;
   }
 
   // ignore: non_constant_identifier_names
-  static void encrypt_fs(
-    String inFile,
-    String outFile,
-    RijndaelC rijndael,
-  ) {
+  static void encrypt_fs(String inFile, String outFile, RijndaelC rijndael) {
     var rton = ReflectionObjectNotation();
     SenBuffer plain = rton.encryptRTON(SenBuffer.OpenFile(inFile), rijndael);
     plain.outFile(outFile);
