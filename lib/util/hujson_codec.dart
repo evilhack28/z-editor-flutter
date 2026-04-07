@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:z_editor/util/z_byte_buffer.dart';
+import 'package:z_editor/util/3rdParty/sen_buffer.dart';
 import 'package:z_editor/util/3rdParty/sen_compiled_text.dart';
 import 'package:z_editor/util/pvz2c_crypto.dart';
 
@@ -10,7 +10,7 @@ class HuJsonCodec {
 
   static Uint8List decode(Uint8List data) {
     final out = _compiled.decode(
-      ZByteBuffer.fromBytes(data),
+      SenBuffer.fromBytes(data),
       RijndaelC.defaultValue(),
       false,
     );
@@ -19,7 +19,7 @@ class HuJsonCodec {
 
   static Uint8List encode(Uint8List data) {
     final out = _compiled.encode(
-      ZByteBuffer.fromBytes(data),
+      SenBuffer.fromBytes(data),
       RijndaelC.defaultValue(),
       false,
     );

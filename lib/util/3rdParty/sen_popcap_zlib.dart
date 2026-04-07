@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 
-import '../z_byte_buffer.dart';
+import 'sen_buffer.dart';
 
 /// PopCap-style zlib wrapper: `0xDEADFED4` magic + uncompressed length (+ optional 64-bit padding) + zlib payload.
 class PopCapZlib {
@@ -10,8 +10,8 @@ class PopCapZlib {
 
   static const ZLibEncoder _zlibEnc = ZLibEncoder();
 
-  static ZByteBuffer compress(ZByteBuffer data, bool use64BitVariant) {
-    final result = ZByteBuffer();
+  static SenBuffer compress(SenBuffer data, bool use64BitVariant) {
+    final result = SenBuffer();
     result.writeBytes(magic);
     if (use64BitVariant) {
       result.writeBigUInt64LE(data.length);
@@ -24,7 +24,7 @@ class PopCapZlib {
     return result;
   }
 
-  static ZByteBuffer uncompress(ZByteBuffer data, bool use64BitVariant) {
+  static SenBuffer uncompress(SenBuffer data, bool use64BitVariant) {
     final magicWord = data.readUInt32LE();
     if (magicWord != 0xDEADFED4) {
       throw Exception(
@@ -39,6 +39,6 @@ class PopCapZlib {
     final remaining = data.length - data.readOffset;
     final compressed = data.readBytes(remaining);
     final inflated = const ZLibDecoder().decodeBytes(compressed);
-    return ZByteBuffer.fromBytes(inflated);
+    return SenBuffer.fromBytes(inflated);
   }
 }

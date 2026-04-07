@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:rijndael/rijndael.dart';
 import 'package:z_editor/data/pvz_models.dart';
-import 'package:z_editor/util/z_byte_buffer.dart';
+import 'package:z_editor/util/3rdParty/sen_buffer.dart';
 import 'package:z_editor/util/pvz2c_crypto.dart';
 
 class Pyvz2RtonCodec {
@@ -52,7 +52,7 @@ class Pyvz2RtonCodec {
     final raw = decrypt
         ? decryptRton(bytes, rijndael ?? RijndaelC.defaultValue())
         : bytes;
-    final reader = ZByteBuffer.fromBytes(raw);
+    final reader = SenBuffer.fromBytes(raw);
     final magic = reader.readString(4);
     if (magic != 'RTON') {
       throw const FormatException('Invalid RTON magic. Expected RTON.');
@@ -114,7 +114,7 @@ class Pyvz2RtonCodec {
   }
 
   Map<String, Object?> _decodeObject(
-    ZByteBuffer reader,
+    SenBuffer reader,
     List<String> cachedStrings,
     List<String> cachedPrintableStrings,
   ) {
@@ -147,7 +147,7 @@ class Pyvz2RtonCodec {
   }
 
   List<Object?> _decodeArray(
-    ZByteBuffer reader,
+    SenBuffer reader,
     List<String> cachedStrings,
     List<String> cachedPrintableStrings,
   ) {
@@ -179,7 +179,7 @@ class Pyvz2RtonCodec {
 
   String _decodeKey(
     int tag,
-    ZByteBuffer reader,
+    SenBuffer reader,
     List<String> cachedStrings,
     List<String> cachedPrintableStrings,
   ) {
@@ -217,7 +217,7 @@ class Pyvz2RtonCodec {
 
   Object? _decodeValue(
     int tag,
-    ZByteBuffer reader,
+    SenBuffer reader,
     List<String> cachedStrings,
     List<String> cachedPrintableStrings,
   ) {
@@ -314,7 +314,7 @@ class Pyvz2RtonCodec {
     }
   }
 
-  String _readText(ZByteBuffer reader) {
+  String _readText(SenBuffer reader) {
     final len = _readVarUint(reader);
     final bytes = reader.readBytes(len);
     try {
@@ -324,7 +324,7 @@ class Pyvz2RtonCodec {
     }
   }
 
-  String _readUtf8Text(ZByteBuffer reader) {
+  String _readUtf8Text(SenBuffer reader) {
     final expectedChars = _readVarUint(reader);
     final byteLen = _readVarUint(reader);
     final decoded = utf8.decode(reader.readBytes(byteLen));
@@ -334,7 +334,7 @@ class Pyvz2RtonCodec {
     return decoded;
   }
 
-  String _readRtid(ZByteBuffer reader) {
+  String _readRtid(SenBuffer reader) {
     final subtype = reader.readByte();
     switch (subtype) {
       case 0x00:
@@ -570,7 +570,7 @@ class Pyvz2RtonCodec {
         value.endsWith(')');
   }
 
-  int _readVarUint(ZByteBuffer reader) {
+  int _readVarUint(SenBuffer reader) {
     var num = reader.readByte();
     var result = num & 0x7F;
     var multiplier = 128;
@@ -583,7 +583,7 @@ class Pyvz2RtonCodec {
     return result;
   }
 
-  int _readVarInt(ZByteBuffer reader) {
+  int _readVarInt(SenBuffer reader) {
     var num = _readVarUint(reader);
     if ((num & 1) == 1) {
       num = -num - 1;

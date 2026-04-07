@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:rijndael/rijndael.dart';
 import 'package:z_editor/util/pvz2c_crypto.dart';
 
-import '../z_byte_buffer.dart';
+import 'sen_buffer.dart';
 import 'sen_popcap_zlib.dart';
 
 /// Hot-update style asset: base64( `[0x10, 0x00]` + AES-CBC(PopCap-zlib(payload)) ).
@@ -18,29 +18,21 @@ class CompiledText {
     blockSize: PvZ2Crypto.blockSize,
   );
 
-  ZByteBuffer decode(
-    ZByteBuffer raw,
-    RijndaelC rijndael,
-    bool use64BitVariant,
-  ) {
+  SenBuffer decode(SenBuffer raw, RijndaelC rijndael, bool use64BitVariant) {
     final decoded = base64Decode(ascii.decode(raw.toBytes()));
-    final buf = ZByteBuffer.fromBytes(Uint8List.fromList(decoded));
+    final buf = SenBuffer.fromBytes(Uint8List.fromList(decoded));
     final cipherBytes = buf.getBytes(buf.length - 2, 2);
     final plain = _cipher(rijndael).decrypt(cipherBytes);
-    return PopCapZlib.uncompress(ZByteBuffer.fromBytes(plain), use64BitVariant);
+    return PopCapZlib.uncompress(SenBuffer.fromBytes(plain), use64BitVariant);
   }
 
-  ZByteBuffer encode(
-    ZByteBuffer raw,
-    RijndaelC rijndael,
-    bool use64BitVariant,
-  ) {
+  SenBuffer encode(SenBuffer raw, RijndaelC rijndael, bool use64BitVariant) {
     final compressedData = PopCapZlib.compress(raw, use64BitVariant);
-    final ZByteBuffer ripe = ZByteBuffer.fromBytes(
+    final SenBuffer ripe = SenBuffer.fromBytes(
       Uint8List.fromList([0x10, 0x00]),
     );
     ripe.writeBytes(_cipher(rijndael).encrypt(compressedData.toBytes()));
-    return ZByteBuffer.fromBytes(ascii.encode(base64Encode(ripe.toBytes())));
+    return SenBuffer.fromBytes(ascii.encode(base64Encode(ripe.toBytes())));
   }
 
   static void encode_fs(
@@ -51,7 +43,7 @@ class CompiledText {
   ) {
     final compiledText = CompiledText();
     final data = compiledText.encode(
-      ZByteBuffer.OpenFile(inFile),
+      SenBuffer.OpenFile(inFile),
       rijndael,
       use64BitVariant,
     );
@@ -66,7 +58,7 @@ class CompiledText {
   ) {
     final compiledText = CompiledText();
     final data = compiledText.decode(
-      ZByteBuffer.OpenFile(inFile),
+      SenBuffer.OpenFile(inFile),
       rijndael,
       use64BitVariant,
     );

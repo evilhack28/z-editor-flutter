@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:z_editor/util/3rdParty/sen_popcap_zlib.dart';
-import 'package:z_editor/util/z_byte_buffer.dart';
+import 'package:z_editor/util/3rdParty/sen_buffer.dart';
 
 import '../pvz_models.dart';
 import 'level_repository_base.dart';
@@ -331,7 +331,7 @@ class LevelRepositoryNativeImpl extends LevelRepositoryBase {
     if (targetExtension == '.zlib') {
       try {
         final bytes = await srcFile.readAsBytes();
-        final buf = ZByteBuffer.fromBytes(bytes);
+        final buf = SenBuffer.fromBytes(bytes);
         final compressed = PopCapZlib.compress(buf, false);
         await File(targetPath).writeAsBytes(compressed.toBytes(), flush: true);
         return target;
@@ -344,7 +344,7 @@ class LevelRepositoryNativeImpl extends LevelRepositoryBase {
     if (sourceName.toLowerCase().endsWith('.zlib')) {
       try {
         final bytes = await srcFile.readAsBytes();
-        final buf = ZByteBuffer.fromBytes(bytes);
+        final buf = SenBuffer.fromBytes(bytes);
         final decompressed = PopCapZlib.uncompress(buf, false);
         await File(
           targetPath,

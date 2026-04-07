@@ -3,10 +3,10 @@ import "dart:io";
 import "dart:convert";
 import "dart:typed_data";
 
-abstract interface class ZByteBuffer {
-  factory ZByteBuffer() => _SenBuffer(Uint8List(0));
+abstract interface class SenBuffer {
+  factory SenBuffer() => _SenBuffer(Uint8List(0));
 
-  factory ZByteBuffer.OpenFile(String path) {
+  factory SenBuffer.OpenFile(String path) {
     final file = File((path));
     final length = file.lengthSync();
     final bytes = Uint8List(length);
@@ -21,11 +21,11 @@ abstract interface class ZByteBuffer {
     return _SenBuffer(bytes, path);
   }
 
-  factory ZByteBuffer.fromBytes(Uint8List buffer) {
+  factory SenBuffer.fromBytes(Uint8List buffer) {
     return _SenBuffer(_copyBuffer(buffer));
   }
 
-  factory ZByteBuffer.fromLength(int length) {
+  factory SenBuffer.fromLength(int length) {
     return _SenBuffer(Uint8List(length));
   }
 
@@ -316,7 +316,7 @@ Uint8List _copyBuffer(Uint8List buffer, [int? length, int? offset]) {
   return Buffer;
 }
 
-class _SenBuffer implements ZByteBuffer {
+class _SenBuffer implements SenBuffer {
   var _buffer;
   int _readOffset = 0;
   int _writeOffset = 0;
