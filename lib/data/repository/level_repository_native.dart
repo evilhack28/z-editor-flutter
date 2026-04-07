@@ -4,7 +4,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:z_editor/util/3rdParty/sen_popcap_zlib.dart';
-import 'package:z_editor/util/3rdParty/sen_buffer.dart';
+import 'package:z_editor/util/3rdParty/z_byte_buffer.dart';
 
 import '../pvz_models.dart';
 import 'level_repository_base.dart';
@@ -312,54 +312,56 @@ class LevelRepositoryNativeImpl extends LevelRepositoryBase {
     await File(cachePath).writeAsBytes(bytes, flush: true);
   }
 
-@override
-Future<String?> convertLevelFile({
-  required String sourcePath,
-  required String sourceName,
-  required String targetExtension,
-  String? targetName,
-}) async {
-  final srcFile = File(sourcePath);
-  if (!await srcFile.exists()) return null;
-  final parent = p.dirname(sourcePath);
-  final base = baseNameWithoutLevelExtension(sourceName);
-  final target = targetName ?? '$base$targetExtension';
-  final targetPath = p.join(parent, target);
-  if (await File(targetPath).exists()) return null;
+  @override
+  Future<String?> convertLevelFile({
+    required String sourcePath,
+    required String sourceName,
+    required String targetExtension,
+    String? targetName,
+  }) async {
+    final srcFile = File(sourcePath);
+    if (!await srcFile.exists()) return null;
+    final parent = p.dirname(sourcePath);
+    final base = baseNameWithoutLevelExtension(sourceName);
+    final target = targetName ?? '$base$targetExtension';
+    final targetPath = p.join(parent, target);
+    if (await File(targetPath).exists()) return null;
 
-  // ZLib compress — any file → .zlib
-  if (targetExtension == '.zlib') {
-    try {
-      final bytes = await srcFile.readAsBytes();
-      final buf = SenBuffer.fromBytes(bytes);
-      final compressed = PopCapZlib.compress(buf, false);
-      await File(targetPath).writeAsBytes(compressed.toBytes(), flush: true);
-      return target;
-    } catch (_) {
-      return null;
+    // ZLib compress — any file → .zlib
+    if (targetExtension == '.zlib') {
+      try {
+        final bytes = await srcFile.readAsBytes();
+        final buf = ZByteBuffer.fromBytes(bytes);
+        final compressed = PopCapZlib.compress(buf, false);
+        await File(targetPath).writeAsBytes(compressed.toBytes(), flush: true);
+        return target;
+      } catch (_) {
+        return null;
+      }
     }
-  }
 
-  // ZLib decompress — .zlib → original
-  if (sourceName.toLowerCase().endsWith('.zlib')) {
-    try {
-      final bytes = await srcFile.readAsBytes();
-      final buf = SenBuffer.fromBytes(bytes);
-      final decompressed = PopCapZlib.uncompress(buf, false);
-      await File(targetPath).writeAsBytes(decompressed.toBytes(), flush: true);
-      return target;
-    } catch (_) {
-      return null;
+    // ZLib decompress — .zlib → original
+    if (sourceName.toLowerCase().endsWith('.zlib')) {
+      try {
+        final bytes = await srcFile.readAsBytes();
+        final buf = ZByteBuffer.fromBytes(bytes);
+        final decompressed = PopCapZlib.uncompress(buf, false);
+        await File(
+          targetPath,
+        ).writeAsBytes(decompressed.toBytes(), flush: true);
+        return target;
+      } catch (_) {
+        return null;
+      }
     }
-  }
 
-  // existing level format conversion
-  final level = decodeLevelBytes(sourceName, await srcFile.readAsBytes());
-  if (level == null) return null;
-  final outBytes = encodeLevelBytes(target, level);
-  await File(targetPath).writeAsBytes(outBytes, flush: true);
-  return target;
-}
+    // existing level format conversion
+    final level = decodeLevelBytes(sourceName, await srcFile.readAsBytes());
+    if (level == null) return null;
+    final outBytes = encodeLevelBytes(target, level);
+    await File(targetPath).writeAsBytes(outBytes, flush: true);
+    return target;
+  }
 
   @override
   Future<bool> createLevelFromTemplate(

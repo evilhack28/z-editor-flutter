@@ -1416,10 +1416,11 @@ class _LevelListScreenState extends State<LevelListScreen> {
     final lower = item.name.toLowerCase();
     String? targetExt;
     if (lower.endsWith('.json')) {
-      targetExt = await showModalBottomSheet<String>(
+      targetExt = await showDialog<String>(
         context: context,
-        builder: (ctx) => SafeArea(
-          child: Column(
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.convertAction),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
@@ -1443,10 +1444,11 @@ class _LevelListScreenState extends State<LevelListScreen> {
         ),
       );
     } else if (lower.endsWith('.hujson') || lower.endsWith('.rton')) {
-      targetExt = await showModalBottomSheet<String>(
+      targetExt = await showDialog<String>(
         context: context,
-        builder: (ctx) => SafeArea(
-          child: Column(
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.convertAction),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
@@ -1465,10 +1467,11 @@ class _LevelListScreenState extends State<LevelListScreen> {
         ),
       );
     } else if (lower.endsWith('.zlib')) {
-      targetExt = await showModalBottomSheet<String>(
+      targetExt = await showDialog<String>(
         context: context,
-        builder: (ctx) => SafeArea(
-          child: ListTile(
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.convertAction),
+          content: ListTile(
             leading: const Icon(Icons.expand),
             title: const Text('Decompress ZLib'),
             onTap: () => Navigator.pop(ctx, '.bin'),

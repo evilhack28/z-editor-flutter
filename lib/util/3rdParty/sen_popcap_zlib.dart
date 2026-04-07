@@ -2,21 +2,16 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 
-import 'sen_buffer.dart';
+import 'z_byte_buffer.dart';
 
 /// PopCap-style zlib wrapper: `0xDEADFED4` magic + uncompressed length (+ optional 64-bit padding) + zlib payload.
 class PopCapZlib {
-  static final Uint8List magic = Uint8List.fromList(
-    [0xD4, 0xFE, 0xAD, 0xDE],
-  );
+  static final Uint8List magic = Uint8List.fromList([0xD4, 0xFE, 0xAD, 0xDE]);
 
   static const ZLibEncoder _zlibEnc = ZLibEncoder();
 
-  static SenBuffer compress(
-      SenBuffer data,
-      bool use64BitVariant,
-      ) {
-    final result = SenBuffer();
+  static ZByteBuffer compress(ZByteBuffer data, bool use64BitVariant) {
+    final result = ZByteBuffer();
     result.writeBytes(magic);
     if (use64BitVariant) {
       result.writeBigUInt64LE(data.length);
@@ -24,17 +19,12 @@ class PopCapZlib {
       result.writeUInt32LE(data.length);
     }
     result.writeBytes(
-      Uint8List.fromList(
-        _zlibEnc.encodeBytes(data.toBytes(), level: 9),
-      ),
+      Uint8List.fromList(_zlibEnc.encodeBytes(data.toBytes(), level: 9)),
     );
     return result;
   }
 
-  static SenBuffer uncompress(
-      SenBuffer data,
-      bool use64BitVariant,
-      ) {
+  static ZByteBuffer uncompress(ZByteBuffer data, bool use64BitVariant) {
     final magicWord = data.readUInt32LE();
     if (magicWord != 0xDEADFED4) {
       throw Exception(
@@ -49,6 +39,6 @@ class PopCapZlib {
     final remaining = data.length - data.readOffset;
     final compressed = data.readBytes(remaining);
     final inflated = const ZLibDecoder().decodeBytes(compressed);
-    return SenBuffer.fromBytes(inflated);
+    return ZByteBuffer.fromBytes(inflated);
   }
 }

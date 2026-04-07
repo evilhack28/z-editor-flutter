@@ -3,10 +3,10 @@ import "dart:io";
 import "dart:convert";
 import "dart:typed_data";
 
-abstract interface class SenBuffer {
-  factory SenBuffer() => _SenBuffer(Uint8List(0));
+abstract interface class ZByteBuffer {
+  factory ZByteBuffer() => _SenBuffer(Uint8List(0));
 
-  factory SenBuffer.OpenFile(String path) {
+  factory ZByteBuffer.OpenFile(String path) {
     final file = File((path));
     final length = file.lengthSync();
     final bytes = Uint8List(length);
@@ -21,11 +21,11 @@ abstract interface class SenBuffer {
     return _SenBuffer(bytes, path);
   }
 
-  factory SenBuffer.fromBytes(Uint8List buffer) {
+  factory ZByteBuffer.fromBytes(Uint8List buffer) {
     return _SenBuffer(_copyBuffer(buffer));
   }
 
-  factory SenBuffer.fromLength(int length) {
+  factory ZByteBuffer.fromLength(int length) {
     return _SenBuffer(Uint8List(length));
   }
 
@@ -56,14 +56,18 @@ abstract interface class SenBuffer {
   Uint8List readBytes(int count, [int offset = -1]);
 
   String readString(
-      int count, [
-        int offset = -1,
-        EncodingType encodingType = EncodingType.UTF8,
-      ]);
+    int count, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.UTF8,
+  ]);
 
   int readUInt8([int offset = -1]);
 
+  int readByte([int offset = -1]);
+
   int readUInt16LE([int offset = -1]);
+
+  int readUint16LE([int offset = -1]);
 
   int readUInt16BE([int offset = -1]);
 
@@ -73,9 +77,13 @@ abstract interface class SenBuffer {
 
   int readUInt32LE([int offset = -1]);
 
+  int readUint32LE([int offset = -1]);
+
   int readUInt32BE([int offset = -1]);
 
   int readBigUInt64LE([int offset = -1]);
+
+  int readUint64LE([int offset = -1]);
 
   int readBigUInt64BE([int offset = -1]);
 
@@ -95,13 +103,19 @@ abstract interface class SenBuffer {
 
   int readBigInt64LE([int offset = -1]);
 
+  int readInt64LE([int offset = -1]);
+
   int readBigInt64BE([int offset = -1]);
 
   double readFloatLE([int offset = -1]);
 
+  double readFloat32LE([int offset = -1]);
+
   double readFloatBE([int offset = -1]);
 
   double readDoubleLE([int offset = -1]);
+
+  double readFloat64LE([int offset = -1]);
 
   double readDoubleBE([int offset = -1]);
 
@@ -121,9 +135,9 @@ abstract interface class SenBuffer {
   ]);
 
   String getStringByEmpty(
-      int offset, [
-        EncodingType encodingType = EncodingType.UTF8,
-      ]);
+    int offset, [
+    EncodingType encodingType = EncodingType.UTF8,
+  ]);
 
   String readCharByInt16LE([int offset = -1]);
 
@@ -174,30 +188,30 @@ abstract interface class SenBuffer {
   int peekInt32BE([int offset = -1]);
 
   String peekString(
-      int count, [
-        int offset = -1,
-        EncodingType encodingType = EncodingType.UTF8,
-      ]);
+    int count, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.UTF8,
+  ]);
 
   void writeBytes(Uint8List buffer, [int offset = -1]);
 
   void writeString(
-      String str, [
-        int offset = -1,
-        EncodingType encodingType = EncodingType.UTF8,
-      ]);
+    String str, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.UTF8,
+  ]);
 
   void writeStringFourByte(
-      String str, [
-        int offset = -1,
-        EncodingType encodingType = EncodingType.ASCII,
-      ]);
+    String str, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.ASCII,
+  ]);
 
   void writeStringByEmpty(
-      String? str, [
-        int offset = -1,
-        EncodingType encodingType = EncodingType.UTF8,
-      ]);
+    String? str, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.UTF8,
+  ]);
 
   void writeNull(int count, [int offset = -1]);
 
@@ -294,12 +308,7 @@ abstract interface class SenBuffer {
   void clear();
 }
 
-enum EncodingType {
-  UTF8,
-  ASCII,
-  LATIN1,
-  BASE64,
-}
+enum EncodingType { UTF8, ASCII, LATIN1, BASE64 }
 
 Uint8List _copyBuffer(Uint8List buffer, [int? length, int? offset]) {
   final Buffer = Uint8List(length ?? buffer.length);
@@ -307,7 +316,7 @@ Uint8List _copyBuffer(Uint8List buffer, [int? length, int? offset]) {
   return Buffer;
 }
 
-class _SenBuffer implements SenBuffer {
+class _SenBuffer implements ZByteBuffer {
   var _buffer;
   int _readOffset = 0;
   int _writeOffset = 0;
@@ -437,8 +446,11 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
-  String readString(int count,
-      [int offset = -1, EncodingType encodingType = EncodingType.UTF8]) {
+  String readString(
+    int count, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.UTF8,
+  ]) {
     _mBuffer = readBytes(count, offset);
     final encoding = _setEncoding(encodingType);
     final str = encoding.decode(_mBuffer);
@@ -457,9 +469,19 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
+  int readByte([int offset = -1]) {
+    return readUInt8(offset);
+  }
+
+  @override
   int readUInt16LE([int offset = -1]) {
     _readByteData(2, offset);
     return _mNumber.getUint16(0, Endian.little);
+  }
+
+  @override
+  int readUint16LE([int offset = -1]) {
+    return readUInt16LE(offset);
   }
 
   @override
@@ -487,6 +509,11 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
+  int readUint32LE([int offset = -1]) {
+    return readUInt32LE(offset);
+  }
+
+  @override
   int readUInt32BE([int offset = -1]) {
     _readByteData(4, offset);
     return _mNumber.getUint32(0, Endian.big);
@@ -496,6 +523,11 @@ class _SenBuffer implements SenBuffer {
   int readBigUInt64LE([int offset = -1]) {
     _readByteData(8, offset);
     return _mNumber.getUint64(0, Endian.little);
+  }
+
+  @override
+  int readUint64LE([int offset = -1]) {
+    return readBigUInt64LE(offset);
   }
 
   @override
@@ -557,6 +589,11 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
+  int readInt64LE([int offset = -1]) {
+    return readBigInt64LE(offset);
+  }
+
+  @override
   int readBigInt64BE([int offset = -1]) {
     _readByteData(8, offset);
     return _mNumber.getInt64(0, Endian.big);
@@ -569,6 +606,11 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
+  double readFloat32LE([int offset = -1]) {
+    return readFloatLE(offset);
+  }
+
+  @override
   double readFloatBE([int offset = -1]) {
     _readByteData(4, offset);
     return _mNumber.getFloat32(0, Endian.big);
@@ -578,6 +620,11 @@ class _SenBuffer implements SenBuffer {
   double readDoubleLE([int offset = -1]) {
     _readByteData(8, offset);
     return _mNumber.getFloat64(0, Endian.little);
+  }
+
+  @override
+  double readFloat64LE([int offset = -1]) {
+    return readDoubleLE(offset);
   }
 
   @override
@@ -640,8 +687,10 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
-  String readStringByEmpty(
-      [int offset = -1, EncodingType encodingType = EncodingType.UTF8]) {
+  String readStringByEmpty([
+    int offset = -1,
+    EncodingType encodingType = EncodingType.UTF8,
+  ]) {
     _fixReadOffset(offset);
     var length = 0;
     final startOffset = _readOffset;
@@ -656,8 +705,10 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
-  String getStringByEmpty(int offset,
-      [EncodingType encodingType = EncodingType.UTF8]) {
+  String getStringByEmpty(
+    int offset, [
+    EncodingType encodingType = EncodingType.UTF8,
+  ]) {
     final startOffset = _readOffset;
     final str = readStringByEmpty(offset);
     _readOffset = startOffset;
@@ -833,8 +884,11 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
-  String peekString(int count,
-      [int offset = -1, EncodingType encodingType = EncodingType.UTF8]) {
+  String peekString(
+    int count, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.UTF8,
+  ]) {
     _fixReadOffset(offset);
     final startOffset = _readOffset;
     final str = readString(count);
@@ -852,8 +906,6 @@ class _SenBuffer implements SenBuffer {
         return Latin1Codec();
       case EncodingType.BASE64:
         return Base64Codec();
-      default:
-        throw Exception("invalid encoding type");
     }
   }
 
@@ -877,8 +929,11 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
-  void writeString(String str,
-      [int offset = -1, EncodingType encodingType = EncodingType.UTF8]) {
+  void writeString(
+    String str, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.UTF8,
+  ]) {
     final encoding = _setEncoding(encodingType);
     final strBytes = encoding.encode(str);
     writeBytes(strBytes, offset);
@@ -892,8 +947,11 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
-  void writeStringFourByte(String str,
-      [int offset = -1, EncodingType encodingType = EncodingType.ASCII]) {
+  void writeStringFourByte(
+    String str, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.ASCII,
+  ]) {
     final strLength = str.length;
     final codeUnits = str.codeUnits;
     final strBytes = Uint8List(strLength * 4 + 4);
@@ -1143,8 +1201,11 @@ class _SenBuffer implements SenBuffer {
   }
 
   @override
-  void writeStringByEmpty(String? str,
-      [int offset = -1, EncodingType encodingType = EncodingType.UTF8]) {
+  void writeStringByEmpty(
+    String? str, [
+    int offset = -1,
+    EncodingType encodingType = EncodingType.UTF8,
+  ]) {
     _fixWriteOffset(offset);
     if (str == null) {
       writeUInt8(0);

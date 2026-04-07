@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:z_editor/util/3rdParty/sen_buffer.dart';
-import 'package:z_editor/util/3rdParty/sen_rton_codec.dart';
 import 'package:z_editor/util/hujson_codec.dart';
+import 'package:z_editor/util/3rdParty/pyvz2_rton_codec.dart';
 import 'package:z_editor/util/pvz2c_crypto.dart';
 
 import '../pvz_models.dart';
@@ -25,7 +24,13 @@ class FileItem {
 }
 
 abstract class LevelRepositoryBase {
-  static const Set<String> levelExtensions = {'.json', '.hujson', '.rton', '.zlib', '.bin'};
+  static const Set<String> levelExtensions = {
+    '.json',
+    '.hujson',
+    '.rton',
+    '.zlib',
+    '.bin',
+  };
 
   static const List<String> defaultTemplateList = [
     '1_blank_level.json',
@@ -231,15 +236,16 @@ abstract class LevelRepositoryBase {
         );
       }
       if (lower.endsWith('.rton')) {
-        final buf = SenBuffer.fromBytes(bytes);
-        final rton = ReflectionObjectNotation();
-        final jsonMap = rton.decodeRTON(
-          buf,
-          true,
-          RijndaelC.defaultValue(),
-          null,
-        );
-        return PvzLevelFile.fromJson(Map<String, dynamic>.from(jsonMap as Map));
+        final rtonCodec = Pyvz2RtonCodec();
+        try {
+          return rtonCodec.decode(
+            bytes,
+            decrypt: true,
+            rijndael: RijndaelC.defaultValue(),
+          );
+        } catch (_) {
+          return rtonCodec.decode(bytes);
+        }
       }
     } catch (_) {
       return null;
@@ -254,14 +260,12 @@ abstract class LevelRepositoryBase {
     if (lower.endsWith('.json')) return jsonBytes;
     if (lower.endsWith('.hujson')) return HuJsonCodec.encode(jsonBytes);
     if (lower.endsWith('.rton')) {
-      final rton = ReflectionObjectNotation();
-      final senOut = rton.encodeRTON(
-        data.toJson(),
-        true,
-        RijndaelC.defaultValue(),
-        null,
+      final rtonCodec = Pyvz2RtonCodec();
+      return rtonCodec.encode(
+        data,
+        encrypt: true,
+        rijndael: RijndaelC.defaultValue(),
       );
-      return senOut.toBytes();
     }
     return jsonBytes;
   }
