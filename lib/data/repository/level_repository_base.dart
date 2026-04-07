@@ -144,7 +144,7 @@ abstract class LevelRepositoryBase {
     var candidate = '${baseNameWithoutExt}_copy';
     if (!existing.contains(candidate.toLowerCase())) return candidate;
     var n = 2;
-    while (existing.contains('${candidate}$n'.toLowerCase())) {
+    while (existing.contains('$candidate$n'.toLowerCase())) {
       n++;
     }
     return '$candidate$n';

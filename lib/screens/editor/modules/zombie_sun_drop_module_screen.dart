@@ -312,7 +312,9 @@ class _SunValuesEditDialogState extends State<_SunValuesEditDialog> {
   void initState() {
     super.initState();
     _values = List<int>.from(widget.item.sunDropValues);
-    while (_values.length < 10) _values.add(0);
+    while (_values.length < 10) {
+      _values.add(0);
+    }
     _values = _values.take(10).toList();
     _controllers = _values.map((v) => TextEditingController(text: '$v')).toList();
     _focusNodes = List.generate(10, (_) => FocusNode());
@@ -323,8 +325,12 @@ class _SunValuesEditDialogState extends State<_SunValuesEditDialog> {
 
   @override
   void dispose() {
-    for (final fn in _focusNodes) fn.dispose();
-    for (final c in _controllers) c.dispose();
+    for (final fn in _focusNodes) {
+      fn.dispose();
+    }
+    for (final c in _controllers) {
+      c.dispose();
+    }
     super.dispose();
   }
 

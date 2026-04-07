@@ -540,7 +540,7 @@ class _AirDropShipModuleScreenState extends State<AirDropShipModuleScreen> {
       title: Text(l10n?.removeItem ?? 'Remove item'),
       content: Text(
         l10n?.removeItemConfirm(
-              '${l10n?.waveLabel ?? "Wave"} ${item.wave + 1}',
+              '${l10n.waveLabel ?? "Wave"} ${item.wave + 1}',
             ) ??
             'Remove wave ${item.wave + 1}?',
       ),

@@ -177,9 +177,13 @@ class _EditorScreenState extends State<EditorScreen> {
         final k = entry.key as String;
         final v = entry.value;
         if (k == 'PresetPlantList' || k == 'PlantWhiteList' || k == 'PlantBlackList') {
-          if (v is List) for (final e in v) if (e is String && e.isNotEmpty) out.add(e);
+          if (v is List) for (final e in v) {
+            if (e is String && e.isNotEmpty) out.add(e);
+          }
         } else if (k == 'PlantMap' && v is Map) {
-          for (final key in v.keys) if (key is String && key.isNotEmpty) out.add(key);
+          for (final key in v.keys) {
+            if (key is String && key.isNotEmpty) out.add(key);
+          }
         } else if (k == 'InitialPlantList' && v is List) {
           for (final e in v) {
             if (e is Map) {
@@ -200,7 +204,9 @@ class _EditorScreenState extends State<EditorScreen> {
               final pt = e['PlantType'];
               if (pt is String && pt.isNotEmpty) out.add(pt);
               final pts = e['PlantTypes'];
-              if (pts is List) for (final p in pts) if (p is String && p.isNotEmpty) out.add(p);
+              if (pts is List) for (final p in pts) {
+                if (p is String && p.isNotEmpty) out.add(p);
+              }
             }
           }
         } else if (k == 'Vases' && v is List) {
@@ -219,7 +225,9 @@ class _EditorScreenState extends State<EditorScreen> {
           }
         } else if (k == 'SpawnPlantName') {
           if (v is List) {
-            for (final p in v) if (p is String && p.isNotEmpty) out.add(p);
+            for (final p in v) {
+              if (p is String && p.isNotEmpty) out.add(p);
+            }
           } else if (v is String && v.isNotEmpty) {
             out.add(v);
           }
@@ -229,7 +237,9 @@ class _EditorScreenState extends State<EditorScreen> {
         _collectPlantIdsFromDynamic(v, out);
       }
     } else if (data is List) {
-      for (final e in data) _collectPlantIdsFromDynamic(e, out);
+      for (final e in data) {
+        _collectPlantIdsFromDynamic(e, out);
+      }
     }
   }
 

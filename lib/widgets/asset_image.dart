@@ -126,7 +126,7 @@ class _AssetImageWidgetState extends State<AssetImageWidget> {
           width: widget.width,
           height: widget.height,
           fit: widget.fit,
-          errorBuilder: (_, __, ___) => Icon(
+          errorBuilder: (_, _, _) => Icon(
             Icons.image_not_supported,
             size: widget.width ?? widget.height ?? 48,
             color: Theme.of(context).colorScheme.outline,

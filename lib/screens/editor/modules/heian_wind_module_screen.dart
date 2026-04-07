@@ -374,7 +374,7 @@ class _HeianWindModuleScreenState extends State<HeianWindModuleScreen> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    value: dropdownValue,
+                    initialValue: dropdownValue,
                     decoration: InputDecoration(
                       labelText: l10n?.heianWindModuleRow ?? 'Row',
                       border: const OutlineInputBorder(),
@@ -498,11 +498,9 @@ class _HeianWindModuleScreenState extends State<HeianWindModuleScreen> {
     return AlertDialog(
       title: Text(l10n?.removeItem ?? 'Remove item'),
       content: Text(
-        (l10n != null
-                ? l10n.removeItemConfirm(
+        (l10n?.removeItemConfirm(
                     '${l10n.waveLabel} ${wave.waveNumber + 1}',
-                  )
-                : null) ??
+                  )) ??
             'Remove wave ${wave.waveNumber + 1}?',
       ),
       actions: [

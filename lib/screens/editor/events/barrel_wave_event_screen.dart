@@ -313,7 +313,7 @@ class _BarrelWaveEventScreenState extends State<BarrelWaveEventScreen> {
                 ),
                 Expanded(
                   child: DropdownButtonFormField<int>(
-                    value: entry.row.clamp(1, _maxRow),
+                    initialValue: entry.row.clamp(1, _maxRow),
                     items: List.generate(_maxRow, (i) => i + 1)
                         .map((r) => DropdownMenuItem(value: r, child: Text('$r')))
                         .toList(),
@@ -346,7 +346,7 @@ class _BarrelWaveEventScreenState extends State<BarrelWaveEventScreen> {
                 ),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: entry.type,
+                    initialValue: entry.type,
                     items: [
                       DropdownMenuItem(
                         value: _barrelTypeEmpty,

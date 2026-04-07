@@ -187,14 +187,16 @@ class _StarChallengeModuleScreenState extends State<StarChallengeModuleScreen> {
 
     if (info != null) {
       final defaultAlias = info.defaultAlias;
-      final aliasTaken = (String a) =>
+      bool aliasTaken(String a) =>
           widget.levelFile.objects.any((o) => o.aliases?.contains(a) == true);
       final String alias;
       if (!aliasTaken(defaultAlias)) {
         alias = defaultAlias;
       } else {
         int n = 1;
-        while (aliasTaken('${defaultAlias}_$n')) n++;
+        while (aliasTaken('${defaultAlias}_$n')) {
+          n++;
+        }
         alias = '${defaultAlias}_$n';
       }
 

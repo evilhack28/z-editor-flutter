@@ -902,8 +902,9 @@ class _LevelListScreenState extends State<LevelListScreen> {
                         }
                         final itemIndex =
                             index - (_pathStack.length > 1 ? 1 : 0);
-                        if (itemIndex >= _fileItems.length)
+                        if (itemIndex >= _fileItems.length) {
                           return const SizedBox(height: 80);
+                        }
                         final item = _fileItems[itemIndex];
                         final isMovingMode = _itemToMove != null;
                         final isSelfMoving =
@@ -932,8 +933,9 @@ class _LevelListScreenState extends State<LevelListScreen> {
                                         await _showConversionRequiredDialog(
                                           item,
                                         );
-                                    if (!mounted || convertedPath == null)
+                                    if (!mounted || convertedPath == null) {
                                       return;
+                                    }
                                     final convertedName = p.basename(
                                       convertedPath,
                                     );
@@ -954,8 +956,9 @@ class _LevelListScreenState extends State<LevelListScreen> {
                                           item.path,
                                           item.name,
                                         );
-                                    if (mounted && ok)
+                                    if (mounted && ok) {
                                       widget.onLevelClick(item.name, item.path);
+                                    }
                                   }
                                 }
                               }

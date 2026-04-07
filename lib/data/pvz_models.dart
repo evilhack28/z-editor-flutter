@@ -1911,7 +1911,9 @@ class RiftTimedSunData {
   factory RiftTimedSunData.fromJson(Map<String, dynamic> json) {
     final raw = json['SunDropValues'] as List<dynamic>? ?? [];
     final values = raw.map((e) => (e is num) ? e.toInt() : 0).toList();
-    while (values.length < 10) values.add(0);
+    while (values.length < 10) {
+      values.add(0);
+    }
     return RiftTimedSunData(
       zombieTypeName: json['ZombieTypeName'] as String? ?? '',
       sunDropValues: values.take(10).toList(),

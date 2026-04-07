@@ -236,7 +236,7 @@ class _ManholePipelineModuleScreenState
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: _data.pipelineList.length + 1,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   if (index == _data.pipelineList.length) {
                     return OutlinedButton.icon(

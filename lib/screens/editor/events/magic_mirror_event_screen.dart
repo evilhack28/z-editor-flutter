@@ -202,7 +202,7 @@ class _MagicMirrorEventScreenState extends State<MagicMirrorEventScreen> {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: _data.arrays.length + 1,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, _) => const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     if (index == _data.arrays.length) {
                       return OutlinedButton.icon(

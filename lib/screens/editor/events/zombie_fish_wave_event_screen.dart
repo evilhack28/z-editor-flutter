@@ -158,7 +158,7 @@ class _ZombieFishWaveEventScreenState extends State<ZombieFishWaveEventScreen> {
           child: ListView.separated(
             shrinkWrap: true,
             itemCount: options.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            separatorBuilder: (_, _) => const SizedBox(height: 8),
             itemBuilder: (_, i) {
               final opt = options[i];
               final isCurrent = opt.rtid == currentRtid;
@@ -503,7 +503,7 @@ class _ZombieFishWaveEventScreenState extends State<ZombieFishWaveEventScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String?>(
-              value: current,
+              initialValue: current,
               decoration: const InputDecoration(border: OutlineInputBorder()),
               items: _jamOptions
                   .map(
@@ -853,7 +853,7 @@ class _ZombieFishWaveEventScreenState extends State<ZombieFishWaveEventScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
-                      value: rowValue.clamp(0, _maxRow),
+                      initialValue: rowValue.clamp(0, _maxRow),
                       decoration: const InputDecoration(
                         labelText: 'Row',
                         border: OutlineInputBorder(),

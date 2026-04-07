@@ -161,11 +161,15 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
   bool _hasOutOfAreaWarning() {
     for (final r in _data.rails) {
       if (r.column < 0 || r.column >= _gridCols ||
-          r.rowStart < 0 || r.rowEnd >= _gridRows) return true;
+          r.rowStart < 0 || r.rowEnd >= _gridRows) {
+        return true;
+      }
     }
     for (final c in _data.railcarts) {
       if (c.column < 0 || c.column >= _gridCols ||
-          c.row < 0 || c.row >= _gridRows) return true;
+          c.row < 0 || c.row >= _gridRows) {
+        return true;
+      }
     }
     return false;
   }
@@ -233,7 +237,7 @@ class _RailcartPropertiesScreenState extends State<RailcartPropertiesScreen> {
                   children: [
                     DropdownButtonFormField<String>(
                       key: ValueKey(_data.railcartType),
-                      value: _cartTypeOptions.contains(_data.railcartType)
+                      initialValue: _cartTypeOptions.contains(_data.railcartType)
                           ? _data.railcartType
                           : _cartTypeOptions.first,
                       decoration: InputDecoration(

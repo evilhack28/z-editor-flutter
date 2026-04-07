@@ -28,7 +28,9 @@ class ZombiePropertiesRepository {
           final typeName = typeData.typeName;
           if (typeName.isEmpty) continue;
           if (instance._aliasToTypeCache.containsKey(alias) ||
-              instance._aliasToTypeCache.containsKey(typeName)) continue;
+              instance._aliasToTypeCache.containsKey(typeName)) {
+            continue;
+          }
 
           instance._aliasToTypeCache[alias] = typeName;
           instance._aliasToTypeCache[typeName] = typeName;

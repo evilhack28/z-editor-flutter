@@ -573,7 +573,7 @@ class _VaseBreakerTabState extends State<VaseBreakerTab> {
           child: ListView.separated(
             shrinkWrap: true,
             itemCount: _collectableTypes.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
+            separatorBuilder: (_, _) => const Divider(height: 1),
             itemBuilder: (_, index) {
               final item = _collectableTypes[index];
               final iconPath = 'assets/images/others/${item.iconName}';
