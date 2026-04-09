@@ -167,6 +167,8 @@ class ModuleRegistry {
         return l10n.moduleTitle_TideProperties;
       case 'moduleTitle_BombProperties':
         return l10n.moduleTitle_BombProperties;
+      case 'moduleTitle_BronzeProperties':
+        return l10n.moduleTitle_BronzeProperties;
       case 'moduleTitle_WarMistProperties':
         return l10n.moduleTitle_WarMistProperties;
       case 'moduleTitle_RainDarkProperties':
@@ -283,6 +285,8 @@ class ModuleRegistry {
         return l10n.moduleDesc_TideProperties;
       case 'moduleDesc_BombProperties':
         return l10n.moduleDesc_BombProperties;
+      case 'moduleDesc_BronzeProperties':
+        return l10n.moduleDesc_BronzeProperties;
       case 'moduleDesc_WarMistProperties':
         return l10n.moduleDesc_WarMistProperties;
       case 'moduleDesc_RainDarkProperties':
@@ -786,6 +790,17 @@ class ModuleRegistry {
       defaultAlias: 'Bombs',
       initialDataFactory: () => BombPropertiesData(),
       routeId: 'Bombs',
+    ),
+    'BronzeProperties': ModuleMetadata(
+      titleKey: 'moduleTitle_BronzeProperties',
+      descriptionKey: 'moduleDesc_BronzeProperties',
+      icon: Icons.fitness_center,
+      isCore: true,
+      allowMultiple: false,
+      category: ModuleCategory.scene,
+      defaultAlias: 'Bronze',
+      initialDataFactory: () => BronzePropertiesData(),
+      routeId: 'Bronze',
     ),
     'WarMistProperties': ModuleMetadata(
       titleKey: 'moduleTitle_WarMistProperties',

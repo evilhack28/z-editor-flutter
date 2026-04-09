@@ -1468,6 +1468,68 @@ class AppLocalizationsZh extends AppLocalizations {
   String get moduleDesc_BombProperties => '配置功夫世界炸药桶引线的长度与燃烧速度';
 
   @override
+  String get moduleTitle_BronzeProperties => '铜人阵';
+
+  @override
+  String get moduleDesc_BronzeProperties => '功夫世界铜人阵小游戏：放置铜人与复活时间（与波次无关）';
+
+  @override
+  String get bronzeModuleTitle => '铜人阵';
+
+  @override
+  String get bronzeModuleHelpTitle => '铜人阵';
+
+  @override
+  String get bronzeModuleHelpOverview => '概述';
+
+  @override
+  String get bronzeModuleHelpOverviewBody =>
+      '在草坪上放置大汉、气功、侠客三种铜人。复活使用 spawnTime（秒），与波次无关。在选中格子添加铜人；每次添加会在关卡数据中生成一组条目。';
+
+  @override
+  String get bronzeModuleHelpBatches => '批次与时间';
+
+  @override
+  String get bronzeModuleHelpBatchesBody =>
+      '复活时间相同的铜人会同时复活；后续批次可承接前面的倒计时。先点选格子，再选择类型并设置复活秒数。';
+
+  @override
+  String get bronzeModuleShakeOffset => '动画';
+
+  @override
+  String get bronzeModuleShakeOffsetLabel => '复活抖动偏移';
+
+  @override
+  String get bronzeModuleInCell => '当前格子中的铜人';
+
+  @override
+  String get bronzeModuleAddTitle => '添加铜人类型';
+
+  @override
+  String get bronzeKindStrength => '大汉铜人（力量）';
+
+  @override
+  String get bronzeKindMage => '气功铜人（法师）';
+
+  @override
+  String get bronzeKindAgile => '侠客铜人（敏捷）';
+
+  @override
+  String get bronzeKindStrengthShort => '力量';
+
+  @override
+  String get bronzeKindMageShort => '气功';
+
+  @override
+  String get bronzeKindAgileShort => '侠客';
+
+  @override
+  String get bronzeModuleTypeLabel => '类型';
+
+  @override
+  String get bronzeModuleSpawnTimeLabel => '复活时间（秒）';
+
+  @override
   String get moduleTitle_WarMistProperties => '迷雾系统';
 
   @override

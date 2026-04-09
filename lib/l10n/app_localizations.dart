@@ -2884,6 +2884,126 @@ abstract class AppLocalizations {
   /// **'Configures the fuse length and burn rate of Kongfu World powder kegs'**
   String get moduleDesc_BombProperties;
 
+  /// No description provided for @moduleTitle_BronzeProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Bronze Statues'**
+  String get moduleTitle_BronzeProperties;
+
+  /// No description provided for @moduleDesc_BronzeProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Kongfu World bronze statue minigame: place statues and revival times (not tied to waves)'**
+  String get moduleDesc_BronzeProperties;
+
+  /// No description provided for @bronzeModuleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bronze Statues'**
+  String get bronzeModuleTitle;
+
+  /// No description provided for @bronzeModuleHelpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bronze Statues'**
+  String get bronzeModuleHelpTitle;
+
+  /// No description provided for @bronzeModuleHelpOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get bronzeModuleHelpOverview;
+
+  /// No description provided for @bronzeModuleHelpOverviewBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Places Han, Qigong, and Knight bronze statues on the lawn. Revival uses spawn time in seconds (spawnTime), not wave numbers. Add each statue from the selected tile; each addition creates a batch entry in level data.'**
+  String get bronzeModuleHelpOverviewBody;
+
+  /// No description provided for @bronzeModuleHelpBatches.
+  ///
+  /// In en, this message translates to:
+  /// **'Batches and timing'**
+  String get bronzeModuleHelpBatches;
+
+  /// No description provided for @bronzeModuleHelpBatchesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Bronzes that share the same revival time revive together. Later batches can chain off earlier countdowns. Use the grid to pick a tile, then add a type and set revival seconds.'**
+  String get bronzeModuleHelpBatchesBody;
+
+  /// No description provided for @bronzeModuleShakeOffset.
+  ///
+  /// In en, this message translates to:
+  /// **'Animation'**
+  String get bronzeModuleShakeOffset;
+
+  /// No description provided for @bronzeModuleShakeOffsetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Revival shake offset'**
+  String get bronzeModuleShakeOffsetLabel;
+
+  /// No description provided for @bronzeModuleInCell.
+  ///
+  /// In en, this message translates to:
+  /// **'Bronze statues in selected tile'**
+  String get bronzeModuleInCell;
+
+  /// No description provided for @bronzeModuleAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add bronze type'**
+  String get bronzeModuleAddTitle;
+
+  /// No description provided for @bronzeKindStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Han Bronze (strong)'**
+  String get bronzeKindStrength;
+
+  /// No description provided for @bronzeKindMage.
+  ///
+  /// In en, this message translates to:
+  /// **'Qigong Bronze (mage)'**
+  String get bronzeKindMage;
+
+  /// No description provided for @bronzeKindAgile.
+  ///
+  /// In en, this message translates to:
+  /// **'Knight Bronze (agile)'**
+  String get bronzeKindAgile;
+
+  /// No description provided for @bronzeKindStrengthShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get bronzeKindStrengthShort;
+
+  /// No description provided for @bronzeKindMageShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Mage'**
+  String get bronzeKindMageShort;
+
+  /// No description provided for @bronzeKindAgileShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Agile'**
+  String get bronzeKindAgileShort;
+
+  /// No description provided for @bronzeModuleTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get bronzeModuleTypeLabel;
+
+  /// No description provided for @bronzeModuleSpawnTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Revival time (s)'**
+  String get bronzeModuleSpawnTimeLabel;
+
   /// No description provided for @moduleTitle_WarMistProperties.
   ///
   /// In en, this message translates to:
