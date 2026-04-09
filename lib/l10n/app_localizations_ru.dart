@@ -1546,6 +1546,69 @@ class AppLocalizationsRu extends AppLocalizations {
   String get moduleDesc_BombProperties => 'Длина фитиля бочки/вишни по рядам';
 
   @override
+  String get moduleTitle_BronzeProperties => 'Бронзовые статуи';
+
+  @override
+  String get moduleDesc_BronzeProperties =>
+      'Мини-игра бронзовых статуй мира Кунфу: размещение статуй и времени возрождения (не привязано к волнам)';
+
+  @override
+  String get bronzeModuleTitle => 'Бронзовые статуи';
+
+  @override
+  String get bronzeModuleHelpTitle => 'Бронзовые статуи';
+
+  @override
+  String get bronzeModuleHelpOverview => 'Обзор';
+
+  @override
+  String get bronzeModuleHelpOverviewBody =>
+      'Размещает статуи Хань, Сигун и Сякэ на газоне. Возрождение задаётся в секундах (spawnTime), а не номером волны. Добавляйте статую с выбранной клетки; каждое добавление создаёт запись в данных уровня.';
+
+  @override
+  String get bronzeModuleHelpBatches => 'Пакеты и время';
+
+  @override
+  String get bronzeModuleHelpBatchesBody =>
+      'Статуи с одинаковым временем возрождения появляются вместе. Последующие пакеты могут продолжать отсчёт. Выберите клетку, тип и секунды до возрождения.';
+
+  @override
+  String get bronzeModuleShakeOffset => 'Анимация';
+
+  @override
+  String get bronzeModuleShakeOffsetLabel => 'Смещение тряски при возрождении';
+
+  @override
+  String get bronzeModuleInCell => 'Статуи в выбранной клетке';
+
+  @override
+  String get bronzeModuleAddTitle => 'Добавить тип статуи';
+
+  @override
+  String get bronzeKindStrength => 'Хань-бронза (сила)';
+
+  @override
+  String get bronzeKindMage => 'Цигун-бронза (маг)';
+
+  @override
+  String get bronzeKindAgile => 'Сякэ-бронза (ловкость)';
+
+  @override
+  String get bronzeKindStrengthShort => 'Сила';
+
+  @override
+  String get bronzeKindMageShort => 'Маг';
+
+  @override
+  String get bronzeKindAgileShort => 'Ловкость';
+
+  @override
+  String get bronzeModuleTypeLabel => 'Тип';
+
+  @override
+  String get bronzeModuleSpawnTimeLabel => 'Время возрождения (с)';
+
+  @override
   String get moduleTitle_WarMistProperties => 'Туман войны';
 
   @override

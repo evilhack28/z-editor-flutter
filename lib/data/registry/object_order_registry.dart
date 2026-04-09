@@ -14,6 +14,7 @@ class ObjectOrderRegistry {
     'SunDropperProperties',
     'SunBombChallengeProperties',
     'BombProperties',
+    'BronzeProperties',
     'LastStandMinigameProperties',
     'BowlingMinigameProperties',
     'NewBowlingMinigameProperties',

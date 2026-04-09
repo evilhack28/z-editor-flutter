@@ -1555,6 +1555,69 @@ class AppLocalizationsEn extends AppLocalizations {
       'Configures the fuse length and burn rate of Kongfu World powder kegs';
 
   @override
+  String get moduleTitle_BronzeProperties => 'Bronze Statues';
+
+  @override
+  String get moduleDesc_BronzeProperties =>
+      'Kongfu World bronze statue minigame: place statues and revival times (not tied to waves)';
+
+  @override
+  String get bronzeModuleTitle => 'Bronze Statues';
+
+  @override
+  String get bronzeModuleHelpTitle => 'Bronze Statues';
+
+  @override
+  String get bronzeModuleHelpOverview => 'Overview';
+
+  @override
+  String get bronzeModuleHelpOverviewBody =>
+      'Places Han, Qigong, and Xiake bronze statues on the lawn. Revival uses spawn time in seconds (spawnTime), not wave numbers. Add each statue from the selected tile; each addition creates a batch entry in level data.';
+
+  @override
+  String get bronzeModuleHelpBatches => 'Batches and timing';
+
+  @override
+  String get bronzeModuleHelpBatchesBody =>
+      'Bronzes that share the same revival time revive together. Later batches can chain off earlier countdowns. Use the grid to pick a tile, then add a type and set revival seconds.';
+
+  @override
+  String get bronzeModuleShakeOffset => 'Animation';
+
+  @override
+  String get bronzeModuleShakeOffsetLabel => 'Revival shake offset';
+
+  @override
+  String get bronzeModuleInCell => 'Bronze statues in selected tile';
+
+  @override
+  String get bronzeModuleAddTitle => 'Add bronze type';
+
+  @override
+  String get bronzeKindStrength => 'Han Bronze (strong)';
+
+  @override
+  String get bronzeKindMage => 'Qigong Bronze (mage)';
+
+  @override
+  String get bronzeKindAgile => 'Xiake Bronze (agile)';
+
+  @override
+  String get bronzeKindStrengthShort => 'Strong';
+
+  @override
+  String get bronzeKindMageShort => 'Mage';
+
+  @override
+  String get bronzeKindAgileShort => 'Agile';
+
+  @override
+  String get bronzeModuleTypeLabel => 'Type';
+
+  @override
+  String get bronzeModuleSpawnTimeLabel => 'Revival time (s)';
+
+  @override
   String get moduleTitle_WarMistProperties => 'Fog System';
 
   @override

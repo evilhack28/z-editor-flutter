@@ -44,6 +44,7 @@ import 'package:z_editor/screens/editor/modules/protect_plant_challenge_screen.d
 import 'package:z_editor/screens/editor/modules/roof_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/rain_dark_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/bomb_properties_screen.dart';
+import 'package:z_editor/screens/editor/modules/bronze_module_screen.dart';
 import 'package:z_editor/screens/editor/modules/sun_bomb_challenge_screen.dart';
 import 'package:z_editor/screens/editor/modules/war_mist_properties_screen.dart';
 import 'package:z_editor/screens/editor/modules/zombie_potion_module_screen.dart';
@@ -2235,6 +2236,21 @@ List<ModuleMetadata> _calculateMissingModules() {
         context,
         MaterialPageRoute(
           builder: (context) => RenaiModuleScreen(
+            rtid: rtid,
+            levelFile: _ec.state.levelFile!,
+            onChanged: _markDirty,
+            onBack: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+    if (info.source == 'CurrentLevel' &&
+        objClass == 'BronzeProperties') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BronzeModuleScreen(
             rtid: rtid,
             levelFile: _ec.state.levelFile!,
             onChanged: _markDirty,
