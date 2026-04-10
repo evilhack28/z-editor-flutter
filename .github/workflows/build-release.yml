@@ -135,13 +135,13 @@ jobs:
 
       - name: Decode release keystore
         env:
-          KEYSTORE_B64: ${{ secrets.KEYSTORE }}
+          KEYSTORE: ${{ secrets.KEYSTORE }}
         run: |
-          if [ -z "$KEYSTORE_B64" ]; then
+          if [ -z "$KEYSTORE" ]; then
             echo "Missing repository secret KEYSTORE (base64-encoded keystore)."
             exit 1
           fi
-          echo "$KEYSTORE_B64" | base64 -d > android/app/release-keystore.jks
+          echo "$KEYSTORE" | base64 -d > android/app/release-keystore.jks
 
       - run: flutter pub get
 
