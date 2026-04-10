@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:z_editor/l10n/app_localizations.dart';
 import 'package:z_editor/data/pvz_models.dart';
 
-enum ModuleCategory { base, mode, scene }
+enum ModuleCategory { base, mode, scene, special }
 
 class ModuleMetadata {
   final String titleKey;
@@ -185,6 +185,8 @@ class ModuleRegistry {
         return l10n.moduleTitle_DropShipProperties;
       case 'moduleTitle_HeianWindModuleProperties':
         return l10n.moduleTitle_HeianWindModuleProperties;
+      case 'moduleTitle_RocketZombieFlickModuleProperties':
+        return l10n.moduleTitle_RocketZombieFlickModuleProperties;
       default:
         return key;
     }
@@ -303,6 +305,8 @@ class ModuleRegistry {
         return l10n.moduleDesc_DropShipProperties;
       case 'moduleDesc_HeianWindModuleProperties':
         return l10n.moduleDesc_HeianWindModuleProperties;
+      case 'moduleDesc_RocketZombieFlickModuleProperties':
+        return l10n.moduleDesc_RocketZombieFlickModuleProperties;
       default:
         return key;
     }
@@ -885,6 +889,16 @@ class ModuleRegistry {
       initialDataFactory: () => HeianWindModulePropertiesData(),
       routeId: 'HeianWindModule',
     ),
+    'RocketZombieFlickModuleProperties': const ModuleMetadata(
+      titleKey: 'moduleTitle_RocketZombieFlickModuleProperties',
+      descriptionKey: 'moduleDesc_RocketZombieFlickModuleProperties',
+      icon: Icons.swipe_vertical,
+      isCore: false,
+      allowMultiple: false,
+      category: ModuleCategory.special,
+      defaultAlias: 'RocketZombieFlick',
+      routeId: 'UnknownDetail',
+    ),
   };
 
   static List<ModuleMetadata> get all {
@@ -933,6 +947,8 @@ extension ModuleCategoryTitle on ModuleCategory {
         return 'Mode';
       case ModuleCategory.scene:
         return 'Scene';
+      case ModuleCategory.special:
+        return 'Special';
     }
   }
 }
