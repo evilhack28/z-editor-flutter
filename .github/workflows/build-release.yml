@@ -147,7 +147,8 @@ jobs:
 
       - name: Build signed release APK
         env:
-          ANDROID_KEYSTORE_FILE: android/app/release-keystore.jks
+          # Path is relative to the android/ Gradle root (rootProject.file), not the repo root.
+          ANDROID_KEYSTORE_FILE: app/release-keystore.jks
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: flutter build apk --release

@@ -40,7 +40,7 @@ android {
             if (keystorePropertiesFile.exists()) {
                 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
             }
-            // CI: decode keystore to a path and set ANDROID_KEYSTORE_FILE, KEYSTORE_ALIAS, KEYSTORE_PASSWORD.
+            // CI: set ANDROID_KEYSTORE_FILE (path relative to android/ Gradle root), KEYSTORE_ALIAS, KEYSTORE_PASSWORD.
             val envStoreFile = System.getenv("ANDROID_KEYSTORE_FILE")
             val storeFilePath = envStoreFile ?: keystoreProperties.getProperty("storeFile")
             if (storeFilePath != null) {
