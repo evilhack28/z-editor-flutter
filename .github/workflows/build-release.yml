@@ -19,10 +19,10 @@ jobs:
     name: Windows x64
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Cache Pub
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -47,7 +47,7 @@ jobs:
           New-Item -ItemType Directory -Path $dest -Force | Out-Null
           Get-ChildItem -Path "build/windows/x64/runner/Release" -Force | Move-Item -Destination $dest
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: z-editor-windows-x64
           path: artifact
@@ -57,7 +57,7 @@ jobs:
     name: Linux x64
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Linux build dependencies
         run: |
@@ -69,7 +69,7 @@ jobs:
             /usr/lib/x86_64-linux-gnu/libstdc++.so
 
       - name: Cache Pub
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -91,7 +91,7 @@ jobs:
           shopt -s dotglob
           mv build/linux/x64/release/bundle/* artifact/z_editor/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: z-editor-linux-x64
           path: artifact
@@ -103,7 +103,7 @@ jobs:
     # Release keystore secrets are not available to workflows triggered from fork PRs.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-java@v4
         with:
@@ -111,7 +111,7 @@ jobs:
           java-version: "17"
 
       - name: Cache Pub
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.pub-cache
@@ -120,7 +120,7 @@ jobs:
             pub-${{ runner.os }}-
 
       - name: Cache Gradle
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.gradle/caches
@@ -159,7 +159,7 @@ jobs:
           mkdir -p artifacts
           cp build/app/outputs/flutter-apk/app-release.apk artifacts/z-editor-release.apk
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: z-editor-android-apk
           path: artifacts/z-editor-release.apk
