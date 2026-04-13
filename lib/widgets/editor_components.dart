@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:z_editor/data/registry/event_registry.dart';
 import 'package:z_editor/data/level_parser.dart';
@@ -654,4 +655,33 @@ class RenaiStatueIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       GridItemIcon(typeName: typeName, size: size, fit: fit);
+}
+
+/// Default [MaterialScrollBehavior] omits [PointerDeviceKind.mouse], so horizontal
+/// [TabBar]s and nested scroll views do not respond to click-drag on desktop.
+class MouseDragScrollBehavior extends MaterialScrollBehavior {
+  const MouseDragScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.trackpad,
+      };
+}
+
+/// Applies [MouseDragScrollBehavior] to [child] (e.g. filter strips with [TabBar]).
+class ScrollableWithMouseDrag extends StatelessWidget {
+  const ScrollableWithMouseDrag({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScrollConfiguration(
+      behavior: const MouseDragScrollBehavior(),
+      child: child,
+    );
+  }
 }

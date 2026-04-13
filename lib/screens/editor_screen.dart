@@ -460,20 +460,22 @@ List<ModuleMetadata> _calculateMissingModules() {
     if (_ec.state.levelFile == null) return;
     final current = levelDef.stageModule;
     final wasDeepSea = LevelParser.isDeepSeaLawn(levelDef);
-    await Navigator.push(
+    await Navigator.push<void>(
       context,
-      MaterialPageRoute(
-        builder: (_) => StageSelectionScreen(
+      MaterialPageRoute<void>(
+        builder: (stageRouteContext) => StageSelectionScreen(
           currentStageRtid: current,
           onStageSelected: (newRtid) async {
             final newAlias = LevelParser.extractAlias(newRtid);
-            final willBeDeepSea = newAlias == 'DeepseaStage' || newAlias == 'DeepseaLandStage';
+            final willBeDeepSea =
+                newAlias == 'DeepseaStage' || newAlias == 'DeepseaLandStage';
             if (wasDeepSea && !willBeDeepSea) {
-              final has6RowData = LevelParser.has6RowDataInLevel(_ec.state.levelFile!);
+              final has6RowData =
+                  LevelParser.has6RowDataInLevel(_ec.state.levelFile!);
               if (has6RowData && mounted) {
                 final l10n = AppLocalizations.of(context);
                 final confirmed = await showDialog<bool>(
-                  context: context,
+                  context: stageRouteContext,
                   builder: (ctx) => AlertDialog(
                     title: Text(l10n?.confirm ?? 'Confirm'),
                     content: Text(
@@ -505,9 +507,9 @@ List<ModuleMetadata> _calculateMissingModules() {
             _markDirty();
             onStagePicked?.call();
             if (!mounted) return;
-            Navigator.pop(context);
+            Navigator.pop(stageRouteContext);
           },
-          onBack: () => Navigator.pop(context),
+          onBack: () => Navigator.pop(stageRouteContext),
         ),
       ),
     );
@@ -987,6 +989,8 @@ List<ModuleMetadata> _calculateMissingModules() {
             levelFile: _ec.state.levelFile!,
             onChanged: _markDirty,
             onBack: () => Navigator.pop(context),
+            onAddModule: (objClass) =>
+                _addModule(ModuleRegistry.getMetadata(objClass)),
             onRequestPlantSelection: (onSelected) {
               Navigator.push(
                 context,
@@ -1003,6 +1007,20 @@ List<ModuleMetadata> _calculateMissingModules() {
                     onAddModule: (objClass) {
                       _addModule(ModuleRegistry.getMetadata(objClass));
                     },
+                  ),
+                ),
+              );
+            },
+            onRequestToolSelection: (onSelected) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ToolSelectionScreen(
+                    onToolSelected: (id) {
+                      Navigator.pop(context);
+                      onSelected(id);
+                    },
+                    onBack: () => Navigator.pop(context),
                   ),
                 ),
               );
@@ -2006,6 +2024,8 @@ List<ModuleMetadata> _calculateMissingModules() {
             levelFile: _ec.state.levelFile!,
             onChanged: _markDirty,
             onBack: () => Navigator.pop(context),
+            onAddModule: (objClass) =>
+                _addModule(ModuleRegistry.getMetadata(objClass)),
             onRequestPlantSelection: (onSelected) {
               Navigator.push(
                 context,

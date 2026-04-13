@@ -86,7 +86,7 @@ class LevelParser {
       if (list != null) {
         for (final item in list) {
           if (item is Map) {
-            final y = (item['mY'] as num?) ?? (item['Y'] as num?);
+            final y = _jsonNum(item['mY']) ?? _jsonNum(item['Y']);
             if (y != null && y.toInt() >= 5) return true;
           }
         }
@@ -95,7 +95,7 @@ class LevelParser {
       if (rails != null) {
         for (final r in rails) {
           if (r is Map) {
-            final end = (r['RowEnd'] as num?)?.toInt();
+            final end = _jsonNum(r['RowEnd'])?.toInt();
             if (end != null && end >= 5) return true;
           }
         }
@@ -103,17 +103,16 @@ class LevelParser {
       final carts = data['Railcarts'] as List<dynamic>?;
       if (carts != null) {
         for (final c in carts) {
-          if (c is Map && (c['Row'] as num?) != null) {
-            if ((c['Row'] as num).toInt() >= 5) return true;
-          }
+          final row = c is Map ? _jsonNum(c['Row']) : null;
+          if (row != null && row.toInt() >= 5) return true;
         }
       }
       final zombies = data['Zombies'] as List<dynamic>?;
       if (zombies != null) {
         for (final z in zombies) {
-          if (z is Map && (z['Row'] as num?) != null) {
-            final row = (z['Row'] as num).toInt();
-            if (row >= 6) return true; // 1-based: row 6 = 6th row
+          final row = z is Map ? _jsonNum(z['Row']) : null;
+          if (row != null && row.toInt() >= 6) {
+            return true; // 1-based: row 6 = 6th row
           }
         }
       }
@@ -126,7 +125,7 @@ class LevelParser {
     if (locations != null) {
       for (final loc in locations) {
         if (loc is Map) {
-          final y = (loc['mY'] as num?) ?? (loc['y'] as num?);
+          final y = _jsonNum(loc['mY']) ?? _jsonNum(loc['y']);
           if (y != null && y.toInt() >= 5) return true;
         }
       }
@@ -136,12 +135,20 @@ class LevelParser {
       if (list != null) {
         for (final p in list) {
           if (p is Map) {
-            final gy = (p['GridY'] as num?) ?? (p['gridY'] as num?);
+            final gy = _jsonNum(p['GridY']) ?? _jsonNum(p['gridY']);
             if (gy != null && gy.toInt() >= 5) return true;
           }
         }
       }
     }
     return false;
+  }
+
+  /// JSON numbers may be encoded as [num] or [String] depending on source.
+  static num? _jsonNum(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value;
+    if (value is String) return num.tryParse(value.trim());
+    return null;
   }
 }
